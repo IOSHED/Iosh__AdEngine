@@ -67,7 +67,7 @@
 mod deserializer;
 mod schemas;
 
-pub use schemas::{Config, CorsConfig, HttpServerConfig, LoggerConfig, PostgresConfig, RabbitMqConfig};
+pub use schemas::{Config, CorsConfig, HttpServerConfig, LoggerConfig, PostgresConfig, RedisConfig};
 
 pub async fn parse(path_to_conf_file: std::path::PathBuf) -> Config {
     dotenv::dotenv().ok();

@@ -27,7 +27,7 @@ services:
       - APP__HASHING__RANDOM_SECRET=b3783a3a5245fd7b95d77961766278157832feb2e93a46a6e7a86774780f1eb3d48895dda9752905cb87ca11bba23f97b409e423fe2189a923651590062b26c1
       - APP__HTTP_SERVER__HOST=0.0.0.0
       - APP__HTTP_SERVER__PORT=8000
-      - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/testy
+      - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
       - APP__CORS__ALLOWED_ORIGIN=http://python_telegram_bot:8001/
 
     healthcheck:
@@ -42,7 +42,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=44541
-      - POSTGRES_DB=testy
+      - POSTGRES_DB=ad_engine
     volumes:
       - ../infrastructure/postgres/.pgdata:/var/lib/postgresql/
     healthcheck:

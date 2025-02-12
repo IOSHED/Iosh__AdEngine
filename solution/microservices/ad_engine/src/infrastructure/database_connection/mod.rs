@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 
+pub mod redis;
 pub mod sqlx_lib;
 
 #[async_trait]

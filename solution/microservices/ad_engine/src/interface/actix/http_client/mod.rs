@@ -14,7 +14,6 @@ use utoipa::OpenApi;
 
 mod swagger;
 
-use super::routers::healthcheck_handler;
 use crate::{domain, infrastructure, interface};
 
 /// Main HTTP server struct that handles web requests
@@ -26,6 +25,7 @@ pub struct HttpServer {
     cors_config: infrastructure::configurate::CorsConfig,
     app_state: domain::configurate::AppState,
     connection_pool: infrastructure::database_connection::sqlx_lib::SqlxPool,
+    redis_pool: infrastructure::database_connection::redis::RedisPool,
 }
 
 impl HttpServer {
@@ -41,12 +41,14 @@ impl HttpServer {
         cors_config: infrastructure::configurate::CorsConfig,
         app_state: domain::configurate::AppState,
         connection_pool: infrastructure::database_connection::sqlx_lib::SqlxPool,
+        redis_pool: infrastructure::database_connection::redis::RedisPool,
     ) -> Self {
         Self {
             config,
             cors_config,
             app_state,
             connection_pool,
+            redis_pool,
         }
     }
 
@@ -55,6 +57,10 @@ impl HttpServer {
         &self,
     ) -> actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool> {
         actix_web::web::Data::new(self.connection_pool.clone())
+    }
+
+    async fn get_redis_pool_data(&self) -> actix_web::web::Data<infrastructure::database_connection::redis::RedisPool> {
+        actix_web::web::Data::new(self.redis_pool.clone())
     }
 
     /// Configures JSON request handling including size limits and error
@@ -77,7 +83,9 @@ impl HttpServer {
 
     /// Creates the main API scope with routes
     fn get_api_scope(&self) -> actix_web::Scope {
-        actix_web::web::scope("/api").service(healthcheck_handler)
+        actix_web::web::scope("/api")
+            .service(super::routers::healthcheck_handler)
+            .service(super::routers::time_advance_handler)
     }
 
     /// Configures Swagger documentation UI
@@ -118,6 +126,7 @@ impl interface::IServer for HttpServer {
         let app_state = actix_web::web::Data::new(server.app_state.clone());
 
         let database_pool_data = server.get_database_pool_data().await;
+        let redis_pool_data = server.get_redis_pool_data().await;
 
         let server = actix_web::HttpServer::new(move || {
             actix_web::App::new()
@@ -125,6 +134,7 @@ impl interface::IServer for HttpServer {
                 .wrap(actix_web::middleware::Compress::default())
                 .wrap(server.get_cors())
                 .app_data(server.get_json_config())
+                .app_data(redis_pool_data.clone())
                 .app_data(database_pool_data.clone())
                 .app_data(app_state.clone())
                 .service(server.get_api_scope())

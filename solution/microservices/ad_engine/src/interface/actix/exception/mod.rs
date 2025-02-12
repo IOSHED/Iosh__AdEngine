@@ -20,6 +20,7 @@ impl actix_web::error::ResponseError for domain::services::ServiceError {
             domain::services::ServiceError::Repository(repo) => repo.into(),
             domain::services::ServiceError::Validation(_) => actix_web::http::StatusCode::BAD_REQUEST,
             domain::services::ServiceError::Unknown => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
+            domain::services::ServiceError::Cash(_) => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 

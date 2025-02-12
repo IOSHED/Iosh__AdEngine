@@ -3,5 +3,5 @@ mod request;
 mod response;
 
 pub use base::UserProfileSchema;
-pub use request::{RegisterRequest, UserAreExistRequest};
-pub use response::RegisterResponse;
+pub use request::{RegisterRequest, TimeAdvanceRequest, UserAreExistRequest};
+pub use response::{RegisterResponse, TimeAdvanceResponse};

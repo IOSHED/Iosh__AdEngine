@@ -4,11 +4,11 @@
 //! changes or manipulations of the data they provide.
 
 mod error;
-mod location_service;
+mod redis_service;
 mod user_service;
 
 pub use error::ServiceError;
-pub use location_service::LocationService;
+pub use redis_service::RedisService;
 pub use user_service::UserService;
 
 pub mod repository {

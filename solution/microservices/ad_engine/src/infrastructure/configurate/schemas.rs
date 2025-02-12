@@ -3,7 +3,6 @@ pub struct Config {
     pub http_server: HttpServerConfig,
     pub logger: LoggerConfig,
     pub database: DatabaseConfig,
-    pub rabbit_mq: RabbitMqConfig,
     pub cors: CorsConfig,
 }
 
@@ -36,6 +35,15 @@ pub struct LoggerConfig {
 #[derive(Clone, serde::Deserialize)]
 pub struct DatabaseConfig {
     pub postgres: PostgresConfig,
+    pub redis: RedisConfig,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct RedisConfig {
+    pub host: String,
+    pub port: usize,
+    pub password: String,
+    pub db: usize,
 }
 
 #[derive(Clone, serde::Deserialize)]
@@ -50,16 +58,4 @@ pub struct CorsConfig {
     pub allowed_methods: Vec<String>,
     pub allowed_headers: Vec<String>,
     pub max_age: usize,
-}
-
-#[derive(Clone, serde::Deserialize)]
-pub struct RabbitMqConfig {
-    pub host: String,
-    pub port: usize,
-    pub username: String,
-    pub password: String,
-    pub queue_name: String,
-    pub exchange: String,
-    pub vhost: String,
-    pub consumer_tag: String,
 }

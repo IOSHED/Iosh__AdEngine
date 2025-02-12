@@ -11,6 +11,9 @@ pub enum ServiceError {
     #[error("Database error - {0}")]
     Repository(infrastructure::repository::RepoError),
 
+    #[error("Cash error - {0}")]
+    Cash(String),
+
     /// Represents an unknown or unexpected error
     #[error("Unknown error")]
     Unknown,

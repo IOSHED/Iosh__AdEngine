@@ -1,0 +1,25 @@
+use crate::{domain, infrastructure};
+
+pub struct TimeAdvanceUsecase<'p> {
+    redis_service: domain::services::RedisService<'p>,
+}
+
+impl<'p> TimeAdvanceUsecase<'p> {
+    pub fn new(redis_pool: &'p infrastructure::database_connection::redis::RedisPool) -> Self {
+        Self {
+            redis_service: domain::services::RedisService::new(redis_pool),
+        }
+    }
+
+    pub async fn set_advance(
+        &self,
+        advance_schema: domain::schemas::TimeAdvanceRequest,
+    ) -> domain::services::ServiceResult<domain::schemas::TimeAdvanceResponse> {
+        self.redis_service
+            .set("time_advance", advance_schema.current_date)
+            .await?;
+        Ok(domain::schemas::TimeAdvanceResponse {
+            current_date: self.redis_service.get("time_advance").await?,
+        })
+    }
+}

@@ -7,7 +7,6 @@ use crate::{domain, infrastructure};
 /// location services.
 pub struct UserRegisterUsecase {
     user_service: domain::services::UserService,
-    location_service: domain::services::LocationService,
 }
 
 impl UserRegisterUsecase {
@@ -18,7 +17,6 @@ impl UserRegisterUsecase {
     pub fn new() -> Self {
         Self {
             user_service: domain::services::UserService,
-            location_service: domain::services::LocationService::new(),
         }
     }
 
@@ -50,16 +48,6 @@ impl UserRegisterUsecase {
             .validate()
             .map_err::<domain::services::ServiceError, _>(|e| e.into())?;
 
-        let mut register_data = register_data;
-
-        if register_data.city.is_none() || register_data.country_code.is_none() {
-            let (city, country_code) = self
-                .location_service
-                .get_city_and_country_code(register_data.latitude, register_data.longitude)
-                .await;
-            register_data.city = Some(city);
-            register_data.country_code = Some(country_code);
-        }
         let profile = self
             .user_service
             .register(

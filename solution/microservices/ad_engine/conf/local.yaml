@@ -4,8 +4,14 @@ http_server:
   
 database:
   postgres:
-    postgres_conn: "postgres://postgres:44541@localhost:5555/travel_service"
+    postgres_conn: "postgres://postgres:44541@localhost:5432/ad_engine"
     max_connections: 10
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 44541
+    db: 1
 
 cors:
   allowed_origin: "http://localhost:8001/"

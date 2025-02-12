@@ -7,7 +7,6 @@
 use async_trait::async_trait;
 
 pub mod actix;
-pub mod lapin;
 
 #[async_trait]
 pub trait IServer {
