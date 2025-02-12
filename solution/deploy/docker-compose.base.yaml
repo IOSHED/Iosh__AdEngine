@@ -1,0 +1,45 @@
+
+services:
+  python_telegram_bot:
+    build:
+      context: ../microservices/telegram_bot/
+      dockerfile: docker/Dockerfile
+    container_name: python_telegram_bot
+    restart: always
+    depends_on:
+      - rust_ad_engine
+      - redis_database
+
+  rust_ad_engine:
+    build:
+      context: ../microservices/ad_engine/
+      dockerfile: docker/Dockerfile
+    container_name: rust_ad_engine
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - postgres_database
+
+  postgres_database:
+    image: postgres:latest
+    container_name: postgres_database
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis_database:
+    image: redis:latest
+    container_name: redis_container
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

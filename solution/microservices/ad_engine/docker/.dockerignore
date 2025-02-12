@@ -1,0 +1,18 @@
+# Ide
+*/.idea/
+
+# Rust
+/target
+Cargo.lock
+
+# Logging
+/log
+
+# Docs
+Readme.md
+
+# Conf
+.env
+
+# Git
+.gitignore

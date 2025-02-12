@@ -1,0 +1,11 @@
+
+logger:
+  max_level_cmd: "debug"
+  max_level_file: "debug"
+  max_level_error_file: "warn"
+  log_dir: "./log"
+
+redis:
+  address: localhost:6379
+  db: 0
+  

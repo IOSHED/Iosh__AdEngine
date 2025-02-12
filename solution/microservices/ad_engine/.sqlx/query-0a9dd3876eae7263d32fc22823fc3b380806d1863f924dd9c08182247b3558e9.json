@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            WITH inserted_user AS(\n                INSERT INTO users (telegram_id) \n                VALUES ($1)\n                RETURNING id, telegram_id\n            ), inserted_user_profile AS (\n                INSERT INTO users_profile (birth_day, latitude, longitude, city, bio, interests, user_id, country_code_id)\n                VALUES ($2, $3, $4, $5, $6, $7, (SELECT id FROM inserted_user), (SELECT id FROM countries WHERE UPPER(alpha2) = UPPER($8)))\n                RETURNING birth_day, city, bio, interests, country_code_id, user_id\n            )\n            SELECT iu.telegram_id, iup.birth_day, iup.city, iup.bio, iup.interests, c.alpha2 AS country_code\n            FROM inserted_user_profile AS iup\n            JOIN countries AS c ON iup.country_code_id = c.id\n            JOIN users AS iu ON iup.user_id = iu.id;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "telegram_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "birth_day",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "city",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "bio",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "interests",
+        "type_info": "VarcharArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "country_code",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Date",
+        "Float8",
+        "Float8",
+        "Varchar",
+        "Varchar",
+        "VarcharArray",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "0a9dd3876eae7263d32fc22823fc3b380806d1863f924dd9c08182247b3558e9"
+}

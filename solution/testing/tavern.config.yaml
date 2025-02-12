@@ -1,0 +1,3 @@
+
+variables:
+  ad_engine_url: "http://{tavern.env_vars.TRAVEL_SERVICE_ADDRESS}/api"

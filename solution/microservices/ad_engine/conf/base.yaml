@@ -1,0 +1,8 @@
+
+http_server:
+  path_swagger_docs: "/docs"
+  path_openapi_docs: "/docs"
+  start_workers: 8
+  timeout_shutdown_workers: 30  # sec
+  keep_alive: 300  # sec
+  limit_size_json: 2048 # 2048 = 2kb

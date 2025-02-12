@@ -1,0 +1,6 @@
+
+# Configure specific lints
+cognitive-complexity-threshold = 15
+too-many-arguments-threshold = 5
+too-many-lines-threshold = 120
+type-complexity-threshold = 25

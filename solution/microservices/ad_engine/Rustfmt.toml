@@ -1,0 +1,19 @@
+
+# Enforce code formatting standards
+edition = "2021"
+max_width = 120          # Balance readability and line length
+tab_spaces = 4           # Standard Rust indentation
+brace_style = "SameLineWhere" # Keep where clauses on same line
+error_on_line_overflow = true
+error_on_unformatted = true
+imports_granularity="Crate"   # Combine nested imports
+use_field_init_shorthand = true
+use_try_shorthand = true
+wrap_comments = true     # Ensure comment wrapping
+format_code_in_doc_comments = true
+reorder_impl_items = true # Sort trait impl items
+group_imports = "StdExternalCrate" # Group std vs external vs local imports
+
+# Match statement formatting
+match_block_trailing_comma = true
+match_arm_blocks = false

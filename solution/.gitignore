@@ -1,0 +1,7 @@
+### Workspace ###
+/infrastructure/.VSCodeCounter
+
+### Database data ###
+/infrastructure/postgres/.pgdata/*
+/infrastructure/redis/.redisdata/*
+

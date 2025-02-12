@@ -1,0 +1,20 @@
+http_server:
+  port: 8000
+  host: "127.0.0.1"
+  
+database:
+  postgres:
+    postgres_conn: "postgres://postgres:44541@localhost:5555/travel_service"
+    max_connections: 10
+
+cors:
+  allowed_origin: "http://localhost:8001/"
+  allowed_methods: ["GET", "POST", "PUT", "UPDATE", "DELETE"]
+  allowed_headers: ["Content-Type", "Authorization"]
+  max_age: 3600
+
+logger:
+  max_level_cmd: "debug"
+  max_level_file: "debug"
+  max_level_error_file: "warn"
+  log_dir: "./log"
