@@ -1,6 +1,9 @@
-mod user_repository;
-
-pub use user_repository::{ClientReturningSchema, PgClientRepository};
+mod advertiser_repository;
+mod client_repository;
+mod ml_score_repository;
+pub use advertiser_repository::{AdvertiserReturningSchema, PgAdvertiserRepository};
+pub use client_repository::{ClientReturningSchema, PgClientRepository};
+pub use ml_score_repository::PgScoreRepository;
 
 impl From<sqlx::Error> for super::RepoError {
     fn from(err: sqlx::Error) -> Self {

@@ -14,7 +14,7 @@ impl<'p> ClientProfileUsecase<'p> {
     pub async fn get_by_id(
         self,
         client_id: String,
-    ) -> domain::services::ServiceResult<domain::schemas::UserProfileSchema> {
+    ) -> domain::services::ServiceResult<domain::schemas::ClientProfileSchema> {
         let client_id = uuid::Uuid::parse_str(&client_id)
             .map_err(|_| domain::services::ServiceError::Validation("uuid not valid".to_string()))?;
         self.client_service.get_by_id(client_id).await

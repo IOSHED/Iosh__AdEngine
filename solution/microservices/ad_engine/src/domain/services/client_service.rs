@@ -37,8 +37,8 @@ impl<'p> ClientService<'p> {
     #[tracing::instrument(name = "`UserService` register bulk clients")]
     pub async fn register(
         self,
-        register_data: Vec<domain::schemas::UserProfileSchema>,
-    ) -> domain::services::ServiceResult<Vec<domain::schemas::UserProfileSchema>> {
+        register_data: Vec<domain::schemas::ClientProfileSchema>,
+    ) -> domain::services::ServiceResult<Vec<domain::schemas::ClientProfileSchema>> {
         let (client_ids, logins, locations, genders, ages): (
             Vec<uuid::Uuid>,
             Vec<String>,
@@ -71,7 +71,7 @@ impl<'p> ClientService<'p> {
     pub async fn get_by_id(
         self,
         client_id: uuid::Uuid,
-    ) -> domain::services::ServiceResult<domain::schemas::UserProfileSchema> {
+    ) -> domain::services::ServiceResult<domain::schemas::ClientProfileSchema> {
         let repo_user = infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool)
             .get_by_id(client_id)
             .await
@@ -83,7 +83,7 @@ impl<'p> ClientService<'p> {
 
 /// Implements conversion from repository user schema to domain user profile
 /// schema.
-impl From<infrastructure::repository::sqlx_lib::ClientReturningSchema> for domain::schemas::UserProfileSchema {
+impl From<infrastructure::repository::sqlx_lib::ClientReturningSchema> for domain::schemas::ClientProfileSchema {
     fn from(user: infrastructure::repository::sqlx_lib::ClientReturningSchema) -> Self {
         Self {
             client_id: user.client_id,

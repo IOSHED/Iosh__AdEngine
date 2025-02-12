@@ -37,7 +37,13 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
             "
             INSERT INTO clients (id, login, location, gender, age)
             SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[], $3::VARCHAR[], $4::VARCHAR[], $5::INT[])
-            RETURNING id AS client_id, login, age, location, gender
+            ON CONFLICT (id) 
+            DO UPDATE SET 
+                login = EXCLUDED.login,
+                location = EXCLUDED.location,
+                gender = EXCLUDED.gender,
+                age = EXCLUDED.age
+            RETURNING id AS client_id, login, age, location, gender;
             ",
             &client_ids,
             &logins,

@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO advertisers (id, name)\n            SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[])\n            ON CONFLICT (id) \n            DO UPDATE SET name = EXCLUDED.name\n            RETURNING id AS advertiser_id, name\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "advertiser_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "VarcharArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "22b85309c585a959656611d948c00d451e0edd22c45e32f17f5c7bf8e5504812"
+}
