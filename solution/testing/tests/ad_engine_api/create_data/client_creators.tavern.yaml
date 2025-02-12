@@ -1,0 +1,118 @@
+
+test_name: Успешное создание клиентов
+stages:
+  - name: Создание клиентов
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+          login: "user2"
+          location: "St. Petersburg"
+          gender: "FEMALE"
+          age: 30
+
+    response:
+      status_code: 201
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+          login: "user2"
+          location: "St. Petersburg"
+          gender: "FEMALE"
+          age: 30
+
+  # - name: Пересоздание клиента
+  #   request:
+  #     url: "{ad_engine_url}/client/bulk"
+  #     method: POST
+  #     json:
+  #       - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+  #         login: "user3"
+  #         location: "Moscow"
+  #         gender: "MALE"
+  #         age: 25
+  #       - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+  #         login: "user4"
+  #         location: "St. Petersburg"
+  #         gender: "FEMALE"
+  #         age: 30
+  #   response:
+  #     status_code: 201
+  #     json:
+  #       - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+  #         login: "user4"
+  #         location: "St. Petersburg"
+  #         gender: "FEMALE"
+  #         age: 30
+
+
+  - name: Попытка создания клиента с некорректным UUID
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "invalid-uuid"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 400
+      json:
+        reason: "Validation error - client_id: Len UUID v4 must be equal 32 (36)"
+
+  - name: Попытка создания клиента с некорректным возрастом
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa0"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 200
+    response:
+      status_code: 400
+      json:
+        reason: "Validation error - age: Age not must be over 160"
+
+  - name: Получение клиента по ID
+    request:
+      url: "{ad_engine_url}/client/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        login: "user1"
+        location: "Moscow"
+        gender: "MALE"
+        age: 25
+
+  - name: Попытка получения несуществующего клиента
+    request:
+      url: "{ad_engine_url}/client/00000000-0000-0000-0000-000000000000"
+      method: GET
+    response:
+      status_code: 404
+      json:
+        reason: "Database error - `obj` does not exists"
+
+  - name: Попытка получения клиента с некорректным UUID
+    request:
+      url: "{ad_engine_url}/client/invalid-uuid"
+      method: GET
+    response:
+      status_code: 400
+      json:
+        reason: "Validation error - uuid not valid"
