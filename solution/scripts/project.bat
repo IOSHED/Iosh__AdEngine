@@ -155,9 +155,12 @@ exit /B
 
 :run_tests
 cd ../testing
+docker-compose -f docker-compose.test.yaml up --build -d
 set AD_ENGINE_ADDRESS=localhost:8000
 call .venv\Scripts\activate
+timeout /t 3
 pytest -v --tavern-global-cfg=tavern.config.yaml  
+docker-compose -f docker-compose.test.yaml down -v
 exit /B
 
 :init_and_run_tests
@@ -179,7 +182,7 @@ echo   --docker (-D)      : Start services in Docker
 echo   --{{name_service}} : Specify a specific service (optional)
 echo   --run    (-R)      : Run the service(s)
 echo   --build  (-B)      : Build the service(s)
-echo   --test             : Run tests
+echo   --tests            : Run tests
 echo   --test --init      : Initialize environment and run tests
 echo   --help             : Show this message
 exit /B

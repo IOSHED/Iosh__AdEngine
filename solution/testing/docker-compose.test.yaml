@@ -1,0 +1,54 @@
+
+services:      
+  rust_ad_engine:
+    extends:
+      file: ../deploy/docker-compose.base.yaml
+      service: rust_ad_engine
+    container_name: rust_ad_engine_test
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENVIRONMENT=local
+      - APP__HTTP_SERVER__HOST=0.0.0.0
+      - APP__HTTP_SERVER__PORT=8000
+      - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database_test:5432/ad_engine_test
+      - APP__DATABASE__REDIS__HOST=redis_database_test
+      - APP__DATABASE__REDIS__PORT=6379
+      - APP__DATABASE__REDIS__DB=0
+      - APP__CORS__ALLOWED_ORIGIN=http://python_telegram_bot:8001/
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
+
+  postgres_database:
+    extends:
+      file: ../deploy/docker-compose.base.yaml
+      service: postgres_database
+    container_name: postgres_database_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_test:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=44541
+      - POSTGRES_DB=ad_engine_test
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d testy" ]
+
+  redis_database:
+    extends:
+      file: ../deploy/docker-compose.base.yaml
+      service: redis_database
+    container_name: redis_database_test
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=44541
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "44541", "ping"]
+
+volumes:
+  postgres_data_test:
+
+    

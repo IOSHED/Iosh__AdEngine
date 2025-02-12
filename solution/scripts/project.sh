@@ -11,16 +11,19 @@ help() {
     echo "  --{{name_service}} : Specify a specific service (optional)"
     echo "  --run    (-R)      : Run the service(s)"
     echo "  --build  (-B)      : Build the service(s)"
-    echo "  --test             : Run tests"
+    echo "  --tests            : Run tests"
     echo "  --test --init      : Initialize environment and run tests"
     echo "  --help             : Show this message"
 }
 
 run_tests() {
     cd ../testing || exit
+    docker-compose -f docker-compose.test.yaml up --build -d
     export AD_ENGINE_ADDRESS=localhost:8000
     source .venv/bin/activate
+    sleep 5
     pytest -v --tavern-global-cfg=tavern.config.yaml  
+    docker-compose -f docker-compose.test.yaml down -v
     exit
 }
 
