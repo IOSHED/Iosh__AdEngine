@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS clients (
 );
 COMMENT ON COLUMN clients.gender IS 'Possible value: FEMALE, MALE';
 
-
 CREATE TABLE IF NOT EXISTS advertisers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(64) UNIQUE NOT NULL,

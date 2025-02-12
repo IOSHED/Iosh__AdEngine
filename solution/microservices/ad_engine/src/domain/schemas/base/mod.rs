@@ -1,4 +1,4 @@
 mod advertiser;
-mod user;
+mod client;
 pub use advertiser::AdvertiserProfileSchema;
-pub use user::ClientProfileSchema;
+pub use client::ClientProfileSchema;
