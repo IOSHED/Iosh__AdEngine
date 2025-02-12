@@ -1,5 +1,5 @@
 
-FROM lukemathwalker/cargo-chef:latest-rust-1.82 as chef
+FROM lukemathwalker/cargo-chef:latest-rust-1 as chef
 WORKDIR /app
 RUN apt update && apt install lld clang -y
 
@@ -24,5 +24,6 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/ad-engine ad-engine
 COPY conf conf
+RUN mkdir log
 ENV APP_ENVIRONMENT production
 ENTRYPOINT ["./ad-engine"]

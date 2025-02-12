@@ -1,18 +1,18 @@
 
 services:
-  python_telegram_bot:
-    extends:
-      file: docker-compose.base.yaml
-      service: python_telegram_bot
-    ports:
-      - "8001:8001"
-    volumes:
-      - ../microservices/telegram_bot/log:/app/log
-    environment:
-      - APP_ENVIRONMENT=local
-      - APP__BOT__TOKEN=7785965888:AAH8Vq3yZgZerCs5kT2WxYaCK21alLQma8s
-      - APP__REDIS__DB=0
-      - APP__REDIS__ADDRESS=redis_database:6379
+  # python_telegram_bot:
+  #   extends:
+  #     file: docker-compose.base.yaml
+  #     service: python_telegram_bot
+  #   ports:
+  #     - "8001:8001"
+  #   volumes:
+  #     - ../microservices/telegram_bot/log:/app/log
+  #   environment:
+  #     - APP_ENVIRONMENT=local
+  #     - APP__BOT__TOKEN=7785965888:AAH8Vq3yZgZerCs5kT2WxYaCK21alLQma8s
+  #     - APP__REDIS__DB=0
+  #     - APP__REDIS__ADDRESS=redis_database:6379
       
   rust_ad_engine:
     extends:
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../microservices/rust_ad_engine/log:/app/log
+      - ../microservices/ad_engine/log:/app/log
     environment:
       - APP_ENVIRONMENT=local
       - APP__HASHING__RANDOM_SECRET=b3783a3a5245fd7b95d77961766278157832feb2e93a46a6e7a86774780f1eb3d48895dda9752905cb87ca11bba23f97b409e423fe2189a923651590062b26c1

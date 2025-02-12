@@ -36,19 +36,19 @@ impl<'p> AdvertiserService<'p> {
         self,
         register_data: Vec<domain::schemas::AdvertiserProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::AdvertiserProfileSchema>> {
-        let (advertiser_ids, name): (Vec<uuid::Uuid>, Vec<String>) = register_data
-            .into_iter()
-            .map(|advertiser| {
-                (
+        let (advertiser_ids, names) =
+            register_data
+                .into_iter()
+                .fold((Vec::new(), Vec::new()), |(mut uuids, mut names), advertiser| {
                     // Use unwrap because in highest we validation this field
-                    uuid::Uuid::parse_str(&advertiser.advertiser_id).unwrap(),
-                    advertiser.name,
-                )
-            })
-            .collect();
+                    uuids.push(uuid::Uuid::parse_str(&advertiser.advertiser_id).unwrap());
+                    names.push(advertiser.name);
+
+                    (uuids, names)
+                });
 
         let repo_user = infrastructure::repository::sqlx_lib::PgAdvertiserRepository::new(self.db_pool)
-            .register(advertiser_ids, name)
+            .register(advertiser_ids, names)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 

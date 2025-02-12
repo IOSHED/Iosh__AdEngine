@@ -39,25 +39,18 @@ impl<'p> ClientService<'p> {
         self,
         register_data: Vec<domain::schemas::ClientProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::ClientProfileSchema>> {
-        let (client_ids, logins, locations, genders, ages): (
-            Vec<uuid::Uuid>,
-            Vec<String>,
-            Vec<String>,
-            Vec<String>,
-            Vec<i32>,
-        ) = register_data
-            .into_iter()
-            .map(|client| {
-                (
-                    // Use unwrap because in highest we validation this field
-                    uuid::Uuid::parse_str(&client.client_id).unwrap(),
-                    client.login,
-                    client.location,
-                    client.gender,
-                    client.age as i32,
-                )
-            })
-            .collect();
+        let (client_ids, logins, locations, genders, ages) = register_data.into_iter().fold(
+            (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()),
+            |(mut uuids, mut names, mut emails, mut phones, mut ages), client| {
+                // Use unwrap because in highest we validation this field
+                uuids.push(uuid::Uuid::parse_str(&client.client_id).unwrap());
+                names.push(client.login);
+                emails.push(client.location);
+                phones.push(client.gender);
+                ages.push(client.age as i32);
+                (uuids, names, emails, phones, ages)
+            },
+        );
 
         let repo_user = infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool)
             .register(client_ids, logins, locations, genders, ages)
