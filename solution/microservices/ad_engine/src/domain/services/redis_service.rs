@@ -11,6 +11,7 @@ impl<'p> RedisService<'p> {
         RedisService { pool }
     }
 
+    #[tracing::instrument(name = "RedisService.set", skip(self, data), level = "debug")]
     pub async fn set<V: redis::ToRedisArgs>(&self, key: &str, data: V) -> domain::services::ServiceResult<()> {
         let mut conn = self
             .pool
@@ -25,6 +26,7 @@ impl<'p> RedisService<'p> {
         Ok(())
     }
 
+    #[tracing::instrument(name = "RedisService.get", skip(self), level = "debug")]
     pub async fn get<V: redis::FromRedisValue>(&self, key: &str) -> domain::services::ServiceResult<V> {
         let mut conn = self
             .pool

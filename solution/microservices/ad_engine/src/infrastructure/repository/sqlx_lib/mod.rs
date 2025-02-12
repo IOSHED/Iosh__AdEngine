@@ -1,6 +1,6 @@
 mod user_repository;
 
-pub use user_repository::{PgUserRepository, UserReturningSchema};
+pub use user_repository::{ClientReturningSchema, PgClientRepository};
 
 impl From<sqlx::Error> for super::RepoError {
     fn from(err: sqlx::Error) -> Self {

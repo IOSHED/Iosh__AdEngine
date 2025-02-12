@@ -42,7 +42,6 @@ pub struct DatabaseConfig {
 pub struct RedisConfig {
     pub host: String,
     pub port: usize,
-    pub password: String,
     pub db: usize,
 }
 

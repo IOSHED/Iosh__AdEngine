@@ -86,6 +86,7 @@ impl HttpServer {
         actix_web::web::scope("/api")
             .service(super::routers::healthcheck_handler)
             .service(super::routers::time_advance_handler)
+            .service(super::routers::client_scope("/client"))
     }
 
     /// Configures Swagger documentation UI

@@ -10,7 +10,6 @@ database:
   redis:
     host: localhost
     port: 6379
-    password: 44541
     db: 1
 
 cors:
