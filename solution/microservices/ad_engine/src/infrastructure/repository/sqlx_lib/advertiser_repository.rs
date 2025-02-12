@@ -27,6 +27,8 @@ impl<'p> domain::services::repository::IRegisterBulkAdvertiser for PgAdvertiserR
         names: Vec<String>,
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>>
     {
+        let mut transaction = self.pg_pool.begin().await?;
+
         let advertisers = sqlx::query_as!(
             AdvertiserReturningSchema,
             "
@@ -39,8 +41,10 @@ impl<'p> domain::services::repository::IRegisterBulkAdvertiser for PgAdvertiserR
             &advertiser_ids,
             &names,
         )
-        .fetch_all(self.pg_pool)
+        .fetch_all(&mut *transaction)
         .await?;
+    
+        transaction.commit().await?;
 
         Ok(advertisers)
     }

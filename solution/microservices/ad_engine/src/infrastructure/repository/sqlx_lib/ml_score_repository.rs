@@ -21,6 +21,8 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
         advertiser_id: uuid::Uuid,
         score: f64,
     ) -> infrastructure::repository::RepoResult<()> {
+        let mut transaction = self.pg_pool.begin().await?;
+
         sqlx::query!(
             "
             INSERT INTO ml_scores (client_id, advertiser_id, score)
@@ -34,8 +36,10 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
             advertiser_id,
             score,
         )
-        .fetch_one(self.pg_pool)
+        .fetch_one(&mut *transaction)
         .await?;
+
+        transaction.commit().await?;
 
         Ok(())
     }

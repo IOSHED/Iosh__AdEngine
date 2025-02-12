@@ -32,6 +32,8 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
         genders: Vec<String>,
         ages: Vec<i32>,
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::ClientReturningSchema>> {
+        let mut transaction = self.pg_pool.begin().await?;
+
         let clients = sqlx::query_as!(
             ClientReturningSchema,
             "
@@ -51,8 +53,10 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
             &genders,
             &ages
         )
-        .fetch_all(self.pg_pool)
+        .fetch_all(&mut *transaction)
         .await?;
+
+        transaction.commit().await?;
 
         Ok(clients)
     }
