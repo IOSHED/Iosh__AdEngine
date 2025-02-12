@@ -1,4 +1,3 @@
-
 @echo off
 setlocal enabledelayedexpansion
 
@@ -24,6 +23,10 @@ for %%A in (%*) do (
     if "%%~A"=="--tests" (
         call :run_tests
         exit /B
+    ) else if "%%~A"=="--test" (
+        set "mode=test"
+    ) else if "%%~A"=="--init" (
+        set "action=init"
     ) else if "%%~A"=="--local" (
         set "mode=local"
     ) else if "%%~A"=="-L" (
@@ -47,6 +50,12 @@ for %%A in (%*) do (
         set "service=%%~A"
         echo service: %%~A
     )
+)
+
+REM Check if both --test and --init are present
+if "%mode%"=="test" if "%action%"=="init" (
+    call :init_and_run_tests
+    exit /B
 )
 
 exit /B
@@ -83,9 +92,9 @@ exit /B
 
 :start_all_local_services
 pg_ctl restart
-cd ../microservices/travel_service/
+cd ../microservices/ad_engine/
 cargo %action%
-echo Done travel_service!
+echo Done ad_engine!
 
 cd ../telegram_bot/
 poetry install
@@ -95,9 +104,9 @@ exit /B
 
 :start_specific_local_service
 set "current_service=%~1"
-if "%current_service%"=="travel_service" (
+if "%current_service%"=="ad_engine" (
     pg_ctl restart
-    cd ../microservices/travel_service/
+    cd ../microservices/ad_engine/
     cargo %action%
     echo Done!
 ) else if "%current_service%"=="telegram_bot" (
@@ -123,11 +132,11 @@ set "current_service=%~1"
 set "current_action=%~2"
 set "compose_file=docker-compose.dev.yaml"
 
-if "%current_service%"=="travel_service" (
+if "%current_service%"=="ad_engine" (
     if "%current_action%"=="build" (
-        docker-compose -f %compose_file% up rust_travel_service --build
+        docker-compose -f %compose_file% up rust_ad_engine --build
     ) else (
-        docker-compose -f %compose_file% up rust_travel_service
+        docker-compose -f %compose_file% up rust_ad_engine
     )
 ) else if "%current_service%"=="telegram_bot" (
     if "%current_action%"=="build" (
@@ -146,9 +155,21 @@ exit /B
 
 :run_tests
 cd ../testing
-set TRAVEL_SERVICE_ADDRESS=localhost:8000
+set AD_ENGINE_ADDRESS=localhost:8000
 call .venv\Scripts\activate
 pytest -v --tavern-global-cfg=tavern.config.yaml  
+exit /B
+
+:init_and_run_tests
+echo Creating virtual environment...
+cd ../testing
+python -m venv .venv
+call .venv\Scripts\activate
+echo Installing dependencies...
+pip install -r requirements.txt
+cd ../scripts
+echo Running tests...
+call :run_tests
 exit /B
 
 :help
@@ -158,5 +179,7 @@ echo   --docker (-D)      : Start services in Docker
 echo   --{{name_service}} : Specify a specific service (optional)
 echo   --run    (-R)      : Run the service(s)
 echo   --build  (-B)      : Build the service(s)
+echo   --test             : Run tests
+echo   --test --init      : Initialize environment and run tests
 echo   --help             : Show this message
 exit /B

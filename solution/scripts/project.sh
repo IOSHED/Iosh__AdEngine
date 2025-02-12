@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 mode=""
@@ -12,15 +11,29 @@ help() {
     echo "  --{{name_service}} : Specify a specific service (optional)"
     echo "  --run    (-R)      : Run the service(s)"
     echo "  --build  (-B)      : Build the service(s)"
+    echo "  --test             : Run tests"
+    echo "  --test --init      : Initialize environment and run tests"
     echo "  --help             : Show this message"
 }
 
 run_tests() {
     cd ../testing || exit
-    export TRAVEL_SERVICE_ADDRESS=localhost:8000
+    export AD_ENGINE_ADDRESS=localhost:8000
     source .venv/bin/activate
     pytest -v --tavern-global-cfg=tavern.config.yaml  
     exit
+}
+
+init_and_run_tests() {
+    echo "Creating virtual environment..."
+    cd ../testing || exit
+    python -m venv .venv
+    source .venv/bin/activate
+    echo "Installing dependencies..."
+    pip install -r requirements.txt
+    cd ../scripts || exit
+    echo "Running tests..."
+    run_tests
 }
 
 parse_args() {
@@ -28,6 +41,12 @@ parse_args() {
         case "$arg" in
             --tests)
                 run_tests
+                ;;
+            --test)
+                mode="test"
+                ;;
+            --init)
+                action="init"
                 ;;
             --local | -L)
                 mode="local"
@@ -51,6 +70,12 @@ parse_args() {
                 ;;
         esac
     done
+
+    # Check if both --test and --init are present
+    if [[ "$mode" == "test" && "$action" == "init" ]]; then
+        init_and_run_tests
+        exit
+    fi
 }
 
 validate_args() {
@@ -87,9 +112,9 @@ manage_local_service() {
 
 start_all_local_services() {
     pg_ctl restart
-    cd ../microservices/travel_service/ || exit
+    cd ../microservices/ad_engine/ || exit
     cargo "$action"
-    echo "Done travel_service!"
+    echo "Done ad_engine!"
 
     cd ../telegram_bot/ || exit
     poetry install
@@ -99,9 +124,9 @@ start_all_local_services() {
 
 start_specific_local_service() {
     local current_service="$1"
-    if [[ "$current_service" == "travel_service" ]]; then
+    if [[ "$current_service" == "ad_engine" ]]; then
         pg_ctl restart
-        cd ../microservices/travel_service/ || exit
+        cd ../microservices/ad_engine/ || exit
         cargo "$action"
         echo "Done!"
     elif [[ "$current_service" == "telegram_bot" ]]; then
@@ -128,11 +153,11 @@ docker_commands() {
     local compose_file="docker-compose.dev.yaml"
 
     case "$current_service" in
-        travel_service)
+        ad_engine)
             if [[ "$current_action" == "build" ]]; then
-                docker-compose -f "$compose_file" up rust_travel_service --build
+                docker-compose -f "$compose_file" up rust_ad_engine --build
             else
-                docker-compose -f "$compose_file" up rust_travel_service
+                docker-compose -f "$compose_file" up rust_ad_engine
             fi
             ;;
         telegram_bot)
@@ -155,4 +180,3 @@ docker_commands() {
 parse_args "$@"
 validate_args
 execute_commands
-
