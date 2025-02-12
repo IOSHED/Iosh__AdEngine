@@ -22,14 +22,15 @@ For Unix/Linux:
 
 ### Options
 
-| Option             | Short Form | Description                              |
-|--------------------|------------|------------------------------------------|
-| --local            | -L         | Start services locally                   |
-| --docker           | -D         | Start services in Docker                 |
-| --run              | -R         | Run the service(s)                       |
-| --build            | -B         | Build the service(s)                     |
-| --help             |            | Display the help message                 |
-| --tests            |            | Run tests defined in the testing suite   |
+| Option             | Short Form | Description                                  |
+|--------------------|------------|----------------------------------------------|
+| --local            | -L         | Start services locally                       |
+| --docker           | -D         | Start services in Docker                     |
+| --run              | -R         | Run the service(s)                           |
+| --build            | -B         | Build the service(s)                         |
+| --help             |            | Display the help message                     |
+| --tests            |            | Run tests defined in the testing suite       |
+| --tests --init     |            | First Run tests defined in the testing suite |
 
 ### Example Usage
 
@@ -82,6 +83,16 @@ For Unix/Linux:
       ```shell
       ./equivalent.sh --tests
       ```
+- First run tests:
+    - Windows:
+      ```shell
+      .\project.bat --tests --init
+      ```
+    - Unix/Linux:
+      ```shell
+      ./equivalent.sh --tests --init
+      ```
+
 
 ### Parameter Definitions
 
