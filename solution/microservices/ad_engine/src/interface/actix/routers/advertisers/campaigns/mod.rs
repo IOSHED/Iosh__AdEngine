@@ -20,14 +20,15 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[actix_web::post("/")]
+#[actix_web::post("")]
 #[tracing::instrument(name = "Create campaign", skip(db_pool))]
 pub async fn campaigns_create_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsCreateRequest>,
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let campaign = domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref())
+    let campaign = domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .create(campaign_request.into_inner(), advertiser_id.into_inner())
         .await?;
 
@@ -52,8 +53,9 @@ pub async fn campaigns_update_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     campaign_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref())
+    let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .update(
             campaign_request.into_inner(),
             advertiser_id.into_inner(),
@@ -112,27 +114,41 @@ pub async fn campaigns_get_by_id_handler(
     Ok(actix_web::HttpResponse::Created().json(campaign))
 }
 
+#[derive(serde::Deserialize, Debug)]
+struct Pagination {
+    size: Option<u32>,
+    page: Option<u32>,
+}
+
 #[utoipa::path(
     get,
     path = "/advertisers/{advertiser_id}/campaigns",
     tag = "campaigns",
+    params(
+        ("size" = Option<u32>, Query, description = "Number of items per page", example = 10),
+        ("page" = Option<u32>, Query, description = "Page number", example = 1),
+    ),
     responses(
         (status = 200, description = "List campaigns", body = Vec<domain::schemas::CampaignSchema>),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[actix_web::get("/")]
+#[actix_web::get("")]
 #[tracing::instrument(name = "Get list of campaigns", skip(db_pool))]
 pub async fn campaigns_get_list_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
-    size: actix_web::web::Query<u32>,
-    page: actix_web::web::Query<u32>,
+    pagination: actix_web::web::Query<Pagination>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let pagination = pagination.into_inner();
+    let size = pagination.size.unwrap_or(10);
+    let page = pagination.page.unwrap_or(1);
     let (total_count, campaigns) = domain::usecase::CampaignsGetListUsecase::new(db_pool.get_ref())
-        .get(advertiser_id.into_inner(), size.into_inner(), page.into_inner())
+        .get(advertiser_id.into_inner(), size, page)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created().json(campaigns))
+    Ok(actix_web::HttpResponse::Created()
+        .append_header(("x-total-count", total_count.to_string()))
+        .json(campaigns))
 }

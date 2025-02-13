@@ -34,7 +34,7 @@ impl<'p> domain::services::repository::IRegisterBulkAdvertiser for PgAdvertiserR
             "
             INSERT INTO advertisers (id, name)
             SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[])
-            ON CONFLICT (id) 
+            ON CONFLICT (id)
             DO UPDATE SET name = EXCLUDED.name
             RETURNING id AS advertiser_id, name
             ",
@@ -43,7 +43,7 @@ impl<'p> domain::services::repository::IRegisterBulkAdvertiser for PgAdvertiserR
         )
         .fetch_all(&mut *transaction)
         .await?;
-    
+
         transaction.commit().await?;
 
         Ok(advertisers)
@@ -69,5 +69,16 @@ impl<'p> domain::services::repository::IGetAdvertiserById for PgAdvertiserReposi
         .await?;
 
         Ok(advertiser)
+    }
+}
+
+impl From<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>
+    for domain::schemas::AdvertiserProfileSchema
+{
+    fn from(user: infrastructure::repository::sqlx_lib::AdvertiserReturningSchema) -> Self {
+        Self {
+            advertiser_id: user.advertiser_id,
+            name: user.name,
+        }
     }
 }

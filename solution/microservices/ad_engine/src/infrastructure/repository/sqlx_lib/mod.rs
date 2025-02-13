@@ -1,7 +1,9 @@
 mod advertiser_repository;
+mod campaigns_repository;
 mod client_repository;
 mod ml_score_repository;
 pub use advertiser_repository::{AdvertiserReturningSchema, PgAdvertiserRepository};
+pub use campaigns_repository::PgCampaignRepository;
 pub use client_repository::{ClientReturningSchema, PgClientRepository};
 pub use ml_score_repository::PgScoreRepository;
 

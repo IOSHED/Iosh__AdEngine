@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM campaigns\n            WHERE advertiser_id = $1 AND id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0bbcb506202636113bf648688b3a772ae1d0d22e12e4ea5387860fb0115374ca"
+}

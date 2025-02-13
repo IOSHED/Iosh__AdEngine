@@ -1,9 +1,11 @@
 use crate::{domain, infrastructure, interface};
+pub mod campaigns;
 
 pub fn advertisers_scope(path: &str) -> actix_web::Scope {
     actix_web::web::scope(path)
         .service(advertiser_bulk_handler)
         .service(advertiser_by_id_handler)
+        .service(campaigns::campaigns_scope("/{advertiser_id}/campaigns"))
 }
 
 #[utoipa::path(
@@ -43,7 +45,7 @@ pub async fn advertiser_bulk_handler(
 #[actix_web::get("/{advertiser_id}")]
 #[tracing::instrument(name = "Get advertiser by id", skip(db_pool))]
 pub async fn advertiser_by_id_handler(
-    advertiser_id: actix_web::web::Path<String>,
+    advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let user = domain::usecase::AdvertiserProfileUsecase::new(db_pool.get_ref())

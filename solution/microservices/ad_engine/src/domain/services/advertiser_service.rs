@@ -66,16 +66,3 @@ impl<'p> AdvertiserService<'p> {
         Ok(repo_user.into())
     }
 }
-
-/// Implements conversion from repository user schema to domain user profile
-/// schema.
-impl From<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>
-    for domain::schemas::AdvertiserProfileSchema
-{
-    fn from(user: infrastructure::repository::sqlx_lib::AdvertiserReturningSchema) -> Self {
-        Self {
-            advertiser_id: user.advertiser_id,
-            name: user.name,
-        }
-    }
-}

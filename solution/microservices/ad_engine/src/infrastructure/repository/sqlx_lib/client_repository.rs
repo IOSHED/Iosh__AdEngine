@@ -39,8 +39,8 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
             "
             INSERT INTO clients (id, login, location, gender, age)
             SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[], $3::VARCHAR[], $4::VARCHAR[], $5::INT[])
-            ON CONFLICT (id) 
-            DO UPDATE SET 
+            ON CONFLICT (id)
+            DO UPDATE SET
                 login = EXCLUDED.login,
                 location = EXCLUDED.location,
                 gender = EXCLUDED.gender,
@@ -81,5 +81,19 @@ impl<'p> domain::services::repository::IGetClientById for PgClientRepository<'p>
         .await?;
 
         Ok(client)
+    }
+}
+
+/// Implements conversion from repository user schema to domain user profile
+/// schema.
+impl From<infrastructure::repository::sqlx_lib::ClientReturningSchema> for domain::schemas::ClientProfileSchema {
+    fn from(user: infrastructure::repository::sqlx_lib::ClientReturningSchema) -> Self {
+        Self {
+            client_id: user.client_id,
+            login: user.login,
+            location: user.location,
+            gender: user.gender,
+            age: user.age as u8,
+        }
     }
 }

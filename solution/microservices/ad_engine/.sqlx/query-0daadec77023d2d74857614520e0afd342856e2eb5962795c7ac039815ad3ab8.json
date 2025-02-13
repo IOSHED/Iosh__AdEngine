@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            INSERT INTO advertisers (id, name)\n            SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[])\n            ON CONFLICT (id) \n            DO UPDATE SET name = EXCLUDED.name\n            RETURNING id AS advertiser_id, name\n            ",
+  "query": "\n            INSERT INTO advertisers (id, name)\n            SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[])\n            ON CONFLICT (id)\n            DO UPDATE SET name = EXCLUDED.name\n            RETURNING id AS advertiser_id, name\n            ",
   "describe": {
     "columns": [
       {
@@ -25,5 +25,5 @@
       false
     ]
   },
-  "hash": "22b85309c585a959656611d948c00d451e0edd22c45e32f17f5c7bf8e5504812"
+  "hash": "0daadec77023d2d74857614520e0afd342856e2eb5962795c7ac039815ad3ab8"
 }

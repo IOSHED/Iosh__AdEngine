@@ -13,10 +13,8 @@ impl<'p> AdvertiserProfileUsecase<'p> {
 
     pub async fn get_by_id(
         self,
-        advertiser_id: String,
+        advertiser_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::AdvertiserProfileSchema> {
-        let advertiser_id = uuid::Uuid::parse_str(&advertiser_id)
-            .map_err(|_| domain::services::ServiceError::Validation("uuid not valid".to_string()))?;
         self.advertiser_service.get_by_id(advertiser_id).await
     }
 }

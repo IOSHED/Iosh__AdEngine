@@ -8,7 +8,8 @@ use crate::{domain, infrastructure, interface};
     responses(
         (status = 200, description = "Score calculation successful", body = ()),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
-        (status = 404, description = "Not found advertiser or client with id", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "Not found advertiser or client with id",
+            body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]

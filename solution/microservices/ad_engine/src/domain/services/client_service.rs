@@ -72,17 +72,3 @@ impl<'p> ClientService<'p> {
         Ok(repo_user.into())
     }
 }
-
-/// Implements conversion from repository user schema to domain user profile
-/// schema.
-impl From<infrastructure::repository::sqlx_lib::ClientReturningSchema> for domain::schemas::ClientProfileSchema {
-    fn from(user: infrastructure::repository::sqlx_lib::ClientReturningSchema) -> Self {
-        Self {
-            client_id: user.client_id,
-            login: user.login,
-            location: user.location,
-            gender: user.gender,
-            age: user.age as u8,
-        }
-    }
-}
