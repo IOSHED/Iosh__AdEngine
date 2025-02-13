@@ -32,7 +32,7 @@ impl<'p> AdvertiserService<'p> {
 
 impl<'p> AdvertiserService<'p> {
     #[tracing::instrument(name = "`UserService` register bulk Advertisers")]
-    pub async fn register(
+    pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkAdvertiser>(
         self,
         register_data: Vec<domain::schemas::AdvertiserProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::AdvertiserProfileSchema>> {
@@ -54,7 +54,7 @@ impl<'p> AdvertiserService<'p> {
                     (uuids, names)
                 });
 
-        let repo_user = infrastructure::repository::sqlx_lib::PgAdvertiserRepository::new(self.db_pool)
+        let repo_user = R::new(self.db_pool)
             .register(advertiser_ids, names)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -63,11 +63,11 @@ impl<'p> AdvertiserService<'p> {
     }
 
     #[tracing::instrument(name = "`UserService` get Advertiser by id")]
-    pub async fn get_by_id(
+    pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetAdvertiserById>(
         self,
         advertiser_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::AdvertiserProfileSchema> {
-        let repo_user = infrastructure::repository::sqlx_lib::PgAdvertiserRepository::new(self.db_pool)
+        let repo_user = R::new(self.db_pool)
             .get_by_id(advertiser_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

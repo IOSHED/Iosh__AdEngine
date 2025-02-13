@@ -4,12 +4,12 @@ use crate::{domain, infrastructure};
 
 #[derive(Debug)]
 pub struct PgClientRepository<'p> {
-    pg_pool: &'p sqlx::Pool<sqlx::Postgres>,
+    db_pool: &'p sqlx::Pool<sqlx::Postgres>,
 }
 
-impl<'p> PgClientRepository<'p> {
-    pub fn new(pg_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
-        Self { pg_pool }
+impl<'p> infrastructure::repository::IRepo<'p> for PgClientRepository<'p> {
+    fn new(db_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
+        Self { db_pool }
     }
 }
 
@@ -32,7 +32,7 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
         genders: Vec<String>,
         ages: Vec<i32>,
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::ClientReturningSchema>> {
-        let mut transaction = self.pg_pool.begin().await?;
+        let mut transaction = self.db_pool.begin().await?;
 
         let clients = sqlx::query_as!(
             ClientReturningSchema,
@@ -77,7 +77,7 @@ impl<'p> domain::services::repository::IGetClientById for PgClientRepository<'p>
             "#,
             client_id
         )
-        .fetch_one(self.pg_pool)
+        .fetch_one(self.db_pool)
         .await?;
 
         Ok(client)

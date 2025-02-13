@@ -24,13 +24,13 @@ impl<'p> MlScoreService<'p> {
 }
 
 impl<'p> MlScoreService<'p> {
-    pub async fn set_ml_score(
+    pub async fn set_ml_score<R: infrastructure::repository::IRepo<'p> + ISetMlScore>(
         self,
         client_id: uuid::Uuid,
         advertiser_id: uuid::Uuid,
         score: f64,
     ) -> domain::services::ServiceResult<()> {
-        infrastructure::repository::sqlx_lib::PgScoreRepository::new(self.db_pool)
+        R::new(self.db_pool)
             .set_ml_score(client_id, advertiser_id, score)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

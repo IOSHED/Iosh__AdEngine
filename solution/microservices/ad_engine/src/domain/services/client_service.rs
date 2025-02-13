@@ -35,7 +35,7 @@ impl<'p> ClientService<'p> {
 
 impl<'p> ClientService<'p> {
     #[tracing::instrument(name = "`UserService` register bulk clients")]
-    pub async fn register(
+    pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkClient>(
         self,
         register_data: Vec<domain::schemas::ClientProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::ClientProfileSchema>> {
@@ -60,7 +60,7 @@ impl<'p> ClientService<'p> {
             },
         );
 
-        let repo_user = infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool)
+        let repo_user = R::new(self.db_pool)
             .register(client_ids, logins, locations, genders, ages)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -69,11 +69,11 @@ impl<'p> ClientService<'p> {
     }
 
     #[tracing::instrument(name = "`UserService` get client by id")]
-    pub async fn get_by_id(
+    pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetClientById>(
         self,
         client_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::ClientProfileSchema> {
-        let repo_user = infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool)
+        let repo_user = R::new(self.db_pool)
             .get_by_id(client_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

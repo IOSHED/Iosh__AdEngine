@@ -15,6 +15,8 @@ impl<'p> AdvertiserProfileUsecase<'p> {
         self,
         advertiser_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::AdvertiserProfileSchema> {
-        self.advertiser_service.get_by_id(advertiser_id).await
+        self.advertiser_service
+            .get_by_id::<infrastructure::repository::sqlx_lib::PgAdvertiserRepository>(advertiser_id)
+            .await
     }
 }

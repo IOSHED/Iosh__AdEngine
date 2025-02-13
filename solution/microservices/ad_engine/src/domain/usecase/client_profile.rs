@@ -15,6 +15,8 @@ impl<'p> ClientProfileUsecase<'p> {
         self,
         client_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::ClientProfileSchema> {
-        self.client_service.get_by_id(client_id).await
+        self.client_service
+            .get_by_id::<infrastructure::repository::sqlx_lib::PgClientRepository>(client_id)
+            .await
     }
 }

@@ -4,12 +4,12 @@ use crate::{domain, infrastructure};
 
 #[derive(Debug)]
 pub struct PgScoreRepository<'p> {
-    pg_pool: &'p sqlx::Pool<sqlx::Postgres>,
+    db_pool: &'p sqlx::Pool<sqlx::Postgres>,
 }
 
-impl<'p> PgScoreRepository<'p> {
-    pub fn new(pg_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
-        Self { pg_pool }
+impl<'p> infrastructure::repository::IRepo<'p> for PgScoreRepository<'p> {
+    fn new(db_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
+        Self { db_pool }
     }
 }
 
@@ -21,7 +21,7 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
         advertiser_id: uuid::Uuid,
         score: f64,
     ) -> infrastructure::repository::RepoResult<()> {
-        let mut transaction = self.pg_pool.begin().await?;
+        let mut transaction = self.db_pool.begin().await?;
 
         let exists: Option<bool> = sqlx::query_scalar!(
             r#"

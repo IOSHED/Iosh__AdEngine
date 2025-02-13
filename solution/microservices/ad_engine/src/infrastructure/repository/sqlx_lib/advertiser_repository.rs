@@ -7,8 +7,8 @@ pub struct PgAdvertiserRepository<'p> {
     pg_pool: &'p sqlx::Pool<sqlx::Postgres>,
 }
 
-impl<'p> PgAdvertiserRepository<'p> {
-    pub fn new(pg_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
+impl<'p> infrastructure::repository::IRepo<'p> for PgAdvertiserRepository<'p> {
+    fn new(pg_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
         Self { pg_pool }
     }
 }

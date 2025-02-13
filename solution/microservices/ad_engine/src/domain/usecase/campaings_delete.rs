@@ -16,6 +16,8 @@ impl<'p> CampaignsDeleteUsecase<'p> {
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<()> {
-        self.campaign_service.delete(advertiser_id, campaign_id).await
+        self.campaign_service
+            .delete::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(advertiser_id, campaign_id)
+            .await
     }
 }

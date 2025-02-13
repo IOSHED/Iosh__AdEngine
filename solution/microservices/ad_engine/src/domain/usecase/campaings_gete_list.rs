@@ -17,6 +17,8 @@ impl<'p> CampaignsGetListUsecase<'p> {
         size: u32,
         page: u32,
     ) -> domain::services::ServiceResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
-        self.campaign_service.get_list(advertiser_id, size, page).await
+        self.campaign_service
+            .get_list::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(advertiser_id, size, page)
+            .await
     }
 }

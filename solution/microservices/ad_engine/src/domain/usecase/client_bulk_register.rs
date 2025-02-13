@@ -23,6 +23,8 @@ impl<'p> ClientBulkRegisterUsecase<'p> {
                 .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
         }
 
-        self.client_service.register(register_data).await
+        self.client_service
+            .register::<infrastructure::repository::sqlx_lib::PgClientRepository>(register_data)
+            .await
     }
 }

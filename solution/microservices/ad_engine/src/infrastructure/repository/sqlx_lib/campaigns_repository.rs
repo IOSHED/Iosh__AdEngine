@@ -8,8 +8,8 @@ pub struct PgCampaignRepository<'p> {
     db_pool: &'p sqlx::Pool<sqlx::Postgres>,
 }
 
-impl<'p> PgCampaignRepository<'p> {
-    pub fn new(db_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
+impl<'p> infrastructure::repository::IRepo<'p> for PgCampaignRepository<'p> {
+    fn new(db_pool: &'p sqlx::Pool<sqlx::Postgres>) -> Self {
         Self { db_pool }
     }
 }

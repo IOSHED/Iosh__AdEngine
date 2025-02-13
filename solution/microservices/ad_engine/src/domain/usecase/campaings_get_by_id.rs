@@ -16,6 +16,8 @@ impl<'p> CampaignsGetByIdUsecase<'p> {
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        self.campaign_service.get_by_id(advertiser_id, campaign_id).await
+        self.campaign_service
+            .get_by_id::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(advertiser_id, campaign_id)
+            .await
     }
 }

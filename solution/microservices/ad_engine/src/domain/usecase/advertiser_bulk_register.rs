@@ -23,6 +23,8 @@ impl<'p> AdvertiserBulkRegisterUsecase<'p> {
                 .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
         }
 
-        self.advertiser_service.register(register_data).await
+        self.advertiser_service
+            .register::<infrastructure::repository::sqlx_lib::PgAdvertiserRepository>(register_data)
+            .await
     }
 }

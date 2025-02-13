@@ -64,13 +64,13 @@ impl<'p> CampaignService<'p> {
 
 impl<'p> CampaignService<'p> {
     #[tracing::instrument(name = "`CampaignService` create campaign")]
-    pub async fn create(
+    pub async fn create<R: infrastructure::repository::IRepo<'p> + ICreateCampaign>(
         self,
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
         time_advance: u32,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let repo_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        let repo_campaign = R::new(self.db_pool)
             .create(campaign, advertiser_id, time_advance)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -79,14 +79,14 @@ impl<'p> CampaignService<'p> {
     }
 
     #[tracing::instrument(name = "`CampaignService` update campaign")]
-    pub async fn update(
+    pub async fn update<R: infrastructure::repository::IRepo<'p> + IUpdateCampaign + IGetCampaignById>(
         self,
         campaign: domain::schemas::CampaignsUpdateRequest,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
         time_advance: u32,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let old_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        let old_campaign = R::new(self.db_pool)
             .get_by_id(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -102,7 +102,7 @@ impl<'p> CampaignService<'p> {
                     .into(),
             ))?;
 
-        let repo_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        let repo_campaign = R::new(self.db_pool)
             .update(campaign, advertiser_id, campaign_id, time_advance)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -111,12 +111,12 @@ impl<'p> CampaignService<'p> {
     }
 
     #[tracing::instrument(name = "`CampaignService` delete campaign")]
-    pub async fn delete(
+    pub async fn delete<R: infrastructure::repository::IRepo<'p> + IDeleteCampaign>(
         self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<()> {
-        infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        R::new(self.db_pool)
             .delete(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -125,12 +125,12 @@ impl<'p> CampaignService<'p> {
     }
 
     #[tracing::instrument(name = "`CampaignService` get campaign by id")]
-    pub async fn get_by_id(
+    pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetCampaignById>(
         self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let repo_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        let repo_campaign = R::new(self.db_pool)
             .get_by_id(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -139,13 +139,13 @@ impl<'p> CampaignService<'p> {
     }
 
     #[tracing::instrument(name = "`CampaignService` get list of campaigns")]
-    pub async fn get_list(
+    pub async fn get_list<R: infrastructure::repository::IRepo<'p> + IGetCampaignList>(
         self,
         advertiser_id: uuid::Uuid,
         size: u32,
         page: u32,
     ) -> domain::services::ServiceResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
-        let (total_count, campaigns) = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+        let (total_count, campaigns) = R::new(self.db_pool)
             .get_list(advertiser_id, size, page)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

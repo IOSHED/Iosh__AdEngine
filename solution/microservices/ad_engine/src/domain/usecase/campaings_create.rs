@@ -36,7 +36,11 @@ impl<'p> CampaignsCreateUsecase<'p> {
         .await?;
 
         self.campaign_service
-            .create(create_data, advertiser_id, time_advance)
+            .create::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(
+                create_data,
+                advertiser_id,
+                time_advance,
+            )
             .await
     }
 }

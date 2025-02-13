@@ -8,4 +8,10 @@ pub mod sqlx_lib;
 
 pub use error::RepoError;
 
+use crate::infrastructure;
+
 pub type RepoResult<T> = Result<T, RepoError>;
+
+pub trait IRepo<'p> {
+    fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self;
+}

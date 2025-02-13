@@ -19,7 +19,11 @@ impl<'p> MlScoreUsecase<'p> {
             .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
 
         self.ml_score_service
-            .set_ml_score(ml_score.client_id, ml_score.advertiser_id, ml_score.score)
+            .set_ml_score::<infrastructure::repository::sqlx_lib::PgScoreRepository>(
+                ml_score.client_id,
+                ml_score.advertiser_id,
+                ml_score.score,
+            )
             .await?;
 
         Ok(())

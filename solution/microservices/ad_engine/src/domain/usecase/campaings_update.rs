@@ -37,7 +37,12 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         .await?;
 
         self.campaign_service
-            .update(update_data, advertiser_id, campaign_id, time_advance)
+            .update::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(
+                update_data,
+                advertiser_id,
+                campaign_id,
+                time_advance,
+            )
             .await
     }
 }
