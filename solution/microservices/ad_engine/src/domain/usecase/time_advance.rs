@@ -1,3 +1,5 @@
+use validator::Validate;
+
 use crate::{domain, infrastructure};
 
 pub struct TimeAdvanceUsecase<'p> {
@@ -15,6 +17,10 @@ impl<'p> TimeAdvanceUsecase<'p> {
         &self,
         advance_schema: domain::schemas::TimeAdvanceRequest,
     ) -> domain::services::ServiceResult<domain::schemas::TimeAdvanceResponse> {
+        advance_schema
+            .validate()
+            .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
+
         self.redis_service
             .set("time_advance", advance_schema.current_date)
             .await?;

@@ -23,20 +23,38 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
     ) -> infrastructure::repository::RepoResult<()> {
         let mut transaction = self.pg_pool.begin().await?;
 
+        let exists: Option<bool> = sqlx::query_scalar!(
+            "
+            SELECT EXISTS (
+                SELECT 1 FROM clients WHERE id = $1
+            ) AND EXISTS (
+                SELECT 1 FROM advertisers WHERE id = $2
+            )
+            ",
+            client_id,
+            advertiser_id,
+        )
+        .fetch_one(&mut *transaction)
+        .await?;
+
+        if !exists.unwrap_or(false) {
+            return Err(infrastructure::repository::RepoError::ObjDoesNotExists(
+                "Client or Advertiser ID does not exist".into(),
+            ));
+        }
+
         sqlx::query!(
             "
             INSERT INTO ml_scores (client_id, advertiser_id, score)
             VALUES ($1, $2, $3)
             ON CONFLICT (client_id, advertiser_id)
             DO UPDATE SET score = EXCLUDED.score
-            WHERE EXISTS (SELECT 1 FROM clients WHERE id = $1)
-              AND EXISTS (SELECT 1 FROM advertisers WHERE id = $2)
             ",
             client_id,
             advertiser_id,
             score,
         )
-        .fetch_one(&mut *transaction)
+        .execute(&mut *transaction)
         .await?;
 
         transaction.commit().await?;

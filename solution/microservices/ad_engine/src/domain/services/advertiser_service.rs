@@ -40,10 +40,8 @@ impl<'p> AdvertiserService<'p> {
             register_data
                 .into_iter()
                 .fold((Vec::new(), Vec::new()), |(mut uuids, mut names), advertiser| {
-                    // Use unwrap because in highest we validation this field
-                    uuids.push(uuid::Uuid::parse_str(&advertiser.advertiser_id).unwrap());
+                    uuids.push(advertiser.advertiser_id);
                     names.push(advertiser.name);
-
                     (uuids, names)
                 });
 

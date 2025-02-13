@@ -42,8 +42,7 @@ impl<'p> ClientService<'p> {
         let (client_ids, logins, locations, genders, ages) = register_data.into_iter().fold(
             (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()),
             |(mut uuids, mut names, mut emails, mut phones, mut ages), client| {
-                // Use unwrap because in highest we validation this field
-                uuids.push(uuid::Uuid::parse_str(&client.client_id).unwrap());
+                uuids.push(client.client_id);
                 names.push(client.login);
                 emails.push(client.location);
                 phones.push(client.gender);

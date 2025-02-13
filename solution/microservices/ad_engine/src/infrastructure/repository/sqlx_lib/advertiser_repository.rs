@@ -15,7 +15,7 @@ impl<'p> PgAdvertiserRepository<'p> {
 
 #[derive(Debug)]
 pub struct AdvertiserReturningSchema {
-    pub advertiser_id: String,
+    pub advertiser_id: uuid::Uuid,
     pub name: String,
 }
 

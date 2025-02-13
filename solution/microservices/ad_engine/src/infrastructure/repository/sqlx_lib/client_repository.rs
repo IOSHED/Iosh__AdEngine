@@ -15,7 +15,7 @@ impl<'p> PgClientRepository<'p> {
 
 #[derive(Debug)]
 pub struct ClientReturningSchema {
-    pub client_id: String,
+    pub client_id: uuid::Uuid,
     pub login: String,
     pub age: i32,
     pub location: String,

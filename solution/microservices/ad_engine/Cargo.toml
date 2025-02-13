@@ -63,8 +63,8 @@ r2d2 = "0.8.10"
 thiserror = "2.0.9"
 
 # Docs
-utoipa = { version = "5", features = ["actix_extras"] }
+utoipa = { version = "5", features = ["actix_extras", "uuid"] }
 utoipa-swagger-ui = { version="9", features = ["actix-web", "debug-embed"] }
 
 # Types
-uuid = { version = "1.13.1", features = ["v4", "fast-rng", "macro-diagnostics"] }
+uuid = { version = "1.13.1", features = ["v4", "fast-rng", "macro-diagnostics", "serde"] }

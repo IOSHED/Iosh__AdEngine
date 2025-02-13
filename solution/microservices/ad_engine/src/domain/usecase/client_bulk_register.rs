@@ -21,9 +21,6 @@ impl<'p> ClientBulkRegisterUsecase<'p> {
             register
                 .validate()
                 .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
-
-            uuid::Uuid::parse_str(&register.client_id)
-                .map_err(|_| domain::services::ServiceError::Validation("uuid not valid".to_string()))?;
         }
 
         self.client_service.register(register_data).await

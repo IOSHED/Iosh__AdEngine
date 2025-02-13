@@ -18,13 +18,8 @@ impl<'p> MlScoreUsecase<'p> {
             .validate()
             .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
 
-        let client_id = uuid::Uuid::parse_str(&ml_score.client_id)
-            .map_err(|_| domain::services::ServiceError::Validation("uuid not valid".to_string()))?;
-        let advertisers_id = uuid::Uuid::parse_str(&ml_score.advertiser_id)
-            .map_err(|_| domain::services::ServiceError::Validation("uuid not valid".to_string()))?;
-
         self.ml_score_service
-            .set_ml_score(client_id, advertisers_id, ml_score.score)
+            .set_ml_score(ml_score.client_id, ml_score.advertiser_id, ml_score.score)
             .await?;
 
         Ok(())
