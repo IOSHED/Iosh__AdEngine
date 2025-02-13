@@ -1,1 +1,221 @@
+---
+test_name: Успешное создание/обновление ML-оценки
+stages:
+  - name: Создание клиента
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 201
 
+  - name: Создание рекламодателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          name: "Advertiser1"
+          location: "St. Petersburg"
+    response:
+      status_code: 201
+
+  - name: Создание ML-оценки
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: 0.4
+    response:
+      status_code: 200
+
+  - name: Обновление ML-оценки
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: 0.8
+    response:
+      status_code: 200
+
+---
+test_name: Ошибка валидации (некорректный UUID для client_id)
+stages:
+  - name: Попытка создания ML-оценки с некорректным client_id
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "invalid-uuid"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: 0.4
+    response:
+      status_code: 409
+
+---
+test_name: Ошибка валидации (некорректный UUID для advertiser_id)
+stages:
+  - name: Попытка создания ML-оценки с некорректным advertiser_id
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "invalid-uuid"
+        score: 0.4
+    response:
+      status_code: 409
+
+---
+test_name: Ошибка при отсутствии клиента в базе данных
+stages:
+  - name: Попытка создания ML-оценки для несуществующего клиента
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "00000000-0000-0000-0000-000000000000"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: 0.4
+    response:
+      status_code: 404
+
+---
+test_name: Ошибка при отсутствии рекламодателя в базе данных
+stages:
+  - name: Попытка создания ML-оценки для несуществующего рекламодателя
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "00000000-0000-0000-0000-000000000000"
+        score: 0.4
+    response:
+      status_code: 404
+
+---
+test_name: При значении score с отрицательным значением
+stages:
+  - name: Создание клиента
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 201
+
+  - name: Создание рекламодателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          name: "Advertiser1"
+          location: "St. Petersburg"
+    response:
+      status_code: 201
+
+  - name: Попытка создания ML-оценки с отрицательным значением
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: -0.1
+    response:
+      status_code: 200
+
+---
+test_name: При значении score больше 1
+stages:
+  - name: Создание клиента
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 201
+
+  - name: Создание рекламодателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          name: "Advertiser1"
+          location: "St. Petersburg"
+    response:
+      status_code: 201
+
+  - name: Попытка создания ML-оценки со значением score больше 1
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+        score: 1.1
+    response:
+      status_code: 200
+
+---
+test_name: Дублирование ml-score в запросе
+stages:
+  - name: Создание клиента
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 201
+
+  - name: Создание рекламодателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          name: "Advertiser1"
+          location: "St. Petersburg"
+    response:
+      status_code: 201
+
+  - name: Попытка создания ml-score с дублирующимися ID
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          score: 1.1
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
+          score: 10.9
+    response:
+      status_code: 400

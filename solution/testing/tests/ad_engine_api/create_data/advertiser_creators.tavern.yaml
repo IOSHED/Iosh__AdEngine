@@ -1,1 +1,161 @@
 
+---
+test_name: Успешное создание рекломадателей
+stages:
+  - name: Создание рекломадателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          name: "user1"
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+          name: "user2"
+    response:
+      status_code: 201
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          name: "user1"
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+          name: "user2"
+
+---
+test_name: Пересоздание рекломадателя (обновление существующего рекломадателя)
+stages:
+  - name: Создание рекломадателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user3"
+    response:
+      status_code: 201
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user3"
+
+  - name: Обновление рекломадателя
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user4"
+    response:
+      status_code: 201
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user4"
+
+---
+test_name: Попытка создания рекломадателя с дублирующимся логином
+stages:
+  - name: Создание рекломадателя с уникальным логином
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
+          name: "user5"
+    response:
+      status_code: 201
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
+          name: "user5"
+
+  - name: Попытка создания рекломадателя с дублирующимся логином
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc7"
+          name: "user5"
+    response:
+      status_code: 409
+
+---
+test_name: Попытка создания рекломадателя с некорректным UUID
+stages:
+  - name: Попытка создания рекломадателя с некорректным UUID
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "invalid-uuid"
+          name: "user6"
+    response:
+      status_code: 409
+
+---
+test_name: Попытка создания рекломадателя с дублирующимся именем
+stages:
+  - name: Попытка создания рекломадателя с дублирующимся именем
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa0"
+          name: "user5"
+    response:
+      status_code: 409
+
+---
+test_name: Получение рекломадателя по ID
+stages:
+  - name: Получение рекломадателя по ID
+    request:
+      url: "{ad_engine_url}/advertisers/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        name: "user1"
+
+---
+test_name: Попытка получения несуществующего рекломадателя
+stages:
+  - name: Попытка получения несуществующего рекломадателя
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000000"
+      method: GET
+    response:
+      status_code: 404
+
+---
+test_name: Попытка получения рекломадателя с некорректным UUID
+stages:
+  - name: Попытка получения рекломадателя с некорректным UUID
+    request:
+      url: "{ad_engine_url}/advertisers/invalid-uuid"
+      method: GET
+    response:
+      status_code: 400
+
+---
+test_name: Пустой список рекломадателей
+stages:
+  - name: Попытка создания пустого списка рекломадателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json: []
+    response:
+      status_code: 201
+      json: []
+
+---
+test_name: Дублирование рекломадателей в запросе
+stages:
+  - name: Попытка создания рекломадателей с дублирующимися ID
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user8"
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user9"
+    response:
+      status_code: 400
