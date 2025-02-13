@@ -7,31 +7,24 @@ pub trait ISetMlScore {
     async fn set_ml_score(
         &self,
         client_id: uuid::Uuid,
-        advertisers_id: uuid::Uuid,
+        advertiser_id: uuid::Uuid,
         score: f64,
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
 #[derive(std::fmt::Debug)]
-pub struct MlScoreService<'p> {
-    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
-}
+pub struct MlScoreService;
 
-impl<'p> MlScoreService<'p> {
-    pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
-        Self { db_pool }
-    }
-}
-
-impl<'p> MlScoreService<'p> {
+impl<'p> MlScoreService {
+    #[tracing::instrument(name = "`MlScoreService` set ML score", skip(repo))]
     pub async fn set_ml_score<R: infrastructure::repository::IRepo<'p> + ISetMlScore>(
-        self,
+        &self,
         client_id: uuid::Uuid,
         advertiser_id: uuid::Uuid,
         score: f64,
+        repo: R,
     ) -> domain::services::ServiceResult<()> {
-        R::new(self.db_pool)
-            .set_ml_score(client_id, advertiser_id, score)
+        repo.set_ml_score(client_id, advertiser_id, score)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
         Ok(())

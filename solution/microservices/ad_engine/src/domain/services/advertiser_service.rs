@@ -20,21 +20,14 @@ pub trait IGetAdvertiserById {
 }
 
 #[derive(std::fmt::Debug)]
-pub struct AdvertiserService<'p> {
-    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
-}
+pub struct AdvertiserService;
 
-impl<'p> AdvertiserService<'p> {
-    pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
-        Self { db_pool }
-    }
-}
-
-impl<'p> AdvertiserService<'p> {
-    #[tracing::instrument(name = "`UserService` register bulk Advertisers")]
+impl<'p> AdvertiserService {
+    #[tracing::instrument(name = "`UserService` register bulk Advertisers", skip(repo))]
     pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkAdvertiser>(
-        self,
+        &self,
         register_data: Vec<domain::schemas::AdvertiserProfileSchema>,
+        repo: R,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::AdvertiserProfileSchema>> {
         let mut advertisers_map: std::collections::HashMap<uuid::Uuid, domain::schemas::AdvertiserProfileSchema> =
             std::collections::HashMap::new();
@@ -54,7 +47,7 @@ impl<'p> AdvertiserService<'p> {
                     (uuids, names)
                 });
 
-        let repo_user = R::new(self.db_pool)
+        let repo_user = repo
             .register(advertiser_ids, names)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -62,12 +55,13 @@ impl<'p> AdvertiserService<'p> {
         Ok(repo_user.into_iter().map(|user| user.into()).collect())
     }
 
-    #[tracing::instrument(name = "`UserService` get Advertiser by id")]
+    #[tracing::instrument(name = "`UserService` get Advertiser by id", skip(repo))]
     pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetAdvertiserById>(
-        self,
+        &self,
         advertiser_id: uuid::Uuid,
+        repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::AdvertiserProfileSchema> {
-        let repo_user = R::new(self.db_pool)
+        let repo_user = repo
             .get_by_id(advertiser_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

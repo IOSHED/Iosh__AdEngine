@@ -52,25 +52,18 @@ pub trait IDeleteCampaign {
 }
 
 #[derive(Debug)]
-pub struct CampaignService<'p> {
-    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
-}
+pub struct CampaignService;
 
-impl<'p> CampaignService<'p> {
-    pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
-        Self { db_pool }
-    }
-}
-
-impl<'p> CampaignService<'p> {
-    #[tracing::instrument(name = "`CampaignService` create campaign")]
+impl<'p> CampaignService {
+    #[tracing::instrument(name = "`CampaignService` create campaign", skip(repo))]
     pub async fn create<R: infrastructure::repository::IRepo<'p> + ICreateCampaign>(
-        self,
+        &self,
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
         time_advance: u32,
+        repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let repo_campaign = R::new(self.db_pool)
+        let repo_campaign = repo
             .create(campaign, advertiser_id, time_advance)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -78,15 +71,16 @@ impl<'p> CampaignService<'p> {
         Ok(repo_campaign)
     }
 
-    #[tracing::instrument(name = "`CampaignService` update campaign")]
+    #[tracing::instrument(name = "`CampaignService` update campaign", skip(repo))]
     pub async fn update<R: infrastructure::repository::IRepo<'p> + IUpdateCampaign + IGetCampaignById>(
-        self,
+        &self,
         campaign: domain::schemas::CampaignsUpdateRequest,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
         time_advance: u32,
+        repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let old_campaign = R::new(self.db_pool)
+        let old_campaign = repo
             .get_by_id(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -102,7 +96,7 @@ impl<'p> CampaignService<'p> {
                     .into(),
             ))?;
 
-        let repo_campaign = R::new(self.db_pool)
+        let repo_campaign = repo
             .update(campaign, advertiser_id, campaign_id, time_advance)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -110,27 +104,28 @@ impl<'p> CampaignService<'p> {
         Ok(repo_campaign)
     }
 
-    #[tracing::instrument(name = "`CampaignService` delete campaign")]
+    #[tracing::instrument(name = "`CampaignService` delete campaign", skip(repo))]
     pub async fn delete<R: infrastructure::repository::IRepo<'p> + IDeleteCampaign>(
-        self,
+        &self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
+        repo: R,
     ) -> domain::services::ServiceResult<()> {
-        R::new(self.db_pool)
-            .delete(advertiser_id, campaign_id)
+        repo.delete(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
         Ok(())
     }
 
-    #[tracing::instrument(name = "`CampaignService` get campaign by id")]
+    #[tracing::instrument(name = "`CampaignService` get campaign by id", skip(repo))]
     pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetCampaignById>(
-        self,
+        &self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
+        repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let repo_campaign = R::new(self.db_pool)
+        let repo_campaign = repo
             .get_by_id(advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -138,14 +133,15 @@ impl<'p> CampaignService<'p> {
         Ok(repo_campaign)
     }
 
-    #[tracing::instrument(name = "`CampaignService` get list of campaigns")]
+    #[tracing::instrument(name = "`CampaignService` get list of campaigns", skip(repo))]
     pub async fn get_list<R: infrastructure::repository::IRepo<'p> + IGetCampaignList>(
-        self,
+        &self,
         advertiser_id: uuid::Uuid,
         size: u32,
         page: u32,
+        repo: R,
     ) -> domain::services::ServiceResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
-        let (total_count, campaigns) = R::new(self.db_pool)
+        let (total_count, campaigns) = repo
             .get_list(advertiser_id, size, page)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

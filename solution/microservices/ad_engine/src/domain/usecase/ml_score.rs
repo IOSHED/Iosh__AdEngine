@@ -1,15 +1,20 @@
 use validator::Validate;
 
-use crate::{domain, infrastructure};
+use crate::{
+    domain,
+    infrastructure::{self, repository::IRepo},
+};
 
 pub struct MlScoreUsecase<'p> {
-    pub ml_score_service: domain::services::MlScoreService<'p>,
+    pub ml_score_service: domain::services::MlScoreService,
+    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
 
 impl<'p> MlScoreUsecase<'p> {
     pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
         Self {
-            ml_score_service: domain::services::MlScoreService::new(db_pool),
+            ml_score_service: domain::services::MlScoreService,
+            db_pool,
         }
     }
 
@@ -19,10 +24,11 @@ impl<'p> MlScoreUsecase<'p> {
             .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
 
         self.ml_score_service
-            .set_ml_score::<infrastructure::repository::sqlx_lib::PgScoreRepository>(
+            .set_ml_score(
                 ml_score.client_id,
                 ml_score.advertiser_id,
                 ml_score.score,
+                infrastructure::repository::sqlx_lib::PgScoreRepository::new(self.db_pool),
             )
             .await?;
 

@@ -23,21 +23,14 @@ pub trait IGetClientById {
 }
 
 #[derive(std::fmt::Debug)]
-pub struct ClientService<'p> {
-    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
-}
+pub struct ClientService;
 
-impl<'p> ClientService<'p> {
-    pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
-        Self { db_pool }
-    }
-}
-
-impl<'p> ClientService<'p> {
-    #[tracing::instrument(name = "`UserService` register bulk clients")]
+impl<'p> ClientService {
+    #[tracing::instrument(name = "`UserService` register bulk clients", skip(repo))]
     pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkClient>(
-        self,
+        &self,
         register_data: Vec<domain::schemas::ClientProfileSchema>,
+        repo: R,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::ClientProfileSchema>> {
         let mut clients_map: std::collections::HashMap<uuid::Uuid, domain::schemas::ClientProfileSchema> =
             std::collections::HashMap::new();
@@ -60,7 +53,7 @@ impl<'p> ClientService<'p> {
             },
         );
 
-        let repo_user = R::new(self.db_pool)
+        let repo_user = repo
             .register(client_ids, logins, locations, genders, ages)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
@@ -68,12 +61,13 @@ impl<'p> ClientService<'p> {
         Ok(repo_user.into_iter().map(|user| user.into()).collect())
     }
 
-    #[tracing::instrument(name = "`UserService` get client by id")]
+    #[tracing::instrument(name = "`UserService` get client by id", skip(repo))]
     pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetClientById>(
-        self,
+        &self,
         client_id: uuid::Uuid,
+        repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::ClientProfileSchema> {
-        let repo_user = R::new(self.db_pool)
+        let repo_user = repo
             .get_by_id(client_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;

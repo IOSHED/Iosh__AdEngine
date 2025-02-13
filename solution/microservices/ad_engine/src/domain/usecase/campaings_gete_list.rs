@@ -1,13 +1,18 @@
-use crate::{domain, infrastructure};
+use crate::{
+    domain,
+    infrastructure::{self, repository::IRepo},
+};
 
 pub struct CampaignsGetListUsecase<'p> {
-    campaign_service: domain::services::CampaignService<'p>,
+    campaign_service: domain::services::CampaignService,
+    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
 
 impl<'p> CampaignsGetListUsecase<'p> {
     pub fn new(db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool) -> Self {
         Self {
-            campaign_service: domain::services::CampaignService::new(db_pool),
+            campaign_service: domain::services::CampaignService,
+            db_pool,
         }
     }
 
@@ -18,7 +23,12 @@ impl<'p> CampaignsGetListUsecase<'p> {
         page: u32,
     ) -> domain::services::ServiceResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
         self.campaign_service
-            .get_list::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(advertiser_id, size, page)
+            .get_list(
+                advertiser_id,
+                size,
+                page,
+                infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
+            )
             .await
     }
 }

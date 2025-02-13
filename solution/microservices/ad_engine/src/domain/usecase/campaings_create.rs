@@ -1,10 +1,14 @@
 use validator::Validate;
 
-use crate::{domain, infrastructure};
+use crate::{
+    domain,
+    infrastructure::{self, repository::IRepo},
+};
 
 pub struct CampaignsCreateUsecase<'p> {
-    campaign_service: domain::services::CampaignService<'p>,
+    campaign_service: domain::services::CampaignService,
     redis_service: domain::services::RedisService<'p>,
+    db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
 
 impl<'p> CampaignsCreateUsecase<'p> {
@@ -13,8 +17,9 @@ impl<'p> CampaignsCreateUsecase<'p> {
         redis_pool: &'p infrastructure::database_connection::redis::RedisPool,
     ) -> Self {
         Self {
-            campaign_service: domain::services::CampaignService::new(db_pool),
+            campaign_service: domain::services::CampaignService,
             redis_service: domain::services::RedisService::new(redis_pool),
+            db_pool,
         }
     }
 
@@ -40,6 +45,7 @@ impl<'p> CampaignsCreateUsecase<'p> {
                 create_data,
                 advertiser_id,
                 time_advance,
+                infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
             .await
     }
