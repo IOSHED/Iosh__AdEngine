@@ -26,19 +26,14 @@ impl<'p> CampaignsCreateUsecase<'p> {
         let time_advance: u32 = self.redis_service.get("time_advance").await?;
 
         create_data.validate()?;
-        (create_data.start_date >= time_advance)
-            .then_some(())
-            .ok_or(domain::services::ServiceError::Validation(
-                "start_data must be more or equal time_advance".into(),
-            ))?;
-        (create_data.start_date <= create_data.end_date).then_some(()).ok_or(
-            domain::services::ServiceError::Validation("start_data must be under or equal end_date".into()),
-        )?;
-        (create_data.targeting.age_from <= create_data.targeting.age_to)
-            .then_some(())
-            .ok_or(domain::services::ServiceError::Validation(
-                "age_from must be under or equal age_to".into(),
-            ))?;
+        domain::validators::validate_campaing_data(
+            create_data.start_date,
+            create_data.end_date,
+            create_data.targeting.age_from,
+            create_data.targeting.age_to,
+            time_advance,
+        )
+        .await?;
 
         self.campaign_service
             .create(create_data, advertiser_id, time_advance)

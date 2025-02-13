@@ -27,11 +27,14 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         let time_advance: u32 = self.redis_service.get("time_advance").await?;
 
         update_data.validate()?;
-        (update_data.targeting.age_from <= update_data.targeting.age_to)
-            .then_some(())
-            .ok_or(domain::services::ServiceError::Validation(
-                "age_from must be under or equal age_to".into(),
-            ))?;
+        domain::validators::validate_campaing_data(
+            update_data.start_date,
+            update_data.end_date,
+            update_data.targeting.age_from,
+            update_data.targeting.age_to,
+            time_advance,
+        )
+        .await?;
 
         self.campaign_service
             .update(update_data, advertiser_id, campaign_id, time_advance)

@@ -39,7 +39,16 @@ impl<'p> ClientService<'p> {
         self,
         register_data: Vec<domain::schemas::ClientProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::ClientProfileSchema>> {
-        let (client_ids, logins, locations, genders, ages) = register_data.into_iter().fold(
+        let mut clients_map: std::collections::HashMap<uuid::Uuid, domain::schemas::ClientProfileSchema> =
+            std::collections::HashMap::new();
+
+        for client in register_data {
+            clients_map.insert(client.client_id, client);
+        }
+
+        let unique_clients: Vec<domain::schemas::ClientProfileSchema> = clients_map.into_values().collect();
+
+        let (client_ids, logins, locations, genders, ages) = unique_clients.into_iter().fold(
             (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()),
             |(mut uuids, mut names, mut emails, mut phones, mut ages), client| {
                 uuids.push(client.client_id);

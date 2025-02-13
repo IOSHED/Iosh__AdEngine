@@ -4,8 +4,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS clients (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    login VARCHAR(64) UNIQUE NOT NULL,
-    location VARCHAR(128) NOT NULL,
+    login TEXT UNIQUE NOT NULL,
+    location TEXT NOT NULL,
     gender VARCHAR(6) NOT NULL,
     age INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -15,7 +15,7 @@ COMMENT ON COLUMN clients.gender IS 'Possible value: FEMALE, MALE';
 
 CREATE TABLE IF NOT EXISTS advertisers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(64) UNIQUE NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

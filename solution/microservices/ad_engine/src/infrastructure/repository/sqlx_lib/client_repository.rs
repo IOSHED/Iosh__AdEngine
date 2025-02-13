@@ -36,7 +36,7 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
 
         let clients = sqlx::query_as!(
             ClientReturningSchema,
-            "
+            r#"
             INSERT INTO clients (id, login, location, gender, age)
             SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[], $3::VARCHAR[], $4::VARCHAR[], $5::INT[])
             ON CONFLICT (id)
@@ -46,7 +46,7 @@ impl<'p> domain::services::repository::IRegisterBulkClient for PgClientRepositor
                 gender = EXCLUDED.gender,
                 age = EXCLUDED.age
             RETURNING id AS client_id, login, age, location, gender;
-            ",
+            "#,
             &client_ids,
             &logins,
             &locations,
@@ -70,11 +70,11 @@ impl<'p> domain::services::repository::IGetClientById for PgClientRepository<'p>
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::ClientReturningSchema> {
         let client = sqlx::query_as!(
             ClientReturningSchema,
-            "
+            r#"
             SELECT id AS client_id, login, age, location, gender
             FROM clients
             WHERE id = $1
-            ",
+            "#,
             client_id
         )
         .fetch_one(self.pg_pool)

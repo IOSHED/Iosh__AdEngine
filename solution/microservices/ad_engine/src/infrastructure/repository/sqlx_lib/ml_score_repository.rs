@@ -24,13 +24,13 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
         let mut transaction = self.pg_pool.begin().await?;
 
         let exists: Option<bool> = sqlx::query_scalar!(
-            "
+            r#"
             SELECT EXISTS (
                 SELECT 1 FROM clients WHERE id = $1
             ) AND EXISTS (
                 SELECT 1 FROM advertisers WHERE id = $2
             )
-            ",
+            "#,
             client_id,
             advertiser_id,
         )
@@ -44,12 +44,12 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
         }
 
         sqlx::query!(
-            "
+            r#"
             INSERT INTO ml_scores (client_id, advertiser_id, score)
             VALUES ($1, $2, $3)
             ON CONFLICT (client_id, advertiser_id)
             DO UPDATE SET score = EXCLUDED.score
-            ",
+            "#,
             client_id,
             advertiser_id,
             score,

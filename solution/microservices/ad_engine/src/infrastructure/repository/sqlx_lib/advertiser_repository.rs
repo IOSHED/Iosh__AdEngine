@@ -31,13 +31,13 @@ impl<'p> domain::services::repository::IRegisterBulkAdvertiser for PgAdvertiserR
 
         let advertisers = sqlx::query_as!(
             AdvertiserReturningSchema,
-            "
+            r#"
             INSERT INTO advertisers (id, name)
             SELECT * FROM UNNEST($1::UUID[], $2::VARCHAR[])
             ON CONFLICT (id)
             DO UPDATE SET name = EXCLUDED.name
             RETURNING id AS advertiser_id, name
-            ",
+            "#,
             &advertiser_ids,
             &names,
         )
@@ -58,11 +58,11 @@ impl<'p> domain::services::repository::IGetAdvertiserById for PgAdvertiserReposi
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema> {
         let advertiser = sqlx::query_as!(
             AdvertiserReturningSchema,
-            "
+            r#"
             SELECT id AS advertiser_id, name
             FROM advertisers
             WHERE id = $1
-            ",
+            "#,
             advertiser_id
         )
         .fetch_one(self.pg_pool)

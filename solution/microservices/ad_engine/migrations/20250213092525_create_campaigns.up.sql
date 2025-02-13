@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
     clicks_limit INT NOT NULL CHECK (clicks_limit >= 0),
     cost_per_impressions NUMERIC(10, 2) NOT NULL CHECK (cost_per_impressions >= 0), 
     cost_per_clicks NUMERIC(10, 2) NOT NULL CHECK (cost_per_clicks >= 0), 
-    ad_title VARCHAR(255) NOT NULL, 
+    ad_title TEXT NOT NULL, 
     ad_text TEXT NOT NULL,
     start_date INT NOT NULL CHECK (start_date >= 0),
     end_date INT NOT NULL CHECK (end_date >= 0),

@@ -86,6 +86,22 @@ impl<'p> CampaignService<'p> {
         campaign_id: uuid::Uuid,
         time_advance: u32,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
+        let old_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
+            .get_by_id(advertiser_id, campaign_id)
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e))?;
+
+        ((time_advance < campaign.start_date)
+            & (old_campaign.impressions_limit == campaign.impressions_limit)
+            & (old_campaign.clicks_limit == campaign.clicks_limit)
+            & (old_campaign.end_date == campaign.end_date)
+            & (old_campaign.start_date == campaign.start_date))
+            .then_some(())
+            .ok_or(domain::services::ServiceError::Validation(
+                "Fields impressions_limit, clicks_limit, end_date, start_date don't update before start compaign"
+                    .into(),
+            ))?;
+
         let repo_campaign = infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool)
             .update(campaign, advertiser_id, campaign_id, time_advance)
             .await

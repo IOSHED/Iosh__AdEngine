@@ -15,11 +15,9 @@ pub struct CampaignSchema {
     #[schema(example = 150.0, minimum = 0)]
     pub cost_per_clicks: f64,
 
-    #[schema(example = "Mega Ad", max_length = 255, min_length = 2)]
-    #[validate(length(min = 2, max = 255, message = "ad_title must be between 2 and 512 characters"))]
+    #[schema(example = "Mega Ad")]
     pub ad_title: String,
-    #[schema(example = "His omega must be Ad", max_length = 512, min_length = 2)]
-    #[validate(length(min = 2, max = 512, message = "ad_text must be between 2 and 512 characters"))]
+    #[schema(example = "His omega must be Ad")]
     pub ad_text: String,
 
     #[schema(example = 3)]
@@ -52,7 +50,6 @@ pub struct TargetingCampaignSchema {
     #[validate(range(min = 0, message = "age must be under or equal 0"))]
     pub age_to: u8,
 
-    #[schema(example = "Moscow, mcad", max_length = 128, min_length = 2)]
-    #[validate(length(min = 2, max = 128, message = "Location must be between 2 and 64 characters"))]
+    #[schema(example = "Moscow, mcad")]
     pub location: String,
 }

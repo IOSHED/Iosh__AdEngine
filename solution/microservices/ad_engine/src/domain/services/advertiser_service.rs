@@ -36,8 +36,17 @@ impl<'p> AdvertiserService<'p> {
         self,
         register_data: Vec<domain::schemas::AdvertiserProfileSchema>,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::AdvertiserProfileSchema>> {
+        let mut advertisers_map: std::collections::HashMap<uuid::Uuid, domain::schemas::AdvertiserProfileSchema> =
+            std::collections::HashMap::new();
+
+        for advertiser in register_data {
+            advertisers_map.insert(advertiser.advertiser_id, advertiser);
+        }
+
+        let unique_advertisers: Vec<domain::schemas::AdvertiserProfileSchema> = advertisers_map.into_values().collect();
+
         let (advertiser_ids, names) =
-            register_data
+            unique_advertisers
                 .into_iter()
                 .fold((Vec::new(), Vec::new()), |(mut uuids, mut names), advertiser| {
                     uuids.push(advertiser.advertiser_id);

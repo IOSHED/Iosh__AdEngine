@@ -59,7 +59,7 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
     ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
-            "
+            r#"
             INSERT INTO campaigns (
                 advertiser_id,
                 impressions_limit,
@@ -76,7 +76,7 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING *
-            ",
+            "#,
             advertiser_id,
             campaign.impressions_limit as i32,
             campaign.clicks_limit as i32,
@@ -126,7 +126,7 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
             serde_json::to_value(&campaign.targeting).unwrap(),
             updated_at as i64,
             advertiser_id,
-            campaign_id,
+            campaign_id
         )
         .fetch_one(self.db_pool)
         .await?;
@@ -188,22 +188,22 @@ impl<'p> domain::services::repository::IGetCampaignList for PgCampaignRepository
         size: u32,
         page: u32,
     ) -> infrastructure::repository::RepoResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
-        let campaigns: Vec<CampaignReturningSchema> = match (size, page) {
-            (_, _) if size == 0 || page == 0 => vec![],
-            _ =>
-                sqlx::query_as!(
-                    CampaignReturningSchema,
-                    r#"
+        let campaigns: Vec<CampaignReturningSchema> = if size == 0 || page == 0 {
+            Vec::new()
+        } else {
+            sqlx::query_as!(
+                CampaignReturningSchema,
+                r#"
                 SELECT * FROM campaigns
                 WHERE advertiser_id = $1
                 LIMIT $2 OFFSET $3
                 "#,
-                    advertiser_id,
-                    (size * page) as i64,
-                    ((page - 1) * size) as i64,
-                )
-                .fetch_all(self.db_pool)
-                .await?,
+                advertiser_id,
+                size as i32,
+                ((page - 1) * size) as i32
+            )
+            .fetch_all(self.db_pool)
+            .await?
         };
 
         let mut total_count = sqlx::query_scalar!(

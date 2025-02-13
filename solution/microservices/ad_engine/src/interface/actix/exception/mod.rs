@@ -19,8 +19,8 @@ impl actix_web::error::ResponseError for domain::services::ServiceError {
         match self {
             domain::services::ServiceError::Repository(repo) => repo.into(),
             domain::services::ServiceError::Validation(_) => actix_web::http::StatusCode::BAD_REQUEST,
-            domain::services::ServiceError::Unknown => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
-            domain::services::ServiceError::Cash(_) => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
+            domain::services::ServiceError::Unknown => actix_web::http::StatusCode::IM_A_TEAPOT,
+            domain::services::ServiceError::Cash(_) => actix_web::http::StatusCode::IM_A_TEAPOT,
         }
     }
 
@@ -34,7 +34,7 @@ impl From<&infrastructure::repository::RepoError> for actix_web::http::StatusCod
         match value {
             infrastructure::repository::RepoError::ObjDoesNotExists(_) => actix_web::http::StatusCode::NOT_FOUND,
             infrastructure::repository::RepoError::UniqueConstraint(_) => actix_web::http::StatusCode::CONFLICT,
-            infrastructure::repository::RepoError::Unknown => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
+            infrastructure::repository::RepoError::Unknown => actix_web::http::StatusCode::IM_A_TEAPOT,
         }
     }
 }
