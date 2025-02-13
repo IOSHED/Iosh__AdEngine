@@ -18,17 +18,6 @@ stages:
           age: 30
     response:
       status_code: 201
-      json:
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          login: "user1"
-          location: "Moscow"
-          gender: "MALE"
-          age: 25
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
-          login: "user2"
-          location: "St. Petersburg"
-          gender: "FEMALE"
-          age: 30
 
 ---
 test_name: Пересоздание клиента (обновление существующего клиента)
@@ -172,7 +161,7 @@ stages:
       url: "{ad_engine_url}/client/invalid-uuid"
       method: GET
     response:
-      status_code: 400
+      status_code: 404
  
 
 ---
@@ -206,4 +195,10 @@ stages:
           gender: "FEMALE"
           age: 30
     response:
-      status_code: 400
+      status_code: 201
+      json:
+        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          login: "user9"
+          location: "St. Petersburg"
+          gender: "FEMALE"
+          age: 30

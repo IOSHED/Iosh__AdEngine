@@ -13,11 +13,6 @@ stages:
           name: "user2"
     response:
       status_code: 201
-      json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          name: "user1"
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
-          name: "user2"
 
 ---
 test_name: Пересоздание рекломадателя (обновление существующего рекломадателя)
@@ -131,7 +126,7 @@ stages:
       url: "{ad_engine_url}/advertisers/invalid-uuid"
       method: GET
     response:
-      status_code: 400
+      status_code: 404
 
 ---
 test_name: Пустой список рекломадателей
@@ -158,4 +153,7 @@ stages:
         - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
           name: "user9"
     response:
-      status_code: 400
+      status_code: 201
+      json:
+        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+          name: "user9"

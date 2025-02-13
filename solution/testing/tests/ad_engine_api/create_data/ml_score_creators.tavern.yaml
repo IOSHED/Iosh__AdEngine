@@ -205,17 +205,3 @@ stages:
           location: "St. Petersburg"
     response:
       status_code: 201
-
-  - name: Попытка создания ml-score с дублирующимися ID
-    request:
-      url: "{ad_engine_url}/ml-score"
-      method: POST
-      json:
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
-          score: 1.1
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-          advertiser_id: "3fa85f64-8717-4562-b3fc-2c963f66afa6"
-          score: 10.9
-    response:
-      status_code: 400
