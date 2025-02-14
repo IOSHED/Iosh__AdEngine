@@ -40,13 +40,22 @@ impl<'p> CampaignsCreateUsecase<'p> {
         )
         .await?;
 
-        self.campaign_service
+        let campaign = self
+            .campaign_service
             .create::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(
                 create_data,
                 advertiser_id,
                 time_advance,
                 infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
-            .await
+            .await?;
+
+        let advanced_time = self.redis_service.get_advance_time().await.unwrap_or(0);
+        if advanced_time <= campaign.end_date && advanced_time >= campaign.start_date {
+            let active_campaign = domain::schemas::ActiveCampaignSchema::from((campaign.clone(), vec![], vec![]));
+            self.redis_service.set_active_campaign(active_campaign).await?;
+        }
+
+        Ok(campaign)
     }
 }

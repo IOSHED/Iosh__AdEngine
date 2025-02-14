@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT * FROM campaigns\n            WHERE start_date <= $1 AND end_date >= $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "advertiser_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "impressions_limit",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "clicks_limit",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "cost_per_impressions",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "cost_per_clicks",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "ad_title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "ad_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "start_date",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "end_date",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "targeting",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "updated_at",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b5251eca1dd7b50fc12effe69b2b81e34153867d7d19afc2afa51fb1b8f5ba3e"
+}

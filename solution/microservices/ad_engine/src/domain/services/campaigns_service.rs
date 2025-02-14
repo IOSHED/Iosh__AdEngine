@@ -43,6 +43,14 @@ pub trait IGetCampaignList {
 }
 
 #[async_trait]
+pub trait IGetActiveCampaignList {
+    async fn get_active_campaigns(
+        &self,
+        current_date: u32,
+    ) -> infrastructure::repository::RepoResult<Vec<domain::schemas::CampaignSchema>>;
+}
+
+#[async_trait]
 pub trait IDeleteCampaign {
     async fn delete(
         &self,
@@ -148,6 +156,17 @@ impl<'p> CampaignService {
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
         Ok((total_count, campaigns))
+    }
+
+    #[tracing::instrument(name = "`CampaignService` get list of campaigns", skip(repo))]
+    pub async fn get_active_campaigns<R: IGetActiveCampaignList>(
+        &self,
+        current_date: u32,
+        repo: R,
+    ) -> domain::services::ServiceResult<Vec<domain::schemas::CampaignSchema>> {
+        repo.get_active_campaigns(current_date)
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 }
 

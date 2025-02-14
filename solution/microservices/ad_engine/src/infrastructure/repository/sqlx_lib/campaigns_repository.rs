@@ -222,3 +222,76 @@ impl<'p> domain::services::repository::IGetCampaignList for PgCampaignRepository
         ))
     }
 }
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetActiveCampaignList for PgCampaignRepository<'p> {
+    async fn get_active_campaigns(
+        &self,
+        current_date: u32,
+    ) -> infrastructure::repository::RepoResult<Vec<domain::schemas::CampaignSchema>> {
+        let campaign = sqlx::query_as!(
+            CampaignReturningSchema,
+            r#"
+            SELECT * FROM campaigns
+            WHERE start_date <= $1 AND end_date >= $1
+            "#,
+            current_date as i64
+        )
+        .fetch_all(self.db_pool)
+        .await?;
+
+        Ok(campaign.into_iter().map(|c| c.into()).collect())
+    }
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetOrCreateUniqIdForStatCampaign for PgCampaignRepository<'p> {
+    async fn get_or_create_uniq_id(
+        &self,
+        campaign_id: uuid::Uuid,
+    ) -> infrastructure::repository::RepoResult<(Vec<uuid::Uuid>, Vec<uuid::Uuid>)> {
+        let view_clients: Vec<uuid::Uuid> = sqlx::query_scalar!(
+            r#"
+            SELECT client_id FROM views_clients
+            WHERE campaign_id = $1
+            "#,
+            campaign_id
+        )
+        .fetch_all(self.db_pool)
+        .await?;
+
+        let click_clients: Vec<uuid::Uuid> = sqlx::query_scalar!(
+            r#"
+            SELECT client_id FROM likes_clients
+            WHERE campaign_id = $1
+            "#,
+            campaign_id
+        )
+        .fetch_all(self.db_pool)
+        .await?;
+
+        Ok((view_clients, click_clients))
+    }
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::IViewCampaign for PgCampaignRepository<'p> {
+    async fn view_campaign(
+        &self,
+        campaign_id: uuid::Uuid,
+        client_id: uuid::Uuid,
+    ) -> infrastructure::repository::RepoResult<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO views_clients (campaign_id, client_id)
+            VALUES ($1, $2)
+            ON CONFLICT (campaign_id, client_id) DO NOTHING
+            "#,
+            campaign_id,
+            client_id
+        )
+        .execute(self.db_pool)
+        .await?;
+        Ok(())
+    }
+}

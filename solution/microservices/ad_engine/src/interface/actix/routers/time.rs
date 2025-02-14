@@ -14,9 +14,10 @@ use crate::{domain, infrastructure, interface};
 #[tracing::instrument(name = "time_advance_handler set global time")]
 pub async fn time_advance_handler(
     time_advance_request: actix_web::web::Json<domain::schemas::TimeAdvanceRequest>,
+    db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let response = domain::usecase::TimeAdvanceUsecase::new(redis_pool.get_ref())
+    let response = domain::usecase::TimeAdvanceUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .set_advance(time_advance_request.into_inner())
         .await?;
     Ok(actix_web::HttpResponse::Ok().json(response))

@@ -7,6 +7,7 @@ use crate::{
 
 pub struct CampaignsUpdateUsecase<'p> {
     campaign_service: domain::services::CampaignService,
+    campaign_stat_service: domain::services::CampaignStatService,
     redis_service: domain::services::RedisService<'p>,
     db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
@@ -18,6 +19,7 @@ impl<'p> CampaignsUpdateUsecase<'p> {
     ) -> Self {
         Self {
             campaign_service: domain::services::CampaignService,
+            campaign_stat_service: domain::services::CampaignStatService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,
         }
@@ -41,7 +43,8 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         )
         .await?;
 
-        self.campaign_service
+        let campaign = self
+            .campaign_service
             .update(
                 update_data,
                 advertiser_id,
@@ -49,6 +52,23 @@ impl<'p> CampaignsUpdateUsecase<'p> {
                 time_advance,
                 infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
-            .await
+            .await?;
+
+        let advanced_time = self.redis_service.get_advance_time().await.unwrap_or(0);
+        if advanced_time <= campaign.end_date && advanced_time >= campaign.start_date {
+            let (view_clients_id, click_clients_id) = self
+                .campaign_stat_service
+                .get_or_create_uniq_id(
+                    campaign.campaign_id,
+                    infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
+                )
+                .await?;
+
+            let active_campaign =
+                domain::schemas::ActiveCampaignSchema::from((campaign.clone(), view_clients_id, click_clients_id));
+            self.redis_service.set_active_campaign(active_campaign).await?;
+        }
+
+        Ok(campaign)
     }
 }

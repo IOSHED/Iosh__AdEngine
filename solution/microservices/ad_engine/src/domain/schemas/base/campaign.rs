@@ -53,3 +53,48 @@ pub struct TargetingCampaignSchema {
     #[schema(example = "Moscow, mcad")]
     pub location: String,
 }
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+pub struct ActiveCampaignSchema {
+    pub campaign_id: uuid::Uuid,
+    pub advertiser_id: uuid::Uuid,
+
+    pub impressions_limit: u32,
+    pub clicks_limit: u32,
+
+    pub cost_per_impressions: f64,
+    pub cost_per_clicks: f64,
+
+    pub ad_title: String,
+    pub ad_text: String,
+
+    pub start_date: u32,
+    pub end_date: u32,
+
+    pub view_clients_id: Vec<uuid::Uuid>,
+    pub click_clients_id: Vec<uuid::Uuid>,
+
+    pub targeting: TargetingCampaignSchema,
+}
+
+impl std::convert::From<(CampaignSchema, Vec<uuid::Uuid>, Vec<uuid::Uuid>)> for ActiveCampaignSchema {
+    fn from(data: (CampaignSchema, Vec<uuid::Uuid>, Vec<uuid::Uuid>)) -> Self {
+        let campaign = data.0;
+
+        Self {
+            campaign_id: campaign.campaign_id,
+            advertiser_id: campaign.advertiser_id,
+            impressions_limit: campaign.impressions_limit,
+            clicks_limit: campaign.clicks_limit,
+            cost_per_impressions: campaign.cost_per_impressions,
+            cost_per_clicks: campaign.cost_per_clicks,
+            ad_title: campaign.ad_title,
+            ad_text: campaign.ad_text,
+            start_date: campaign.start_date,
+            end_date: campaign.end_date,
+            view_clients_id: data.1,
+            click_clients_id: data.2,
+            targeting: campaign.targeting,
+        }
+    }
+}

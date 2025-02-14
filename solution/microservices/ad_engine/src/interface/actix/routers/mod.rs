@@ -1,9 +1,10 @@
+pub mod ads;
 pub mod advertisers;
 pub mod client;
 pub mod healthcheck;
 pub mod ml_score;
 pub mod time;
-
+pub use ads::ads_handler;
 pub use advertisers::advertisers_scope;
 pub use client::client_scope;
 pub use healthcheck::healthcheck_handler;

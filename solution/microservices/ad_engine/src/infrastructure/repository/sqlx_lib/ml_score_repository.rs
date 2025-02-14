@@ -14,6 +14,27 @@ impl<'p> infrastructure::repository::IRepo<'p> for PgScoreRepository<'p> {
 }
 
 #[async_trait]
+impl<'p> domain::services::repository::IGetMlScore for PgScoreRepository<'p> {
+    async fn get_ml_score(
+        &self,
+        client_id: uuid::Uuid,
+        advertiser_id: uuid::Uuid,
+    ) -> infrastructure::repository::RepoResult<f64> {
+        let score = sqlx::query_scalar!(
+            r#"
+            SELECT score FROM ml_scores WHERE client_id = $1 AND advertiser_id = $2
+            "#,
+            client_id,
+            advertiser_id,
+        )
+        .fetch_optional(self.db_pool)
+        .await?;
+
+        Ok(score.unwrap_or(0.))
+    }
+}
+
+#[async_trait]
 impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
     async fn set_ml_score(
         &self,

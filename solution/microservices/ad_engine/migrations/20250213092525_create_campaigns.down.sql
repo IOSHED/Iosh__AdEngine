@@ -1,3 +1,5 @@
 -- Add down migration script here
 
-DROP TABLE IF EXISTS clients CASCADE;
+DROP INDEX IF EXISTS campaigns_advertiser_id_idx;
+
+DROP TABLE IF EXISTS campaigns CASCADE;

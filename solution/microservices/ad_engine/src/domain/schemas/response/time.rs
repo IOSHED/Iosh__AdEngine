@@ -5,5 +5,5 @@
 )]
 pub struct TimeAdvanceResponse {
     #[schema(example = 1)]
-    pub current_date: usize,
+    pub current_date: u32,
 }

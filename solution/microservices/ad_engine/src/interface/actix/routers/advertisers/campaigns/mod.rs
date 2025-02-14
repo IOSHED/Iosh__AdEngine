@@ -82,8 +82,9 @@ pub async fn campaigns_delete_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     campaign_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    domain::usecase::CampaignsDeleteUsecase::new(db_pool.get_ref())
+    domain::usecase::CampaignsDeleteUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .delete(advertiser_id.into_inner(), campaign_id.into_inner())
         .await?;
 
