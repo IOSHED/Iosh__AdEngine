@@ -27,7 +27,7 @@ pub struct ClientService;
 
 impl<'p> ClientService {
     #[tracing::instrument(name = "`UserService` register bulk clients", skip(repo))]
-    pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkClient>(
+    pub async fn register<R: IRegisterBulkClient>(
         &self,
         register_data: Vec<domain::schemas::ClientProfileSchema>,
         repo: R,
@@ -62,7 +62,7 @@ impl<'p> ClientService {
     }
 
     #[tracing::instrument(name = "`UserService` get client by id", skip(repo))]
-    pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetClientById>(
+    pub async fn get_by_id<R: IGetClientById>(
         &self,
         client_id: uuid::Uuid,
         repo: R,
@@ -73,5 +73,211 @@ impl<'p> ClientService {
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
         Ok(repo_user.into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+    use mockall::{mock, predicate::*};
+    use uuid::Uuid;
+
+    use super::*;
+
+    mock! {
+        pub RegisterBulkClient {}
+        #[async_trait]
+        impl IRegisterBulkClient for RegisterBulkClient {
+            async fn register(
+                &self,
+                client_ids: Vec<Uuid>,
+                logins: Vec<String>,
+                locations: Vec<String>,
+                genders: Vec<String>,
+                ages: Vec<i32>,
+            ) -> infrastructure::repository::RepoResult
+            <Vec<infrastructure::repository::sqlx_lib::ClientReturningSchema>>;
+        }
+    }
+
+    mock! {
+        pub GetClientById {}
+        #[async_trait]
+        impl IGetClientById for GetClientById {
+            async fn get_by_id(
+                &self,
+                client_id: Uuid,
+            ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::ClientReturningSchema>;
+        }
+    }
+
+    #[tokio::test]
+    async fn test_register_bulk_clients() {
+        let mut mock_repo = MockRegisterBulkClient::new();
+
+        let client_id_1 = Uuid::new_v4();
+        let client_id_2 = Uuid::new_v4();
+
+        let client_1 = domain::schemas::ClientProfileSchema {
+            client_id: client_id_1,
+            login: "client1".to_string(),
+            location: "Moscow".to_string(),
+            gender: "MALE".to_string(),
+            age: 25,
+        };
+
+        let client_2 = domain::schemas::ClientProfileSchema {
+            client_id: client_id_2,
+            login: "client2".to_string(),
+            location: "St. Petersburg".to_string(),
+            gender: "FEMALE".to_string(),
+            age: 30,
+        };
+
+        let client_3 = domain::schemas::ClientProfileSchema {
+            client_id: client_id_1,
+            login: "client1_duplicate".to_string(),
+            location: "Moscow".to_string(),
+            gender: "MALE".to_string(),
+            age: 25,
+        };
+
+        let input_data = vec![client_1.clone(), client_2.clone(), client_3.clone()];
+
+        mock_repo
+            .expect_register()
+            .withf(move |ids, logins, locations, genders, ages| {
+                ids.len() == 2
+                    && logins.len() == 2
+                    && locations.len() == 2
+                    && genders.len() == 2
+                    && ages.len() == 2
+                    && ids.contains(&client_id_1)
+                    && ids.contains(&client_id_2)
+                    && logins.contains(&"client1_duplicate".to_string())
+                    && logins.contains(&"client2".to_string())
+                    && locations.contains(&"Moscow".to_string())
+                    && locations.contains(&"St. Petersburg".to_string())
+                    && genders.contains(&"MALE".to_string())
+                    && genders.contains(&"FEMALE".to_string())
+                    && ages.contains(&25)
+                    && ages.contains(&30)
+            })
+            .returning(move |_, _, _, _, _| {
+                Ok(vec![
+                    infrastructure::repository::sqlx_lib::ClientReturningSchema {
+                        client_id: client_id_1,
+                        login: "client1_duplicate".to_string(),
+                        location: "Moscow".to_string(),
+                        gender: "MALE".to_string(),
+                        age: 25,
+                    },
+                    infrastructure::repository::sqlx_lib::ClientReturningSchema {
+                        client_id: client_id_2,
+                        login: "client2".to_string(),
+                        location: "St. Petersburg".to_string(),
+                        gender: "FEMALE".to_string(),
+                        age: 30,
+                    },
+                ])
+            });
+
+        let service = ClientService;
+        let result = service.register(input_data, mock_repo).await;
+
+        assert!(result.is_ok());
+        let returned_clients = result.unwrap();
+        assert_eq!(returned_clients.len(), 2);
+
+        let expected_client_3 = domain::schemas::ClientProfileSchema {
+            client_id: client_id_1,
+            login: "client1_duplicate".to_string(),
+            location: "Moscow".to_string(),
+            gender: "MALE".to_string(),
+            age: 25,
+        };
+
+        assert!(returned_clients.contains(&expected_client_3));
+        assert!(returned_clients.contains(&client_2));
+    }
+
+    #[tokio::test]
+    async fn test_get_client_by_id() {
+        let mut mock_repo = MockGetClientById::new();
+
+        let client_id = Uuid::new_v4();
+        let expected_client = domain::schemas::ClientProfileSchema {
+            client_id,
+            login: "test_client".to_string(),
+            location: "Moscow".to_string(),
+            gender: "MALE".to_string(),
+            age: 25,
+        };
+
+        mock_repo.expect_get_by_id().with(eq(client_id)).returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+                client_id,
+                login: "test_client".to_string(),
+                location: "Moscow".to_string(),
+                gender: "MALE".to_string(),
+                age: 25,
+            })
+        });
+
+        let service = ClientService;
+        let result = service.get_by_id(client_id, mock_repo).await;
+
+        assert!(result.is_ok());
+        let returned_client = result.unwrap();
+        assert_eq!(returned_client, expected_client);
+    }
+
+    #[tokio::test]
+    async fn test_register_bulk_clients_with_repo_error() {
+        let mut mock_repo = MockRegisterBulkClient::new();
+
+        let client_id = Uuid::new_v4();
+        let client = domain::schemas::ClientProfileSchema {
+            client_id,
+            login: "client1".to_string(),
+            location: "Moscow".to_string(),
+            gender: "MALE".to_string(),
+            age: 25,
+        };
+
+        let input_data = vec![client];
+
+        mock_repo
+            .expect_register()
+            .returning(|_, _, _, _, _| Err(infrastructure::repository::RepoError::UniqueConstraint("err".into())));
+
+        let service = ClientService;
+        let result = service.register(input_data, mock_repo).await;
+
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            domain::services::ServiceError::Repository(_) => (),
+            _ => panic!("Expected Repository error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_get_client_by_id_with_repo_error() {
+        let mut mock_repo = MockGetClientById::new();
+
+        let client_id = Uuid::new_v4();
+
+        mock_repo
+            .expect_get_by_id()
+            .returning(|_| Err(infrastructure::repository::RepoError::ObjDoesNotExists("err".into())));
+
+        let service = ClientService;
+        let result = service.get_by_id(client_id, mock_repo).await;
+
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            domain::services::ServiceError::Repository(_) => (),
+            _ => panic!("Expected Repository error"),
+        }
     }
 }

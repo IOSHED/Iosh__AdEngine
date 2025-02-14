@@ -1,6 +1,6 @@
 use crate::domain;
 
-#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
 pub struct CampaignsCreateRequest {
     #[schema(example = 105, minimum = 0)]
     pub impressions_limit: u32,
@@ -30,7 +30,7 @@ pub struct CampaignsCreateRequest {
     pub targeting: domain::schemas::TargetingCampaignSchema,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
 pub struct CampaignsUpdateRequest {
     #[schema(example = 105, minimum = 0)]
     pub impressions_limit: u32,

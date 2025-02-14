@@ -24,7 +24,7 @@ pub struct AdvertiserService;
 
 impl<'p> AdvertiserService {
     #[tracing::instrument(name = "`UserService` register bulk Advertisers", skip(repo))]
-    pub async fn register<R: infrastructure::repository::IRepo<'p> + IRegisterBulkAdvertiser>(
+    pub async fn register<R: IRegisterBulkAdvertiser>(
         &self,
         register_data: Vec<domain::schemas::AdvertiserProfileSchema>,
         repo: R,
@@ -56,7 +56,7 @@ impl<'p> AdvertiserService {
     }
 
     #[tracing::instrument(name = "`UserService` get Advertiser by id", skip(repo))]
-    pub async fn get_by_id<R: infrastructure::repository::IRepo<'p> + IGetAdvertiserById>(
+    pub async fn get_by_id<R: IGetAdvertiserById>(
         &self,
         advertiser_id: uuid::Uuid,
         repo: R,
@@ -67,5 +67,155 @@ impl<'p> AdvertiserService {
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
         Ok(repo_user.into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+    use mockall::{mock, predicate::*};
+    use uuid::Uuid;
+
+    use super::*;
+
+    mock! {
+        pub RegisterBulkAdvertiser {}
+        #[async_trait]
+        impl IRegisterBulkAdvertiser for RegisterBulkAdvertiser {
+            async fn register(
+                &self,
+                advertiser_ids: Vec<Uuid>,
+                names: Vec<String>,
+            ) -> infrastructure::repository::RepoResult
+            <Vec<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>>;
+        }
+    }
+
+    mock! {
+        pub GetAdvertiserById {}
+        #[async_trait]
+        impl IGetAdvertiserById for GetAdvertiserById {
+            async fn get_by_id(
+                &self,
+                advertiser_id: Uuid,
+            ) -> infrastructure::repository::RepoResult
+            <infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>;
+        }
+    }
+
+    #[tokio::test]
+    async fn test_register_bulk_advertisers() {
+        let mut mock_repo = MockRegisterBulkAdvertiser::new();
+
+        let advertiser_id_1 = Uuid::new_v4();
+        let advertiser_id_2 = Uuid::new_v4();
+
+        let advertiser_1 = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id: advertiser_id_1,
+            name: "Advertiser 1".to_string(),
+        };
+
+        let advertiser_2 = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id: advertiser_id_2,
+            name: "Advertiser 2".to_string(),
+        };
+
+        let advertiser_3 = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id: advertiser_id_1,
+            name: "Advertiser 1 Duplicate".to_string(),
+        };
+
+        let input_data = vec![advertiser_1.clone(), advertiser_2.clone(), advertiser_3.clone()];
+
+        mock_repo
+            .expect_register()
+            .withf(move |ids, names| {
+                ids.len() == 2
+                    && names.len() == 2
+                    && ids.contains(&advertiser_id_1)
+                    && ids.contains(&advertiser_id_2)
+                    && names.contains(&"Advertiser 1 Duplicate".to_string())
+                    && names.contains(&"Advertiser 2".to_string())
+            })
+            .returning(move |_, _| {
+                Ok(vec![
+                    infrastructure::repository::sqlx_lib::AdvertiserReturningSchema {
+                        advertiser_id: advertiser_id_1,
+                        name: "Advertiser 1 Duplicate".to_string(),
+                    },
+                    infrastructure::repository::sqlx_lib::AdvertiserReturningSchema {
+                        advertiser_id: advertiser_id_2,
+                        name: "Advertiser 2".to_string(),
+                    },
+                ])
+            });
+
+        let service = AdvertiserService;
+        let result = service.register(input_data, mock_repo).await;
+
+        assert!(result.is_ok());
+        let returned_advertisers = result.unwrap();
+        assert_eq!(returned_advertisers.len(), 2);
+
+        let expected_advertiser_3 = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id: advertiser_id_1,
+            name: "Advertiser 1 Duplicate".to_string(),
+        };
+
+        assert!(returned_advertisers.contains(&expected_advertiser_3));
+        assert!(returned_advertisers.contains(&advertiser_2));
+    }
+    #[tokio::test]
+    async fn test_get_advertiser_by_id() {
+        let mut mock_repo = MockGetAdvertiserById::new();
+
+        let advertiser_id = Uuid::new_v4();
+        let expected_advertiser = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id,
+            name: "Test Advertiser".to_string(),
+        };
+
+        mock_repo
+            .expect_get_by_id()
+            .with(eq(advertiser_id))
+            .returning(move |_| {
+                Ok(infrastructure::repository::sqlx_lib::AdvertiserReturningSchema {
+                    advertiser_id,
+                    name: "Test Advertiser".to_string(),
+                })
+            });
+
+        let service = AdvertiserService;
+        let result = service.get_by_id(advertiser_id, mock_repo).await;
+
+        assert!(result.is_ok());
+        let returned_advertiser = result.unwrap();
+        assert_eq!(returned_advertiser, expected_advertiser);
+    }
+
+    #[tokio::test]
+    async fn test_register_bulk_advertisers_with_repo_error() {
+        let mut mock_repo = MockRegisterBulkAdvertiser::new();
+
+        let advertiser_id = Uuid::new_v4();
+        let advertiser = domain::schemas::AdvertiserProfileSchema {
+            advertiser_id,
+            name: "Advertiser 1".to_string(),
+        };
+
+        let input_data = vec![advertiser];
+
+        mock_repo
+            .expect_register()
+            .returning(|_, _| Err(infrastructure::repository::RepoError::UniqueConstraint("err".into())));
+
+        let service = AdvertiserService;
+        let result = service.register(input_data, mock_repo).await;
+
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            domain::services::ServiceError::Repository(_) => (),
+            _ => panic!("Expected Repository error"),
+        }
     }
 }

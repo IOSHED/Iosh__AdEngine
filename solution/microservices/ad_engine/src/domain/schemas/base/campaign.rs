@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
 pub struct CampaignSchema {
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]
     pub campaign_id: uuid::Uuid,
@@ -31,7 +31,7 @@ pub struct CampaignSchema {
     pub targeting: TargetingCampaignSchema,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
 pub struct TargetingCampaignSchema {
     #[schema(example = "MALE")]
     #[validate(

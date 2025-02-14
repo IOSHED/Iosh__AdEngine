@@ -1,4 +1,4 @@
-#[derive(Debug, serde::Deserialize, utoipa::ToSchema, validator::Validate)]
+#[derive(serde::Deserialize, utoipa::ToSchema, validator::Validate, Debug, Clone, PartialEq)]
 #[schema(
     title = "Bind score to client and advertiser",
     description = "Bind ML score to client and advertiser"
