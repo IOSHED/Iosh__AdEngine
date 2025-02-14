@@ -126,3 +126,12 @@ If you are backend developer:
   ```powershell
   cargo doc  --lib --open --no-deps --document-private-items
   ```
+
+# Testing
+
+You can run unit test for all service:
+```powershell
+cargo test
+```
+
+Integration tests should be written outside the service.

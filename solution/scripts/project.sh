@@ -24,6 +24,8 @@ run_tests() {
     sleep 5
     pytest -v --tavern-global-cfg=tavern.config.yaml  
     docker-compose -f docker-compose.test.yaml down -v
+    cd ../microservices/ad_engine || exit
+    cargo test
     exit
 }
 

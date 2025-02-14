@@ -161,6 +161,8 @@ call .venv\Scripts\activate
 timeout /t 3
 pytest -v --tavern-global-cfg=tavern.config.yaml  
 docker-compose -f docker-compose.test.yaml down -v
+cd ../microservices/ad_engine
+cargo test
 exit /B
 
 :init_and_run_tests
