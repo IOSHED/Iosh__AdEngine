@@ -29,7 +29,7 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let time_advance: u32 = self.redis_service.get("time_advance").await?;
+        let time_advance: u32 = self.redis_service.get_advance_time().await?;
 
         update_data.validate()?;
         domain::validators::validate_campaing_data(

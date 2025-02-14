@@ -21,11 +21,9 @@ impl<'p> TimeAdvanceUsecase<'p> {
             .validate()
             .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
 
-        self.redis_service
-            .set("time_advance", advance_schema.current_date)
-            .await?;
+        self.redis_service.set_advance_time(advance_schema.current_date).await?;
         Ok(domain::schemas::TimeAdvanceResponse {
-            current_date: self.redis_service.get("time_advance").await?,
+            current_date: self.redis_service.get_advance_time().await?,
         })
     }
 }

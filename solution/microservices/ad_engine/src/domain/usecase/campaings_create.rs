@@ -28,7 +28,7 @@ impl<'p> CampaignsCreateUsecase<'p> {
         create_data: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
-        let time_advance: u32 = self.redis_service.get("time_advance").await?;
+        let time_advance: u32 = self.redis_service.get_advance_time().await?;
 
         create_data.validate()?;
         domain::validators::validate_campaing_data(
