@@ -41,17 +41,17 @@ pub struct TargetingCampaignSchema {
             message = "Gender not equal MALE or FEMALE"
         )
     )]
-    pub gender: String,
+    pub gender: Option<String>,
 
     #[schema(example = 18, minimum = 0)]
     #[validate(range(min = 0, message = "age must be under or equal 0"))]
-    pub age_from: u8,
+    pub age_from: Option<u8>,
     #[schema(example = 18, minimum = 0)]
     #[validate(range(min = 0, message = "age must be under or equal 0"))]
-    pub age_to: u8,
+    pub age_to: Option<u8>,
 
     #[schema(example = "Moscow, mcad")]
-    pub location: String,
+    pub location: Option<String>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]

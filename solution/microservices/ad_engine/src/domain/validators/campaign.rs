@@ -18,7 +18,10 @@ async fn validate_date_range(start_date: u32, end_date: u32) -> Result<(), domai
     Ok(())
 }
 
-async fn validate_age_range(age_from: u8, age_to: u8) -> Result<(), domain::services::ServiceError> {
+async fn validate_age_range(age_from: Option<u8>, age_to: Option<u8>) -> Result<(), domain::services::ServiceError> {
+    if age_from.is_none() || age_to.is_none() {
+        return Ok(());
+    }
     if age_from > age_to {
         return Err(domain::services::ServiceError::Validation(
             "age_from must be under or equal to age_to".into(),
@@ -42,8 +45,8 @@ async fn validate_limits_range(
 pub async fn validate_campaign_data(
     start_date: u32,
     end_date: u32,
-    age_from: u8,
-    age_to: u8,
+    age_from: Option<u8>,
+    age_to: Option<u8>,
     impressions_limit: u32,
     clicks_limit: u32,
     time_advance: u32,

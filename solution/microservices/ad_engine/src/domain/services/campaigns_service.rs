@@ -265,10 +265,10 @@ mod tests {
             start_date: 12345,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "MALE".to_string(),
-                age_from: 18,
-                age_to: 35,
-                location: "Moscow".to_string(),
+                gender: Some("MALE".to_string()),
+                age_from: Some(18),
+                age_to: Some(35),
+                location: Some("Moscow".to_string()),
             },
         };
 
@@ -284,10 +284,10 @@ mod tests {
             start_date: 12345,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "MALE".to_string(),
-                age_from: 18,
-                age_to: 35,
-                location: "Moscow".to_string(),
+                gender: Some("MALE".to_string()),
+                age_from: Some(18),
+                age_to: Some(35),
+                location: Some("Moscow".to_string()),
             },
         };
         let expected_campaign_mock = expected_campaign.clone();
@@ -323,10 +323,10 @@ mod tests {
             start_date: 12346,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "FEMALE".to_string(),
-                age_from: 20,
-                age_to: 40,
-                location: "St. Petersburg".to_string(),
+                gender: Some("FEMALE".to_string()),
+                age_from: Some(20),
+                age_to: Some(40),
+                location: Some("St. Petersburg".to_string()),
             },
         };
 
@@ -342,10 +342,10 @@ mod tests {
             start_date: 12345,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "MALE".to_string(),
-                age_from: 18,
-                age_to: 35,
-                location: "Moscow".to_string(),
+                gender: Some("MALE".to_string()),
+                age_from: Some(18),
+                age_to: Some(35),
+                location: Some("Moscow".to_string()),
             },
         };
 
@@ -361,10 +361,10 @@ mod tests {
             start_date: 12346,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "FEMALE".to_string(),
-                age_from: 20,
-                age_to: 40,
-                location: "St. Petersburg".to_string(),
+                gender: Some("FEMALE".to_string()),
+                age_from: Some(20),
+                age_to: Some(40),
+                location: Some("St. Petersburg".to_string()),
             },
         };
         let expected_campaign_moc = expected_campaign.clone();
@@ -430,10 +430,10 @@ mod tests {
             start_date: 12345,
             end_date: 123456,
             targeting: domain::schemas::TargetingCampaignSchema {
-                gender: "MALE".to_string(),
-                age_from: 18,
-                age_to: 35,
-                location: "Moscow".to_string(),
+                gender: Some("MALE".to_string()),
+                age_from: Some(18),
+                age_to: Some(35),
+                location: Some("Moscow".to_string()),
             },
         };
 
@@ -470,10 +470,10 @@ mod tests {
                 start_date: 12345,
                 end_date: 123456,
                 targeting: domain::schemas::TargetingCampaignSchema {
-                    gender: "MALE".to_string(),
-                    age_from: 18,
-                    age_to: 35,
-                    location: "Moscow".to_string(),
+                    gender: Some("MALE".to_string()),
+                    age_from: Some(18),
+                    age_to: Some(35),
+                    location: Some("Moscow".to_string()),
                 },
             },
             domain::schemas::CampaignSchema {
@@ -488,10 +488,10 @@ mod tests {
                 start_date: 12345,
                 end_date: 123456,
                 targeting: domain::schemas::TargetingCampaignSchema {
-                    gender: "FEMALE".to_string(),
-                    age_from: 20,
-                    age_to: 40,
-                    location: "St. Petersburg".to_string(),
+                    gender: Some("FEMALE".to_string()),
+                    age_from: Some(20),
+                    age_to: Some(40),
+                    location: Some("St. Petersburg".to_string()),
                 },
             },
         ];

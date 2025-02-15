@@ -156,10 +156,12 @@ impl AdsService {
         active_campaigns
             .into_iter()
             .filter(|c| {
-                c.targeting.location == location
-                    && (c.targeting.gender == gender || c.targeting.gender == "ALL")
-                    && c.targeting.age_from <= age
-                    && age <= c.targeting.age_to
+                (c.targeting.location == Some(location.clone()) || c.targeting.location.is_none())
+                    && (c.targeting.gender == Some(gender.clone())
+                        || c.targeting.gender == Some("ALL".to_string())
+                        || c.targeting.gender.is_none())
+                    && (c.targeting.age_from <= Some(age) || c.targeting.age_from.is_none())
+                    && (c.targeting.age_to >= Some(age) || c.targeting.age_to.is_none())
             })
             .collect()
     }
