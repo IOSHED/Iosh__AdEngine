@@ -5,9 +5,9 @@ pub struct CampaignSchema {
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]
     pub advertiser_id: uuid::Uuid,
 
-    #[schema(example = 105, minimum = 0)]
-    pub impressions_limit: u32,
     #[schema(example = 205, minimum = 0)]
+    pub impressions_limit: u32,
+    #[schema(example = 105, minimum = 0)]
     pub clicks_limit: u32,
 
     #[schema(example = 100.0, minimum = 0)]

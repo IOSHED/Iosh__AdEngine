@@ -1,4 +1,4 @@
-mod base_func;
+mod campaign;
 mod regexes;
-pub use base_func::validate_campaing_data;
+pub use campaign::validate_campaign_data;
 pub use regexes::RE_GENDER;

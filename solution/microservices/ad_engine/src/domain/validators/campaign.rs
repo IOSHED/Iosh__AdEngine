@@ -27,14 +27,29 @@ async fn validate_age_range(age_from: u8, age_to: u8) -> Result<(), domain::serv
     Ok(())
 }
 
-pub async fn validate_campaing_data(
+async fn validate_limits_range(
+    impressions_limit: u32,
+    clicks_limit: u32,
+) -> Result<(), domain::services::ServiceError> {
+    if clicks_limit > impressions_limit {
+        return Err(domain::services::ServiceError::Validation(
+            "clicks_limit must be under or equal to impressions_limit".into(),
+        ));
+    }
+    Ok(())
+}
+
+pub async fn validate_campaign_data(
     start_date: u32,
     end_date: u32,
     age_from: u8,
     age_to: u8,
     time_advance: u32,
+    impressions_limit: u32,
+    clicks_limit: u32,
 ) -> Result<(), domain::services::ServiceError> {
     validate_start_date(start_date, time_advance).await?;
     validate_date_range(start_date, end_date).await?;
-    validate_age_range(age_from, age_to).await
+    validate_age_range(age_from, age_to).await?;
+    validate_limits_range(impressions_limit, clicks_limit).await
 }

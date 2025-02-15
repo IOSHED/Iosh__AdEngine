@@ -31,11 +31,13 @@ impl<'p> CampaignsCreateUsecase<'p> {
         let time_advance: u32 = self.redis_service.get_advance_time().await?;
 
         create_data.validate()?;
-        domain::validators::validate_campaing_data(
+        domain::validators::validate_campaign_data(
             create_data.start_date,
             create_data.end_date,
             create_data.targeting.age_from,
             create_data.targeting.age_to,
+            create_data.impressions_limit,
+            create_data.clicks_limit,
             time_advance,
         )
         .await?;

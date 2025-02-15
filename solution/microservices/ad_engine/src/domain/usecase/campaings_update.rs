@@ -34,11 +34,13 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         let time_advance: u32 = self.redis_service.get_advance_time().await?;
 
         update_data.validate()?;
-        domain::validators::validate_campaing_data(
+        domain::validators::validate_campaign_data(
             update_data.start_date,
             update_data.end_date,
             update_data.targeting.age_from,
             update_data.targeting.age_to,
+            update_data.impressions_limit,
+            update_data.clicks_limit,
             time_advance,
         )
         .await?;
