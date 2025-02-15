@@ -31,7 +31,9 @@ pub struct CampaignSchema {
     pub targeting: TargetingCampaignSchema,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
+#[derive(
+    serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Default, Clone, PartialEq,
+)]
 pub struct TargetingCampaignSchema {
     #[schema(example = "MALE")]
     #[validate(

@@ -50,26 +50,22 @@ pub async fn campaigns_create_handler(
 #[tracing::instrument(name = "Update campaign", skip(db_pool))]
 pub async fn campaigns_update_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsUpdateRequest>,
-    advertiser_id: actix_web::web::Path<uuid::Uuid>,
-    campaign_id: actix_web::web::Path<uuid::Uuid>,
+    path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let (advertiser_id, campaign_id) = path_param.into_inner();
     let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
-        .update(
-            campaign_request.into_inner(),
-            advertiser_id.into_inner(),
-            campaign_id.into_inner(),
-        )
+        .update(campaign_request.into_inner(), advertiser_id, campaign_id)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created().json(campaign))
+    Ok(actix_web::HttpResponse::Ok().json(campaign))
 }
 
 #[utoipa::path(
     delete,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}",
-    tag = "campaigns",
+    tag = "campaigns", 
     responses(
         (status = 204, description = "Deleted", body = ()),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
@@ -79,16 +75,16 @@ pub async fn campaigns_update_handler(
 #[actix_web::delete("/{campaign_id}")]
 #[tracing::instrument(name = "Delete campaign", skip(db_pool))]
 pub async fn campaigns_delete_handler(
-    advertiser_id: actix_web::web::Path<uuid::Uuid>,
-    campaign_id: actix_web::web::Path<uuid::Uuid>,
+    path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let (advertiser_id, campaign_id) = path_param.into_inner();
     domain::usecase::CampaignsDeleteUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
-        .delete(advertiser_id.into_inner(), campaign_id.into_inner())
+        .delete(advertiser_id, campaign_id)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created().into())
+    Ok(actix_web::HttpResponse::NoContent().finish())
 }
 
 #[utoipa::path(
@@ -104,12 +100,12 @@ pub async fn campaigns_delete_handler(
 #[actix_web::get("/{campaign_id}")]
 #[tracing::instrument(name = "Get campaign by id", skip(db_pool))]
 pub async fn campaigns_get_by_id_handler(
-    advertiser_id: actix_web::web::Path<uuid::Uuid>,
-    campaign_id: actix_web::web::Path<uuid::Uuid>,
+    path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let (advertiser_id, campaign_id) = path_param.into_inner();
     let campaign = domain::usecase::CampaignsGetByIdUsecase::new(db_pool.get_ref())
-        .get(advertiser_id.into_inner(), campaign_id.into_inner())
+        .get(advertiser_id, campaign_id)
         .await?;
 
     Ok(actix_web::HttpResponse::Created().json(campaign))

@@ -16,11 +16,12 @@ struct AdsQuery {
     responses(
         (status = 200, description = "List campaigns", body = Vec<domain::schemas::CampaignSchema>),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "There is no suitable advertisement", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
 #[actix_web::get("/ads")]
-#[tracing::instrument(name = "Get list of campaigns", skip(db_pool))]
+#[tracing::instrument(name = "Get suitable ads for client", skip(db_pool))]
 pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -33,4 +34,33 @@ pub async fn ads_handler(
         .await?;
 
     Ok(actix_web::HttpResponse::Created().json(ads))
+}
+
+
+#[utoipa::path(
+    post,
+    path = "/ads/{ads_id}/click",
+    tag = "ads",
+    request_body = domain::schemas::AdClickRequest,
+    responses(
+        (status = 204, description = "Click successful", body = Vec<domain::schemas::CampaignSchema>),
+        (status = 400, description = "Bot found this campaign", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "Not found this client", body = interface::actix::exception::ExceptionResponse),
+        (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
+    )
+)]
+#[actix_web::post("/ads/{ads_id}/click")]
+#[tracing::instrument(name = "Click ads", skip(db_pool))]
+pub async fn ads_click_handler(
+    campaign_id: actix_web::web::Path<uuid::Uuid>,
+    ads_request: actix_web::web::Json<domain::schemas::AdClickRequest>,
+    db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+  
+    domain::usecase::AdsClickUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
+        .click(campaign_id.into_inner(), ads_request.into_inner())
+        .await?;
+
+    Ok(actix_web::HttpResponse::NoContent().into())
 }

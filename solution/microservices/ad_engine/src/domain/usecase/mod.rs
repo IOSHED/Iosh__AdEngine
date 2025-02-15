@@ -3,6 +3,7 @@
 //! multiple services. It manages the logic that defines how data and operations
 //! are related to each other.
 
+mod ads_click;
 mod ads_get;
 mod advertiser_bulk_register;
 mod advertiser_profile;
@@ -15,6 +16,7 @@ mod client_bulk_register;
 mod client_profile;
 mod ml_score;
 mod time_advance;
+pub use ads_click::AdsClickUsecase;
 pub use ads_get::AdsGetUsecase;
 pub use advertiser_bulk_register::AdvertiserBulkRegisterUsecase;
 pub use advertiser_profile::AdvertiserProfileUsecase;

@@ -8,6 +8,7 @@
         super::super::routers::time::time_advance_handler,
         super::super::routers::ml_score::ml_score_handler,
         super::super::routers::ads::ads_handler,
+        super::super::routers::ads::ads_click_handler,
         super::super::routers::client::client_bulk_handler,
         super::super::routers::client::client_by_id_handler,
         super::super::routers::advertisers::advertiser_bulk_handler,

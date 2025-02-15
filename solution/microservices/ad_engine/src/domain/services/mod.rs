@@ -27,7 +27,7 @@ pub mod repository {
         advertiser_service::{IGetAdvertiserById, IRegisterBulkAdvertiser},
         campaigns_service::{
             ICreateCampaign, IDeleteCampaign, IGetActiveCampaignList, IGetCampaignById, IGetCampaignList,
-            IUpdateCampaign,
+            ISearchCampaign, IUpdateCampaign,
         },
         campaigns_stat_service::{IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
         client_service::{IGetClientById, IRegisterBulkClient},

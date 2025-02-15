@@ -68,7 +68,7 @@ impl<'p> domain::services::repository::ISetMlScore for PgScoreRepository<'p> {
             )
             "#,
             client_id,
-            advertiser_id,
+            advertiser_id
         )
         .fetch_one(&mut *transaction)
         .await?;

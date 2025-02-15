@@ -26,7 +26,7 @@ pub struct CampaignReturningSchema {
     pub ad_text: String,
     pub start_date: i64,
     pub end_date: i64,
-    pub targeting: serde_json::Value,
+    pub targeting: Option<serde_json::Value>,
     pub updated_at: i64,
     pub created_at: i64,
 }
@@ -44,7 +44,8 @@ impl From<CampaignReturningSchema> for domain::schemas::CampaignSchema {
             ad_text: campaign.ad_text,
             start_date: campaign.start_date as u32,
             end_date: campaign.end_date as u32,
-            targeting: serde_json::from_value(campaign.targeting).unwrap(),
+            targeting: serde_json::from_value(campaign.targeting.unwrap_or(serde_json::json!({})))
+                .unwrap_or(domain::schemas::TargetingCampaignSchema::default()),
         }
     }
 }
@@ -177,6 +178,24 @@ impl<'p> domain::services::repository::IGetCampaignById for PgCampaignRepository
         .await?;
 
         Ok(campaign.into())
+    }
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::ISearchCampaign for PgCampaignRepository<'p> {
+    async fn are_exist(&self, campaign_id: uuid::Uuid) -> infrastructure::repository::RepoResult<bool> {
+        let exists: Option<bool> = sqlx::query_scalar!(
+            r#"
+            SELECT EXISTS (
+                SELECT 1 FROM campaigns WHERE id = $1
+            )
+            "#,
+            campaign_id
+        )
+        .fetch_one(self.db_pool)
+        .await?;
+
+        Ok(exists.unwrap_or(false))
     }
 }
 

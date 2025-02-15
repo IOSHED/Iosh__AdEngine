@@ -59,6 +59,11 @@ pub trait IDeleteCampaign {
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
+#[async_trait]
+pub trait ISearchCampaign {
+    async fn are_exist(&self, campaign_id: uuid::Uuid) -> infrastructure::repository::RepoResult<bool>;
+}
+
 #[derive(Debug)]
 pub struct CampaignService;
 
@@ -165,6 +170,17 @@ impl<'p> CampaignService {
         repo: R,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::CampaignSchema>> {
         repo.get_active_campaigns(current_date)
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e))
+    }
+
+    #[tracing::instrument(name = "`CampaignService` are exist campaign", skip(repo))]
+    pub async fn campaign_is_exist<R: ISearchCampaign>(
+        &self,
+        campaign_id: uuid::Uuid,
+        repo: R,
+    ) -> domain::services::ServiceResult<bool> {
+        repo.are_exist(campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
