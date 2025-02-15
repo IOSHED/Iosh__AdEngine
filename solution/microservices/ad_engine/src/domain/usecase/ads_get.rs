@@ -25,12 +25,14 @@ impl<'p> AdsGetUsecase<'p> {
 
     pub async fn execute(&self, client_id: uuid::Uuid) -> domain::services::ServiceResult<domain::schemas::AdSchema> {
         let active_campaigns = self.redis_service.get_all_active_campaigns().await?;
+        let advanced_time = self.redis_service.get_advance_time().await?;
 
         let ads = self
             .ads_service
             .recommendation_ads(
                 active_campaigns,
                 client_id,
+                advanced_time,
                 infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool),
                 infrastructure::repository::sqlx_lib::PgScoreRepository::new(self.db_pool),
             )

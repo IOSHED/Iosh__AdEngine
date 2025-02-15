@@ -23,6 +23,7 @@ pub use redis_service::RedisService;
 
 pub mod repository {
     pub use super::{
+        ads_service::IGetMlScores,
         advertiser_service::{IGetAdvertiserById, IRegisterBulkAdvertiser},
         campaigns_service::{
             ICreateCampaign, IDeleteCampaign, IGetActiveCampaignList, IGetCampaignById, IGetCampaignList,
@@ -30,7 +31,7 @@ pub mod repository {
         },
         campaigns_stat_service::{IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
         client_service::{IGetClientById, IRegisterBulkClient},
-        ml_score_service::{IGetMlScore, ISetMlScore},
+        ml_score_service::ISetMlScore,
     };
 }
 

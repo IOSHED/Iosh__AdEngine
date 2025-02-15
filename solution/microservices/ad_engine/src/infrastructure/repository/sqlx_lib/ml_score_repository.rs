@@ -14,23 +14,38 @@ impl<'p> infrastructure::repository::IRepo<'p> for PgScoreRepository<'p> {
 }
 
 #[async_trait]
-impl<'p> domain::services::repository::IGetMlScore for PgScoreRepository<'p> {
-    async fn get_ml_score(
+impl<'p> domain::services::repository::IGetMlScores for PgScoreRepository<'p> {
+    async fn get_ml_scores(
         &self,
         client_id: uuid::Uuid,
-        advertiser_id: uuid::Uuid,
-    ) -> infrastructure::repository::RepoResult<f64> {
-        let score = sqlx::query_scalar!(
+        advertisers_id: Vec<uuid::Uuid>,
+    ) -> infrastructure::repository::RepoResult<Vec<f64>> {
+        if advertisers_id.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let scores = sqlx::query!(
             r#"
-            SELECT score FROM ml_scores WHERE client_id = $1 AND advertiser_id = $2
+            SELECT advertiser_id, score FROM ml_scores
+            WHERE client_id = $1 AND advertiser_id = ANY($2)
             "#,
             client_id,
-            advertiser_id,
+            &advertisers_id
         )
-        .fetch_optional(self.db_pool)
+        .fetch_all(self.db_pool)
         .await?;
 
-        Ok(score.unwrap_or(0.))
+        let scores_map: std::collections::HashMap<uuid::Uuid, f64> = scores
+            .into_iter()
+            .map(|record| (record.advertiser_id, record.score))
+            .collect();
+
+        let result: Vec<f64> = advertisers_id
+            .into_iter()
+            .map(|advertiser_id| scores_map.get(&advertiser_id).copied().unwrap_or(0.0))
+            .collect();
+
+        Ok(result)
     }
 }
 

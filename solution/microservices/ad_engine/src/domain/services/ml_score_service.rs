@@ -12,15 +12,6 @@ pub trait ISetMlScore {
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
-#[async_trait]
-pub trait IGetMlScore {
-    async fn get_ml_score(
-        &self,
-        client_id: uuid::Uuid,
-        advertiser_id: uuid::Uuid,
-    ) -> infrastructure::repository::RepoResult<f64>;
-}
-
 #[derive(std::fmt::Debug)]
 pub struct MlScoreService;
 

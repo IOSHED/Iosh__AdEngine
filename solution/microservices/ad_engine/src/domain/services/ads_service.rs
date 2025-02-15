@@ -1,6 +1,15 @@
-use rand::Rng;
+use async_trait::async_trait;
 
 use crate::{domain, infrastructure};
+
+#[async_trait]
+pub trait IGetMlScores {
+    async fn get_ml_scores(
+        &self,
+        client_id: uuid::Uuid,
+        advertisers_id: Vec<uuid::Uuid>,
+    ) -> infrastructure::repository::RepoResult<Vec<f64>>;
+}
 
 #[derive(Debug)]
 pub struct AdsService;
@@ -10,19 +19,19 @@ impl AdsService {
         &self,
         active_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
         client_id: uuid::Uuid,
+        advanced_time: u32,
         repo_client: R1,
         repo_score: R2,
     ) -> domain::services::ServiceResult<domain::schemas::AdSchema>
     where
         R1: super::repository::IGetClientById,
-        R2: super::repository::IGetMlScore,
+        R2: super::repository::IGetMlScores,
     {
         let client = self.get_client(repo_client, client_id).await?;
-
         let suitable_campaigns = self.get_suitable_campaigns(active_campaigns, &client).await?;
-
-        let scored_campaigns = self.score_campaigns(suitable_campaigns, client_id, &repo_score).await?;
-
+        let scored_campaigns = self
+            .score_campaigns(suitable_campaigns, client_id, advanced_time, &repo_score)
+            .await?;
         let top_campaign = self.get_top_campaign(&scored_campaigns).await?;
 
         Ok(domain::schemas::AdSchema {
@@ -52,27 +61,22 @@ impl AdsService {
         active_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
         client: &infrastructure::repository::sqlx_lib::ClientReturningSchema,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::ActiveCampaignSchema>> {
-        let suitable_campaigns = if self.should_show_non_targeted().await {
-            active_campaigns
-        } else {
-            self.filter_targeted_campaigns(
+        let filtered_campaigns = self
+            .filter_targeted_campaigns(
                 active_campaigns,
                 client.age as u8,
                 client.gender.clone(),
                 client.location.clone(),
             )
             .await
-        };
-
-        let filtered_campaigns: Vec<_> = suitable_campaigns
             .into_iter()
-            .filter(|c| !c.click_clients_id.contains(&client.client_id))
-            .filter(|c| (c.view_clients_id.len() as u32) < c.impressions_limit)
-            .collect();
+            .filter(|c| !c.view_clients_id.contains(&client.client_id))
+            .filter(|c| (c.view_clients_id.len() as u32) <= c.impressions_limit)
+            .collect::<Vec<_>>();
 
         if filtered_campaigns.is_empty() {
-            return Err(domain::services::ServiceError::Validation(
-                "No suitable campaigns found".into(),
+            return Err(domain::services::ServiceError::Repository(
+                infrastructure::repository::RepoError::ObjDoesNotExists("Suitable campaigns".into()),
             ));
         }
 
@@ -83,33 +87,45 @@ impl AdsService {
         &self,
         suitable_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
         client_id: uuid::Uuid,
+        advanced_time: u32,
         repo_score: &R,
     ) -> domain::services::ServiceResult<Vec<(f64, u32, domain::schemas::ActiveCampaignSchema)>>
     where
-        R: super::repository::IGetMlScore,
+        R: super::repository::IGetMlScores,
     {
-        let mut scored_campaigns =
-            futures::future::join_all(suitable_campaigns.into_iter().map(|campaign| async move {
+        let profits: Vec<f64> = suitable_campaigns
+            .iter()
+            .map(|campaign| {
                 let remaining_impressions = campaign.impressions_limit as f64 - campaign.view_clients_id.len() as f64;
                 let remaining_clicks = campaign.clicks_limit as f64 - campaign.click_clients_id.len() as f64;
+                (remaining_impressions * campaign.cost_per_impressions as f64)
+                    + (remaining_clicks * campaign.cost_per_clicks as f64)
+            })
+            .collect();
 
-                let profit = (remaining_impressions * campaign.cost_per_impressions as f64)
-                    + (remaining_clicks * campaign.cost_per_clicks as f64);
+        let (min_profit, max_profit) = self.calculate_min_max(&profits);
+        let advertisers_id: Vec<uuid::Uuid> = suitable_campaigns
+            .iter()
+            .map(|campaign| campaign.advertiser_id)
+            .collect();
+        let scores = repo_score
+            .get_ml_scores(client_id, advertisers_id)
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e.into()))?;
+        let (min_score, max_score) = self.calculate_min_max(&scores);
 
-                let relevance = repo_score
-                    .get_ml_score(client_id, campaign.campaign_id)
-                    .await
-                    .unwrap_or(0.0);
-
-                let fulfillment = (remaining_impressions / campaign.impressions_limit as f64)
-                    + (remaining_clicks / campaign.clicks_limit as f64);
-
-                let combined_score = 0.5 * profit + 0.25 * relevance + 0.15 * fulfillment;
-
-                (combined_score, campaign.end_date, campaign)
-            }))
+        let mut scored_campaigns = self
+            .calculate_scores(
+                suitable_campaigns,
+                &profits,
+                &scores,
+                min_profit,
+                max_profit,
+                min_score,
+                max_score,
+                advanced_time,
+            )
             .await;
-
         scored_campaigns.sort_by(|(score_a, end_date_a, _), (score_b, end_date_b, _)| {
             score_b
                 .partial_cmp(score_a)
@@ -148,8 +164,55 @@ impl AdsService {
             .collect()
     }
 
-    async fn should_show_non_targeted(&self) -> bool {
-        let mut rng = rand::rng();
-        rng.random_range(0..100) < 4
+    fn calculate_min_max(&self, values: &[f64]) -> (f64, f64) {
+        let min = values.iter().cloned().fold(f64::INFINITY, f64::min);
+        let max = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        (min, max)
+    }
+
+    async fn calculate_scores(
+        &self,
+        campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
+        profits: &[f64],
+        scores: &[f64],
+        min_profit: f64,
+        max_profit: f64,
+        min_score: f64,
+        max_score: f64,
+        advanced_time: u32,
+    ) -> Vec<(f64, u32, domain::schemas::ActiveCampaignSchema)> {
+        futures::future::join_all(campaigns.into_iter().enumerate().map(|(i, campaign)| {
+            let profit = profits[i];
+            let score = scores[i];
+            async move {
+                let normalized_profit = self.normalize_value(profit, min_profit, max_profit);
+                let normalized_relevance = self.normalize_value(score, min_score, max_score);
+                let fulfillment = self.calculate_fulfillment(&campaign);
+                let normalized_time_left = self.calculate_time_left(campaign.end_date, advanced_time);
+                let combined_score = 0.5 * normalized_profit
+                    + 0.30 * normalized_relevance
+                    + 0.15 * fulfillment
+                    + 0.05 * normalized_time_left;
+                (combined_score, campaign.end_date, campaign)
+            }
+        }))
+        .await
+    }
+
+    fn normalize_value(&self, value: f64, min: f64, max: f64) -> f64 {
+        if max != min {
+            return ((value + 1.0).ln() - (min + 1.0).ln()) / ((max + 1.0).ln() - (min + 1.0).ln());
+        }
+        0.0
+    }
+
+    fn calculate_fulfillment(&self, campaign: &domain::schemas::ActiveCampaignSchema) -> f64 {
+        let remaining_impressions = campaign.impressions_limit as f64 - campaign.view_clients_id.len() as f64;
+        let remaining_clicks = campaign.clicks_limit as f64 - campaign.click_clients_id.len() as f64;
+        (remaining_impressions / campaign.impressions_limit as f64) + (remaining_clicks / campaign.clicks_limit as f64)
+    }
+
+    fn calculate_time_left(&self, end_date: u32, advanced_time: u32) -> f64 {
+        1.0 - ((end_date as f64 - advanced_time as f64) / u32::MAX as f64).clamp(0.0, 1.0)
     }
 }
