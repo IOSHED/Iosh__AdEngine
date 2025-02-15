@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use bigdecimal::{FromPrimitive, ToPrimitive};
+use bigdecimal::FromPrimitive;
 
 use crate::{domain, infrastructure};
 
@@ -31,24 +31,6 @@ pub struct CampaignReturningSchema {
     pub created_at: i64,
 }
 
-impl From<CampaignReturningSchema> for domain::schemas::CampaignSchema {
-    fn from(campaign: CampaignReturningSchema) -> Self {
-        Self {
-            campaign_id: campaign.id,
-            advertiser_id: campaign.advertiser_id,
-            impressions_limit: campaign.impressions_limit as u32,
-            clicks_limit: campaign.clicks_limit as u32,
-            cost_per_impressions: campaign.cost_per_impressions.to_f64().unwrap_or(0.0),
-            cost_per_clicks: campaign.cost_per_clicks.to_f64().unwrap_or(0.0),
-            ad_title: campaign.ad_title,
-            ad_text: campaign.ad_text,
-            start_date: campaign.start_date as u32,
-            end_date: campaign.end_date as u32,
-            targeting: serde_json::from_value(campaign.targeting.unwrap_or(serde_json::json!({})))
-                .unwrap_or(domain::schemas::TargetingCampaignSchema::default()),
-        }
-    }
-}
 
 #[async_trait]
 impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<'p> {
@@ -57,7 +39,7 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
         created_at: u32,
-    ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema> {
+    ) -> infrastructure::repository::RepoResult<CampaignReturningSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
             r#"
@@ -94,7 +76,7 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
         .fetch_one(self.db_pool)
         .await?;
 
-        Ok(campaign.into())
+        Ok(campaign)
     }
 }
 
@@ -106,7 +88,7 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
         updated_at: u32,
-    ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema> {
+    ) -> infrastructure::repository::RepoResult<CampaignReturningSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
             r#"
@@ -132,7 +114,7 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
         .fetch_one(self.db_pool)
         .await?;
 
-        Ok(campaign.into())
+        Ok(campaign)
     }
 }
 
@@ -164,7 +146,7 @@ impl<'p> domain::services::repository::IGetCampaignById for PgCampaignRepository
         &self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
-    ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema> {
+    ) -> infrastructure::repository::RepoResult<CampaignReturningSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
             r#"
@@ -177,7 +159,7 @@ impl<'p> domain::services::repository::IGetCampaignById for PgCampaignRepository
         .fetch_one(self.db_pool)
         .await?;
 
-        Ok(campaign.into())
+        Ok(campaign)
     }
 }
 
@@ -206,7 +188,7 @@ impl<'p> domain::services::repository::IGetCampaignList for PgCampaignRepository
         advertiser_id: uuid::Uuid,
         size: u32,
         page: u32,
-    ) -> infrastructure::repository::RepoResult<(u64, Vec<domain::schemas::CampaignSchema>)> {
+    ) -> infrastructure::repository::RepoResult<(u64, Vec<CampaignReturningSchema>)> {
         let campaigns: Vec<CampaignReturningSchema> = if size == 0 || page == 0 {
             Vec::new()
         } else {
@@ -237,7 +219,7 @@ impl<'p> domain::services::repository::IGetCampaignList for PgCampaignRepository
 
         Ok((
             *total_count.get_or_insert(0) as u64,
-            campaigns.into_iter().map(|c| c.into()).collect(),
+            campaigns,
         ))
     }
 }
@@ -247,7 +229,7 @@ impl<'p> domain::services::repository::IGetActiveCampaignList for PgCampaignRepo
     async fn get_active_campaigns(
         &self,
         current_date: u32,
-    ) -> infrastructure::repository::RepoResult<Vec<domain::schemas::CampaignSchema>> {
+    ) -> infrastructure::repository::RepoResult<Vec<CampaignReturningSchema>> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
             r#"
@@ -281,7 +263,7 @@ impl<'p> domain::services::repository::IGetOrCreateUniqIdForStatCampaign for PgC
 
         let click_clients: Vec<uuid::Uuid> = sqlx::query_scalar!(
             r#"
-            SELECT client_id FROM likes_clients
+            SELECT client_id FROM clicks_clients
             WHERE campaign_id = $1
             "#,
             campaign_id
@@ -299,18 +281,122 @@ impl<'p> domain::services::repository::IViewCampaign for PgCampaignRepository<'p
         &self,
         campaign_id: uuid::Uuid,
         client_id: uuid::Uuid,
+        cost: f64,
+        advanced_time: u32,
     ) -> infrastructure::repository::RepoResult<()> {
         sqlx::query!(
             r#"
-            INSERT INTO views_clients (campaign_id, client_id)
-            VALUES ($1, $2)
+            INSERT INTO views_clients (campaign_id, client_id, cost, advanced_time)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (campaign_id, client_id) DO NOTHING
             "#,
             campaign_id,
-            client_id
+            client_id,
+            bigdecimal::BigDecimal::from_f64(cost).unwrap(),
+            advanced_time as i64
         )
         .execute(self.db_pool)
         .await?;
         Ok(())
+    }
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::IClickCampaign for PgCampaignRepository<'p> {
+    async fn click_campaign(
+        &self,
+        campaign_id: uuid::Uuid,
+        client_id: uuid::Uuid,
+        cost: f64,
+        advanced_time: u32,
+    ) -> infrastructure::repository::RepoResult<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO clicks_clients (campaign_id, client_id, cost, advanced_time)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (campaign_id, client_id) DO NOTHING
+            "#,
+            campaign_id,
+            client_id,
+            bigdecimal::BigDecimal::from_f64(cost).unwrap(),
+            advanced_time as i64
+        )
+        .execute(self.db_pool)
+        .await?;
+        Ok(())
+    }
+}
+
+#[derive(sqlx::FromRow)]
+pub struct StatDailyReturningSchema {
+    pub impressions_count: Option<i32>,
+    pub clicks_count: Option<i32>,
+    pub spent_impressions: Option<bigdecimal::BigDecimal>,
+    pub spent_clicks: Option<bigdecimal::BigDecimal>,
+    pub date: Option<i32>,
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetDailyStat for PgCampaignRepository<'p> {
+    async fn get_by_day(
+        &self,
+        campaign_id: uuid::Uuid,
+    ) -> infrastructure::repository::RepoResult<Vec<StatDailyReturningSchema>> {
+        let stats = sqlx::query_as!(
+            StatDailyReturningSchema,
+            r#"
+            SELECT
+                COALESCE(v.advanced_time, c.advanced_time) as "date",
+                COALESCE(v.impressions_count, 0) as "impressions_count",
+                COALESCE(c.clicks_count, 0) as "clicks_count",
+                COALESCE(v.spent_impressions, 0) as "spent_impressions",
+                COALESCE(c.spent_clicks, 0) as "spent_clicks"
+            FROM
+                (SELECT 
+                    advanced_time as "advanced_time",
+                    COUNT(*)::INTEGER as "impressions_count",
+                    SUM(cost) as "spent_impressions"
+                FROM views_clients
+                WHERE campaign_id = $1
+                GROUP BY advanced_time) v
+            FULL JOIN
+                (SELECT 
+                    advanced_time as "advanced_time",
+                    COUNT(*)::INTEGER as "clicks_count",
+                    SUM(cost) as "spent_clicks"
+                FROM clicks_clients
+                WHERE campaign_id = $1
+                GROUP BY advanced_time) c
+            ON v.advanced_time = c.advanced_time
+            ORDER BY date
+            "#,
+            campaign_id
+        )
+        .fetch_all(self.db_pool)
+        .await?;
+
+        Ok(stats)
+    }
+}
+
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetIdsCampaign for PgCampaignRepository<'p> {
+    async fn get_campaign_ids(
+        &self,
+        advertiser_id: uuid::Uuid,
+    ) -> infrastructure::repository::RepoResult<Vec<uuid::Uuid>> {
+        let campaign_ids= sqlx::query_scalar!(
+     
+            r#"
+            SELECT id FROM campaigns
+            WHERE advertiser_id = $1
+            "#,
+            advertiser_id
+        )
+        .fetch_all(self.db_pool)
+        .await?;
+
+        Ok(campaign_ids)
     }
 }

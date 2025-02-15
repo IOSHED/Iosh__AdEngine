@@ -5,6 +5,7 @@
 
 mod ads_service;
 mod advertiser_service;
+mod aggregate_stat_service;
 mod campaigns_service;
 mod campaigns_stat_service;
 mod client_service;
@@ -14,6 +15,7 @@ mod redis_service;
 
 pub use ads_service::AdsService;
 pub use advertiser_service::AdvertiserService;
+pub use aggregate_stat_service::AggregateStatService;
 pub use campaigns_service::CampaignService;
 pub use campaigns_stat_service::CampaignStatService;
 pub use client_service::ClientService;
@@ -27,9 +29,9 @@ pub mod repository {
         advertiser_service::{IGetAdvertiserById, IRegisterBulkAdvertiser},
         campaigns_service::{
             ICreateCampaign, IDeleteCampaign, IGetActiveCampaignList, IGetCampaignById, IGetCampaignList,
-            ISearchCampaign, IUpdateCampaign,
+            IGetIdsCampaign, ISearchCampaign, IUpdateCampaign,
         },
-        campaigns_stat_service::{IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
+        campaigns_stat_service::{IClickCampaign, IGetDailyStat, IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
         client_service::{IGetClientById, IRegisterBulkClient},
         ml_score_service::ISetMlScore,
     };

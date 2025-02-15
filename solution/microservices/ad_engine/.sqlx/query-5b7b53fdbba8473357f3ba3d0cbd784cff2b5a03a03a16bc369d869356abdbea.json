@@ -36,7 +36,7 @@
       {
         "ordinal": 6,
         "name": "ad_title",
-        "type_info": "Varchar"
+        "type_info": "Text"
       },
       {
         "ordinal": 7,
@@ -76,7 +76,7 @@
         "Int4",
         "Numeric",
         "Numeric",
-        "Varchar",
+        "Text",
         "Text",
         "Int4",
         "Int4",

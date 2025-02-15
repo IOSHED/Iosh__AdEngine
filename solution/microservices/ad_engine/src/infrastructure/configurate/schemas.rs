@@ -53,7 +53,6 @@ pub struct PostgresConfig {
 
 #[derive(Clone, serde::Deserialize)]
 pub struct CorsConfig {
-    pub allowed_origin: String,
     pub allowed_methods: Vec<String>,
     pub allowed_headers: Vec<String>,
     pub max_age: usize,

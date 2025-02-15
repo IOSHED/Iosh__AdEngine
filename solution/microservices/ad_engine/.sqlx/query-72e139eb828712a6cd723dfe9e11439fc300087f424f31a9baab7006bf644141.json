@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                COALESCE(v.advanced_time, c.advanced_time) as \"date\",\n                COALESCE(v.impressions_count, 0) as \"impressions_count\",\n                COALESCE(c.clicks_count, 0) as \"clicks_count\",\n                COALESCE(v.spent_impressions, 0) as \"spent_impressions\",\n                COALESCE(c.spent_clicks, 0) as \"spent_clicks\"\n            FROM\n                (SELECT \n                    advanced_time as \"advanced_time\",\n                    COUNT(*)::INTEGER as \"impressions_count\",\n                    SUM(cost) as \"spent_impressions\"\n                FROM views_clients\n                WHERE campaign_id = $1\n                GROUP BY advanced_time) v\n            FULL JOIN\n                (SELECT \n                    advanced_time as \"advanced_time\",\n                    COUNT(*)::INTEGER as \"clicks_count\",\n                    SUM(cost) as \"spent_clicks\"\n                FROM clicks_clients\n                WHERE campaign_id = $1\n                GROUP BY advanced_time) c\n            ON v.advanced_time = c.advanced_time\n            ORDER BY date\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "date",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "impressions_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "clicks_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "spent_impressions",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "spent_clicks",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "72e139eb828712a6cd723dfe9e11439fc300087f424f31a9baab7006bf644141"
+}

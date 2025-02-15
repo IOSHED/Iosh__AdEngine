@@ -20,7 +20,7 @@ struct AdsQuery {
         ("client_id" = uuid::Uuid, Query, description = "Id client for getting ads", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6"),
     ),
     responses(
-        (status = 200, description = "List campaigns", body = Vec<domain::schemas::CampaignSchema>),
+        (status = 200, description = "List campaigns", body = domain::schemas::AdSchema),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
         (status = 404, description = "There is no suitable advertisement", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
@@ -49,7 +49,7 @@ pub async fn ads_handler(
     tag = "Ads",
     request_body = domain::schemas::AdClickRequest,
     responses(
-        (status = 204, description = "Click successful", body = Vec<domain::schemas::CampaignSchema>),
+        (status = 204, description = "Click successful", body = ()),
         (status = 400, description = "Bot found this campaign", body = interface::actix::exception::ExceptionResponse),
         (status = 404, description = "Not found this client", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)

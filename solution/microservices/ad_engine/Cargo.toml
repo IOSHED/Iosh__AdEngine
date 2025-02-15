@@ -73,6 +73,9 @@ uuid = { version = "1.13.1", features = ["v4", "fast-rng", "macro-diagnostics", 
 rust_decimal = "1.36.0"
 bigdecimal = "0.4.7"
 
+# Metrics
+prometheus-client = "0.23.1"
+
 
 [dev-dependencies]
 mockall = "0.11"

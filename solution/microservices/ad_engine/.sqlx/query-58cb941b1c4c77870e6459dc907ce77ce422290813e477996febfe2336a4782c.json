@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO views_clients (campaign_id, client_id, cost, advanced_time)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (campaign_id, client_id) DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Numeric",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "58cb941b1c4c77870e6459dc907ce77ce422290813e477996febfe2336a4782c"
+}

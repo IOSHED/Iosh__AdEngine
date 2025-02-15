@@ -7,4 +7,4 @@ pub use base::{
     TargetingCampaignSchema,
 };
 pub use request::{AdClickRequest, CampaignsCreateRequest, CampaignsUpdateRequest, MlScoreRequest, TimeAdvanceRequest};
-pub use response::TimeAdvanceResponse;
+pub use response::{StatDailyResponse, StatResponse, TimeAdvanceResponse};

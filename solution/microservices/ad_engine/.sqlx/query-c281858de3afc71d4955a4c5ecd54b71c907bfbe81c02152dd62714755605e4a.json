@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT client_id FROM likes_clients\n            WHERE campaign_id = $1\n            ",
+  "query": "\n            SELECT client_id FROM clicks_clients\n            WHERE campaign_id = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -18,5 +18,5 @@
       false
     ]
   },
-  "hash": "51df6870e3f633b242d1cc3b1cad730db1917e50fc295206cbe1d92d6e5fa989"
+  "hash": "c281858de3afc71d4955a4c5ecd54b71c907bfbe81c02152dd62714755605e4a"
 }

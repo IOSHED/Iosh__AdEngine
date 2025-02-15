@@ -50,16 +50,24 @@ impl<'p> AdsClickUsecase<'p> {
                 "campaign_id does not exist".into(),
             ));
         }
+        let advanced_time = self.redis_service.get_advance_time().await?;
+        let mut campaign = self.redis_service.get_active_campaign(&campaign_id).await?;
+
+        if !campaign.view_clients_id.contains(&client.client_id) {
+            return Err(domain::services::ServiceError::Validation(
+                "client never view this this campaign".into(),
+            ));
+        }
 
         self.campaign_stat_service
-            .view_campaign(
+            .click_campaign(
                 campaign_id,
                 client.client_id,
+                campaign.cost_per_clicks,
+                advanced_time,
                 infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
             .await?;
-
-        let mut campaign = self.redis_service.get_active_campaign(&campaign_id).await?;
 
         if campaign.click_clients_id.contains(&client.client_id) {
             return Ok(());

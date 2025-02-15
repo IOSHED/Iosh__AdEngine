@@ -87,6 +87,7 @@ impl HttpServer {
             .service(super::routers::healthcheck_handler)
             .service(super::routers::time_advance_handler)
             .service(super::routers::ml_score_handler)
+            .service(super::routers::stat_scope("/stats"))
             .service(super::routers::ads_scope("/ads"))
             .service(super::routers::client_scope("/client"))
             .service(super::routers::advertisers_scope("/advertisers"))
@@ -105,7 +106,7 @@ impl HttpServer {
     /// Configures CORS settings for the server
     fn get_cors(&self) -> actix_cors::Cors {
         actix_cors::Cors::default()
-            .allowed_origin(&self.cors_config.allowed_origin)
+            .allow_any_origin()
             .allowed_methods(self.cors_config.allowed_methods.iter().map(|str_method| {
                 actix_web::http::Method::from_bytes(str_method.as_bytes())
                     .expect("Config contain not verifying http method (cors.allowed_methods)")
