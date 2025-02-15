@@ -44,9 +44,9 @@ pub async fn validate_campaign_data(
     end_date: u32,
     age_from: u8,
     age_to: u8,
-    time_advance: u32,
     impressions_limit: u32,
     clicks_limit: u32,
+    time_advance: u32,
 ) -> Result<(), domain::services::ServiceError> {
     validate_start_date(start_date, time_advance).await?;
     validate_date_range(start_date, end_date).await?;
