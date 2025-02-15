@@ -15,7 +15,7 @@ struct AdsQuery {
 #[utoipa::path(
     get,
     path = "/ads",
-    tag = "ads",
+    tag = "Ads",
     params(
         ("client_id" = uuid::Uuid, Query, description = "Id client for getting ads", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6"),
     ),
@@ -46,7 +46,7 @@ pub async fn ads_handler(
 #[utoipa::path(
     post,
     path = "/ads/{ads_id}/click",
-    tag = "ads",
+    tag = "Ads",
     request_body = domain::schemas::AdClickRequest,
     responses(
         (status = 204, description = "Click successful", body = Vec<domain::schemas::CampaignSchema>),

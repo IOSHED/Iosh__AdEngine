@@ -11,7 +11,7 @@ pub fn advertisers_scope(path: &str) -> actix_web::Scope {
 #[utoipa::path(
     post,
     path = "/advertisers/bulk",
-    tag = "advertiser",
+    tag = "Advertiser",
     request_body = Vec<domain::schemas::AdvertiserProfileSchema>,
     responses(
         (status = 201, description = "Bulk advertiser creation", body = Vec<domain::schemas::AdvertiserProfileSchema>),
@@ -35,7 +35,8 @@ pub async fn advertiser_bulk_handler(
 #[utoipa::path(
     get,
     path = "/advertisers/{advertiser_id}",
-    tag = "advertiser", responses(
+    tag = "Advertiser", 
+    responses(
         (status = 200, description = "Get advertiser by id", body = domain::schemas::AdvertiserProfileSchema),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
         (status = 401, description = "Not found", body = interface::actix::exception::ExceptionResponse),

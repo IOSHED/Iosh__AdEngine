@@ -12,7 +12,7 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
 #[utoipa::path(
     post,
     path = "/advertisers/{advertiser_id}/campaigns",
-    tag = "campaigns",
+    tag = "Campaigns",
     request_body = domain::schemas::CampaignsCreateRequest,
     responses(
         (status = 201, description = "Created campaign", body = domain::schemas::CampaignSchema),
@@ -38,7 +38,7 @@ pub async fn campaigns_create_handler(
 #[utoipa::path(
     put,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}",
-    tag = "campaigns",
+    tag = "Campaigns",
     request_body = domain::schemas::CampaignsUpdateRequest,
     responses(
         (status = 200, description = "Updated campaign", body = domain::schemas::CampaignSchema),
@@ -65,7 +65,7 @@ pub async fn campaigns_update_handler(
 #[utoipa::path(
     delete,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}",
-    tag = "campaigns", 
+    tag = "Campaigns", 
     responses(
         (status = 204, description = "Deleted", body = ()),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
@@ -90,7 +90,7 @@ pub async fn campaigns_delete_handler(
 #[utoipa::path(
     get,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}",
-    tag = "campaigns",
+    tag = "Campaigns",
     responses(
         (status = 200, description = "Got campaign", body = domain::schemas::CampaignSchema),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
@@ -120,7 +120,7 @@ struct Pagination {
 #[utoipa::path(
     get,
     path = "/advertisers/{advertiser_id}/campaigns",
-    tag = "campaigns",
+    tag = "Campaigns",
     params(
         ("size" = Option<u32>, Query, description = "Number of items per page", example = 10),
         ("page" = Option<u32>, Query, description = "Page number", example = 1),

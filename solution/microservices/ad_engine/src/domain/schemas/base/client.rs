@@ -3,12 +3,10 @@ pub struct ClientProfileSchema {
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]
     pub client_id: uuid::Uuid,
 
-    #[schema(example = "my_login", max_length = 64, min_length = 2)]
-    #[validate(length(min = 2, max = 64, message = "Login must be between 2 and 64 characters"))]
+    #[schema(example = "my_login")]
     pub login: String,
 
-    #[schema(example = "Moscow, mcad", max_length = 128, min_length = 2)]
-    #[validate(length(min = 2, max = 128, message = "Location must be between 2 and 64 characters"))]
+    #[schema(example = "Moscow, mcad")]
     pub location: String,
 
     #[schema(example = "MALE")]
