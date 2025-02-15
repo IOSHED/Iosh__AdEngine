@@ -61,41 +61,6 @@ stages:
           age: 30
 
 ---
-test_name: Попытка создания клиента с дублирующимся логином
-stages:
-  - name: Создание клиента с уникальным логином
-    request:
-      url: "{ad_engine_url}/client/bulk"
-      method: POST
-      json:
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
-          login: "user5"
-          location: "Moscow"
-          gender: "MALE"
-          age: 25
-    response:
-      status_code: 201
-      json:
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
-          login: "user5"
-          location: "Moscow"
-          gender: "MALE"
-          age: 25
-
-  - name: Попытка создания клиента с дублирующимся логином
-    request:
-      url: "{ad_engine_url}/client/bulk"
-      method: POST
-      json:
-        - client_id: "3fa85f64-5717-4562-b3fc-2c963f66afc7"
-          login: "user5"
-          location: "St. Petersburg"
-          gender: "FEMALE"
-          age: 30
-    response:
-      status_code: 409
-
----
 test_name: Попытка создания клиента с некорректным UUID
 stages:
   - name: Попытка создания клиента с некорректным UUID

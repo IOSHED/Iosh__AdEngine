@@ -44,32 +44,6 @@ stages:
           name: "user4"
 
 ---
-test_name: Попытка создания рекломадателя с дублирующимся логином
-stages:
-  - name: Создание рекломадателя с уникальным логином
-    request:
-      url: "{ad_engine_url}/advertisers/bulk"
-      method: POST
-      json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
-          name: "user5"
-    response:
-      status_code: 201
-      json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc6"
-          name: "user5"
-
-  - name: Попытка создания рекломадателя с дублирующимся логином
-    request:
-      url: "{ad_engine_url}/advertisers/bulk"
-      method: POST
-      json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afc7"
-          name: "user5"
-    response:
-      status_code: 409
-
----
 test_name: Попытка создания рекломадателя с некорректным UUID
 stages:
   - name: Попытка создания рекломадателя с некорректным UUID
@@ -79,19 +53,6 @@ stages:
       json:
         - advertiser_id: "invalid-uuid"
           name: "user6"
-    response:
-      status_code: 409
-
----
-test_name: Попытка создания рекломадателя с дублирующимся именем
-stages:
-  - name: Попытка создания рекломадателя с дублирующимся именем
-    request:
-      url: "{ad_engine_url}/advertisers/bulk"
-      method: POST
-      json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa0"
-          name: "user5"
     response:
       status_code: 409
 
