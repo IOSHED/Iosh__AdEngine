@@ -87,8 +87,7 @@ impl HttpServer {
             .service(super::routers::healthcheck_handler)
             .service(super::routers::time_advance_handler)
             .service(super::routers::ml_score_handler)
-            .service(super::routers::ads_handler)
-            .service(super::routers::ads_click_handler)
+            .service(super::routers::ads_scope("/ads"))
             .service(super::routers::client_scope("/client"))
             .service(super::routers::advertisers_scope("/advertisers"))
     }

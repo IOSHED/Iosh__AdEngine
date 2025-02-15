@@ -1,5 +1,11 @@
 use crate::{domain, infrastructure, interface};
 
+pub fn ads_scope(path: &str) -> actix_web::Scope {
+    actix_web::web::scope(path)
+        .service(ads_handler)
+        .service(ads_click_handler)
+}
+
 
 #[derive(serde::Deserialize, Debug)]
 struct AdsQuery {
@@ -20,7 +26,7 @@ struct AdsQuery {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[actix_web::get("/ads")]
+#[actix_web::get("")]
 #[tracing::instrument(name = "Get suitable ads for client", skip(db_pool))]
 pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
@@ -49,7 +55,7 @@ pub async fn ads_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[actix_web::post("/ads/{ads_id}/click")]
+#[actix_web::post("/{ads_id}/click")]
 #[tracing::instrument(name = "Click ads", skip(db_pool))]
 pub async fn ads_click_handler(
     campaign_id: actix_web::web::Path<uuid::Uuid>,
