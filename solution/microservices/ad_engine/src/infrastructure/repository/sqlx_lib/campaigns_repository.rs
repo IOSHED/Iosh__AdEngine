@@ -70,7 +70,13 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
                 .map_err(|_| infrastructure::repository::RepoError::Unknown)?,
         )
         .fetch_one(self.db_pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            if e.to_string().contains("violates foreign key constraint \"campaigns_advertiser_id_fkey\"") {
+                return infrastructure::repository::RepoError::ObjDoesNotExists("advertiser".to_string());
+            }
+            e.into()
+        })?;
 
         Ok(campaign)
     }
