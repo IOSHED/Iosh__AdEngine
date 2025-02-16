@@ -1,0 +1,72 @@
+{
+    "title": "Ad Engine Monitoring",
+    "description": "Automatic dashboard for Ad Engine metrics",
+    "tags": ["ad-engine", "auto-generated"],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": false,
+    "refresh": "30s",
+    "panels": [
+      {
+        "type": "gauge",
+        "title": "Total Clients",
+        "gridPos": {"x":0,"y":0,"w":6,"h":4},
+        "targets": [{
+          "expr": "total_clients",
+          "datasource": "Prometheus"
+        }]
+      },
+      {
+        "type": "gauge",
+        "title": "Total Advertisers",
+        "gridPos": {"x":6,"y":0,"w":6,"h":4},
+        "targets": [{
+          "expr": "total_advertisers",
+          "datasource": "Prometheus"
+        }]
+      },
+      {
+        "type": "timeseries",
+        "title": "Campaign Operations",
+        "gridPos": {"x":0,"y":4,"w":12,"h":8},
+        "targets": [
+          {"expr": "rate(campaigns_created_total[5m])", "legendFormat": "Created"},
+          {"expr": "rate(campaigns_updated_total[5m])", "legendFormat": "Updated"},
+          {"expr": "rate(campaigns_deleted_total[5m])", "legendFormat": "Deleted"}
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "Ads Engagement",
+        "gridPos": {"x":12,"y":4,"w":12,"h":8},
+        "targets": [
+          {"expr": "rate(ads_visits_total[5m])", "legendFormat": "Visits"},
+          {"expr": "rate(ads_clicks_total[5m])", "legendFormat": "Clicks"}
+        ]
+      },
+      {
+        "type": "timeseries",
+        "title": "HTTP Requests",
+        "gridPos": {"x":0,"y":12,"w":12,"h":8},
+        "targets": [{
+          "expr": "sum by(method, path) (rate(http_requests_total[5m]))",
+          "legendFormat": "{{method}} {{path}}"
+        }]
+      },
+      {
+        "type": "timeseries",
+        "title": "Response Times",
+        "gridPos": {"x":12,"y":12,"w":12,"h":8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
+            "legendFormat": "p95 {{method}} {{path}}"
+          },
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
+            "legendFormat": "p50 {{method}} {{path}}"
+          }
+        ]
+      }
+    ]
+  }

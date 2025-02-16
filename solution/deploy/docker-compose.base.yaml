@@ -50,7 +50,7 @@ services:
     restart: always
     volumes:
       - ../infrastructure/prometheus/:/etc/prometheus/
-      - ../infrastructure/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+      - ../infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     depends_on:
@@ -63,7 +63,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../infrastructure/grafana/.data:/var/lib/grafana
       - ../infrastructure/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
