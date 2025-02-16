@@ -4,6 +4,22 @@ pub struct Config {
     pub logger: LoggerConfig,
     pub database: DatabaseConfig,
     pub cors: CorsConfig,
+    pub yandex: YandexConfig,
+    pub ads_recommendation: AdsRecommendationConfig,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct AdsRecommendationConfig {
+    pub weight_profit: f64,
+    pub weight_relevance: f64,
+    pub weight_fulfillment: f64,
+    pub weight_time_left: f64,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct YandexConfig {
+    pub api_key: String,
+    pub folder_id: String,
 }
 
 #[serde_with::serde_as]

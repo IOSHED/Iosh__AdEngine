@@ -6,3 +6,10 @@ http_server:
   timeout_shutdown_workers: 30  # sec
   keep_alive: 300  # sec
   limit_size_json: 2048 # 2048 = 2kb
+
+
+ads_recommendation:
+  weight_profit: 0.5
+  weight_relevance: 0.3
+  weight_fulfillment: 0.07
+  weight_time_left: 0.08

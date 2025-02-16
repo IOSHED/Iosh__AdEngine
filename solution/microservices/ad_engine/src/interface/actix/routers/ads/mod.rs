@@ -32,10 +32,11 @@ pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let pagination = ads_query.into_inner();
 
-    let ads = domain::usecase::AdsGetUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
+    let ads = domain::usecase::AdsGetUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
         .execute(pagination.client_id)
         .await?;
 

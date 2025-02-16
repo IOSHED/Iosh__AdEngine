@@ -14,9 +14,15 @@ impl<'p> AdsGetUsecase<'p> {
     pub fn new(
         db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
         redis_pool: &'p infrastructure::database_connection::redis::RedisPool,
+        app_state: &domain::configurate::AppState,
     ) -> Self {
         Self {
-            ads_service: domain::services::AdsService,
+            ads_service: domain::services::AdsService::new(
+                app_state.ads_weight_profit,
+                app_state.ads_weight_relevance,
+                app_state.ads_weight_fulfillment,
+                app_state.ads_weight_time_left,
+            ),
             campaign_stat_service: domain::services::CampaignStatService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,

@@ -14,7 +14,9 @@ services:
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database_test:5432/ad_engine_test
       - APP__DATABASE__REDIS__HOST=redis_database_test
       - APP__DATABASE__REDIS__PORT=6379
-      - APP__DATABASE__REDIS__DB=0
+      - APP__DATABASE__REDIS__DB=10
+      - APP__YANDEX__FOLDER_ID=b1gr5pru8n2ad9c5vac9
+      - APP__YANDEX__API_KEY=y0__xCbi_7lBRjB3RMgvZWgpRITxp40VTeYFNw80yDNP1V4e_mhcA
       - APP__CORS__ALLOWED_ORIGIN=http://python_telegram_bot:8001/
 
     healthcheck:

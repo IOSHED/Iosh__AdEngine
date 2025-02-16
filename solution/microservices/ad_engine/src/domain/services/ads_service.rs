@@ -12,7 +12,23 @@ pub trait IGetMlScores {
 }
 
 #[derive(Debug)]
-pub struct AdsService;
+pub struct AdsService {
+    weight_profit: f64,
+    weight_relevance: f64,
+    weight_fulfillment: f64,
+    weight_time_left: f64,
+}
+
+impl AdsService {
+    pub fn new(weight_profit: f64, weight_relevance: f64, weight_fulfillment: f64, weight_time_left: f64) -> Self {
+        Self {
+            weight_profit,
+            weight_relevance,
+            weight_fulfillment,
+            weight_time_left,
+        }
+    }
+}
 
 impl AdsService {
     pub async fn recommendation_ads<R1, R2>(
@@ -191,10 +207,10 @@ impl AdsService {
                 let normalized_relevance = self.normalize_value(score, min_score, max_score);
                 let fulfillment = self.calculate_fulfillment(&campaign);
                 let normalized_time_left = self.calculate_time_left(campaign.end_date, advanced_time);
-                let combined_score = 0.5 * normalized_profit
-                    + 0.30 * normalized_relevance
-                    + 0.15 * fulfillment
-                    + 0.05 * normalized_time_left;
+                let combined_score: f64 = self.weight_profit * normalized_profit
+                    + self.weight_relevance * normalized_relevance
+                    + self.weight_fulfillment * fulfillment
+                    + self.weight_time_left * normalized_time_left;
                 (combined_score, campaign.end_date, campaign)
             }
         }))
