@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            INSERT INTO campaigns (\n                advertiser_id,\n                impressions_limit,\n                clicks_limit,\n                cost_per_impressions,\n                cost_per_clicks,\n                ad_title,\n                ad_text,\n                start_date,\n                end_date,\n                targeting,\n                created_at,\n                updated_at\n            )\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\n            RETURNING *\n            ",
+  "query": "\n            UPDATE campaigns\n            SET cost_per_impressions = $1,\n                cost_per_clicks = $2,\n                ad_title = $3,\n                ad_text = $4,\n                targeting = $5\n            WHERE advertiser_id = $6 AND id = $7\n            RETURNING *\n            ",
   "describe": {
     "columns": [
       {
@@ -57,32 +57,17 @@
         "ordinal": 10,
         "name": "targeting",
         "type_info": "Jsonb"
-      },
-      {
-        "ordinal": 11,
-        "name": "created_at",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 12,
-        "name": "updated_at",
-        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Int4",
-        "Int4",
         "Numeric",
         "Numeric",
         "Text",
         "Text",
-        "Int4",
-        "Int4",
         "Jsonb",
-        "Int4",
-        "Int4"
+        "Uuid",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -96,10 +81,8 @@
       false,
       false,
       false,
-      false,
-      false,
       false
     ]
   },
-  "hash": "5b7b53fdbba8473357f3ba3d0cbd784cff2b5a03a03a16bc369d869356abdbea"
+  "hash": "30918989c1652ad99fc4d2b2925d3641b98dc01ec47db408918d59d51f71d55a"
 }

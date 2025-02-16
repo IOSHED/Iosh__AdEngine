@@ -27,8 +27,6 @@ pub struct CampaignReturningSchema {
     pub start_date: i64,
     pub end_date: i64,
     pub targeting: Option<serde_json::Value>,
-    pub updated_at: i64,
-    pub created_at: i64,
 }
 
 
@@ -38,7 +36,6 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
         &self,
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
-        created_at: u32,
     ) -> infrastructure::repository::RepoResult<CampaignReturningSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
@@ -53,25 +50,24 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
                 ad_text,
                 start_date,
                 end_date,
-                targeting,
-                created_at,
-                updated_at
+                targeting
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *
             "#,
             advertiser_id,
             campaign.impressions_limit as i32,
             campaign.clicks_limit as i32,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions).unwrap(),
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks).unwrap(),
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions)
+                .ok_or(infrastructure::repository::RepoError::Unknown)?,
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks)
+                .ok_or(infrastructure::repository::RepoError::Unknown)?,
             campaign.ad_title,
             campaign.ad_text,
             campaign.start_date as i32,
             campaign.end_date as i32,
-            serde_json::to_value(&campaign.targeting).unwrap(),
-            created_at as i64,
-            created_at as i64,
+            serde_json::to_value(&campaign.targeting)
+                .map_err(|_| infrastructure::repository::RepoError::Unknown)?,
         )
         .fetch_one(self.db_pool)
         .await?;
@@ -87,7 +83,6 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
         campaign: domain::schemas::CampaignsUpdateRequest,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
-        updated_at: u32,
     ) -> infrastructure::repository::RepoResult<CampaignReturningSchema> {
         let campaign = sqlx::query_as!(
             CampaignReturningSchema,
@@ -97,17 +92,18 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
                 cost_per_clicks = $2,
                 ad_title = $3,
                 ad_text = $4,
-                targeting = $5,
-                updated_at = $6
-            WHERE advertiser_id = $7 AND id = $8
+                targeting = $5
+            WHERE advertiser_id = $6 AND id = $7
             RETURNING *
             "#,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions).unwrap(),
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks).unwrap(),
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions)
+                .ok_or(infrastructure::repository::RepoError::Unknown)?,
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks)
+                .ok_or(infrastructure::repository::RepoError::Unknown)?,
             campaign.ad_title,
             campaign.ad_text,
-            serde_json::to_value(&campaign.targeting).unwrap(),
-            updated_at as i64,
+            serde_json::to_value(&campaign.targeting)
+                .map_err(|_| infrastructure::repository::RepoError::Unknown)?,
             advertiser_id,
             campaign_id
         )
@@ -292,7 +288,8 @@ impl<'p> domain::services::repository::IViewCampaign for PgCampaignRepository<'p
             "#,
             campaign_id,
             client_id,
-            bigdecimal::BigDecimal::from_f64(cost).unwrap(),
+            bigdecimal::BigDecimal::from_f64(cost)
+                .ok_or(infrastructure::repository::RepoError::Unknown)?,
             advanced_time as i64
         )
         .execute(self.db_pool)

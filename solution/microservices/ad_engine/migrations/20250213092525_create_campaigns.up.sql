@@ -14,8 +14,6 @@ CREATE TABLE IF NOT EXISTS campaigns (
     start_date INT NOT NULL CHECK (start_date >= 0),
     end_date INT NOT NULL CHECK (end_date >= 0),
     targeting JSONB NOT NULL, 
-    created_at INT NOT NULL,
-    updated_at INT NOT NULL,
 
     CONSTRAINT valid_dates CHECK (start_date <= end_date)
 );

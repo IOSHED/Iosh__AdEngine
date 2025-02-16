@@ -8,7 +8,6 @@ pub trait ICreateCampaign {
         &self,
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
-        created_at: u32,
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::CampaignReturningSchema>;
 }
 
@@ -19,7 +18,6 @@ pub trait IUpdateCampaign {
         campaign: domain::schemas::CampaignsUpdateRequest,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
-        update_at: u32,
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::CampaignReturningSchema>;
 }
 
@@ -81,11 +79,10 @@ impl<'p> CampaignService {
         &self,
         campaign: domain::schemas::CampaignsCreateRequest,
         advertiser_id: uuid::Uuid,
-        time_advance: u32,
         repo: R,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
         let repo_campaign = repo
-            .create(campaign, advertiser_id, time_advance)
+            .create(campaign, advertiser_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
@@ -120,7 +117,7 @@ impl<'p> CampaignService {
         }
 
         let repo_campaign = repo
-            .update(campaign, advertiser_id, campaign_id, time_advance)
+            .update(campaign, advertiser_id, campaign_id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
