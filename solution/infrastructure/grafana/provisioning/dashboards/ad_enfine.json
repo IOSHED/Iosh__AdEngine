@@ -30,28 +30,60 @@
         "title": "Campaign Operations",
         "gridPos": {"x":0,"y":4,"w":12,"h":8},
         "targets": [
-          {"expr": "rate(campaigns_created_total[5m])", "legendFormat": "Created"},
-          {"expr": "rate(campaigns_updated_total[5m])", "legendFormat": "Updated"},
-          {"expr": "rate(campaigns_deleted_total[5m])", "legendFormat": "Deleted"}
-        ]
+          {
+            "expr": "sum(increase(campaigns_created_total[5m])) by (time_advance)",
+            "legendFormat": "Created ({{time_advance}})"
+          },
+          {
+            "expr": "sum(increase(campaigns_updated_total[5m])) by (time_advance)", 
+            "legendFormat": "Updated ({{time_advance}})"
+          },
+          {
+            "expr": "sum(increase(campaigns_deleted_total[5m])) by (time_advance)",
+            "legendFormat": "Deleted ({{time_advance}})"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "decimals": 0
+          }
+        }
       },
       {
         "type": "timeseries",
         "title": "Ads Engagement",
         "gridPos": {"x":12,"y":4,"w":12,"h":8},
         "targets": [
-          {"expr": "rate(ads_visits_total[5m])", "legendFormat": "Visits"},
-          {"expr": "rate(ads_clicks_total[5m])", "legendFormat": "Clicks"}
-        ]
+          {
+            "expr": "sum(ads_visits_total) by (time_advance)",
+            "legendFormat": "Visits ({{time_advance}})"
+          },
+          {
+            "expr": "sum(ads_clicks_total) by (time_advance)",
+            "legendFormat": "Clicks ({{time_advance}})"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "decimals": 0
+          }
+        }
       },
       {
         "type": "timeseries",
         "title": "HTTP Requests",
         "gridPos": {"x":0,"y":12,"w":12,"h":8},
         "targets": [{
-          "expr": "sum by(method, path) (rate(http_requests_total[5m]))",
-          "legendFormat": "{{method}} {{path}}"
-        }]
+          "expr": "sum by(method, path) (increase(http_requests_total[5m]))",
+          "legendFormat": "{{method}} {{path}}",
+          "format": "time_series"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "decimals": 0
+          }
+        }
       },
       {
         "type": "timeseries",
@@ -69,4 +101,4 @@
         ]
       }
     ]
-  }
+}
