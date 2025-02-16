@@ -13,7 +13,6 @@ database:
     db: 1
 
 cors:
-  allowed_origin: "http://localhost:8001/"
   allowed_methods: ["GET", "POST", "PUT", "UPDATE", "DELETE"]
   allowed_headers: ["Content-Type", "Authorization"]
   max_age: 3600

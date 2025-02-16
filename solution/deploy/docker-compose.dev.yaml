@@ -28,7 +28,6 @@ services:
       - APP__HTTP_SERVER__HOST=0.0.0.0
       - APP__HTTP_SERVER__PORT=8000
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
-      - APP__CORS__ALLOWED_ORIGIN=http://python_telegram_bot:8001/
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
@@ -61,4 +60,20 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "44541", "ping"]
 
+  prometheus:
+    extends:
+      file: docker-compose.base.yaml
+      service: prometheus
+    ports:
+      - "9090:9090"
+   
+  grafana:
+    extends:
+      file: docker-compose.base.yaml
+      service: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: 44541
     
