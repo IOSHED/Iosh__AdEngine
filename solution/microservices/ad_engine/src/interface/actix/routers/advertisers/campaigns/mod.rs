@@ -69,6 +69,7 @@ pub async fn campaigns_update_handler(
     responses(
         (status = 204, description = "Deleted", body = ()),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "Not found", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]

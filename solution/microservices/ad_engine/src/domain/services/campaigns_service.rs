@@ -125,13 +125,18 @@ impl<'p> CampaignService {
     }
 
     #[tracing::instrument(name = "`CampaignService` delete campaign", skip(repo))]
-    pub async fn delete<R: IDeleteCampaign>(
+    pub async fn delete<R: IDeleteCampaign + IGetCampaignById>(
         &self,
         advertiser_id: uuid::Uuid,
         campaign_id: uuid::Uuid,
         repo: R,
     ) -> domain::services::ServiceResult<()> {
-        repo.delete(advertiser_id, campaign_id)
+        let campaign = repo
+            .get_by_id(advertiser_id, campaign_id)
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e))?;
+
+        repo.delete(campaign.advertiser_id, campaign.id)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
 
