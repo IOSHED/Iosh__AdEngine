@@ -28,11 +28,16 @@ impl<'p> AdvertiserBulkRegisterUsecase<'p> {
                 .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
         }
 
-        self.advertiser_service
+        let advertisers = self
+            .advertiser_service
             .register(
                 register_data,
                 infrastructure::repository::sqlx_lib::PgAdvertiserRepository::new(self.db_pool),
             )
-            .await
+            .await?;
+
+        domain::services::PrometheusService::add_total_advertisers(advertisers.len() as i64);
+
+        Ok(advertisers)
     }
 }

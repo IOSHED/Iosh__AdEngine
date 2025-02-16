@@ -53,6 +53,8 @@ impl<'p> AdsGetUsecase<'p> {
         campaign.view_clients_id.push(client_id);
         self.redis_service.set_active_campaign(campaign).await?;
 
+        domain::services::PrometheusService::increment_ads_visits(advanced_time);
+
         Ok(ads)
     }
 }

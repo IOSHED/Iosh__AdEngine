@@ -11,6 +11,7 @@ mod campaigns_stat_service;
 mod client_service;
 mod error;
 mod ml_score_service;
+mod prometheus_service;
 mod redis_service;
 
 pub use ads_service::AdsService;
@@ -21,6 +22,7 @@ pub use campaigns_stat_service::CampaignStatService;
 pub use client_service::ClientService;
 pub use error::ServiceError;
 pub use ml_score_service::MlScoreService;
+pub use prometheus_service::PrometheusService;
 pub use redis_service::RedisService;
 
 pub mod repository {

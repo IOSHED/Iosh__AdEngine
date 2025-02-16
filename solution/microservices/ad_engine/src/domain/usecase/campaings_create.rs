@@ -47,7 +47,6 @@ impl<'p> CampaignsCreateUsecase<'p> {
             .create::<infrastructure::repository::sqlx_lib::PgCampaignRepository>(
                 create_data,
                 advertiser_id,
-                time_advance,
                 infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
             .await?;
@@ -57,6 +56,8 @@ impl<'p> CampaignsCreateUsecase<'p> {
             let active_campaign = domain::schemas::ActiveCampaignSchema::from((campaign.clone(), vec![], vec![]));
             self.redis_service.set_active_campaign(active_campaign).await?;
         }
+
+        domain::services::PrometheusService::increment_campaign_created(advanced_time);
 
         Ok(campaign)
     }

@@ -11,3 +11,4 @@ pub mod logger;
 pub mod repository;
 
 pub mod cash;
+pub mod metrics;

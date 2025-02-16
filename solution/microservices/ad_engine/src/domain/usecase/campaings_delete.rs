@@ -37,6 +37,8 @@ impl<'p> CampaignsDeleteUsecase<'p> {
         {
             Ok(_) => {
                 self.redis_service.del_active_campaigns(&campaign_id).await?;
+                let advanced_time = self.redis_service.get_advance_time().await?;
+                domain::services::PrometheusService::increment_campaign_deleted(advanced_time);
                 Ok(())
             },
             Err(e) => Err(e),

@@ -71,6 +71,8 @@ impl<'p> CampaignsUpdateUsecase<'p> {
             self.redis_service.set_active_campaign(active_campaign).await?;
         }
 
+        domain::services::PrometheusService::increment_campaign_updated(advanced_time);
+
         Ok(campaign)
     }
 }

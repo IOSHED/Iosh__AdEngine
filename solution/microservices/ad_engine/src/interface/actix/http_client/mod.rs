@@ -82,6 +82,12 @@ impl HttpServer {
     }
 
     /// Creates the main API scope with routes
+    fn get_metrics_scope(&self) -> actix_web::Scope {
+        lazy_static::initialize(&infrastructure::metrics::prometheus::APP_METRICS);
+        actix_web::web::scope("").service(interface::actix::routers::metrics_handler)
+    }
+
+    /// Creates the main API scope with routes
     fn get_api_scope(&self) -> actix_web::Scope {
         actix_web::web::scope("/api")
             .service(super::routers::healthcheck_handler)
@@ -135,6 +141,7 @@ impl interface::IServer for HttpServer {
 
         let server = actix_web::HttpServer::new(move || {
             actix_web::App::new()
+                .wrap(interface::actix::middleware::metrics::MetricsMiddleware)
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(actix_web::middleware::Compress::default())
                 .wrap(server.get_cors())
@@ -142,6 +149,7 @@ impl interface::IServer for HttpServer {
                 .app_data(redis_pool_data.clone())
                 .app_data(database_pool_data.clone())
                 .app_data(app_state.clone())
+                .service(server.get_metrics_scope())
                 .service(server.get_api_scope())
                 .service(server.get_swagger_docs())
         });

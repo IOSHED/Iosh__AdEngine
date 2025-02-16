@@ -28,11 +28,15 @@ impl<'p> ClientBulkRegisterUsecase<'p> {
                 .map_err(|e| domain::services::ServiceError::Validation(e.to_string()))?;
         }
 
-        self.client_service
+        let clients = self
+            .client_service
             .register(
                 register_data,
                 infrastructure::repository::sqlx_lib::PgClientRepository::new(self.db_pool),
             )
-            .await
+            .await?;
+
+        domain::services::PrometheusService::add_total_clients(clients.len() as i64);
+        Ok(clients)
     }
 }

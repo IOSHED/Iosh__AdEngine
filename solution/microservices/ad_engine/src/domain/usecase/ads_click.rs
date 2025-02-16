@@ -76,6 +76,8 @@ impl<'p> AdsClickUsecase<'p> {
         campaign.click_clients_id.push(client.client_id);
         self.redis_service.set_active_campaign(campaign).await?;
 
+        domain::services::PrometheusService::increment_ads_clicks(advanced_time);
+
         Ok(())
     }
 }
