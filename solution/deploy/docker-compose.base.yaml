@@ -49,6 +49,7 @@ services:
     container_name: prometheus
     restart: always
     volumes:
+      - ../infrastructure/prometheus/:/etc/prometheus/
       - ../infrastructure/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
@@ -62,6 +63,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - ../infrastructure/grafana/.data:/var/lib/grafana
       - ../infrastructure/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus

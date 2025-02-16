@@ -5,3 +5,5 @@
 /infrastructure/postgres/.pgdata/*
 /infrastructure/redis/.redisdata/*
 
+# Metrics data ###
+/infrastructure/grafana/.data/*

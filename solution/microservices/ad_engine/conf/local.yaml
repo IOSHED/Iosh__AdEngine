@@ -18,7 +18,7 @@ cors:
   max_age: 3600
 
 logger:
-  max_level_cmd: "info"
+  max_level_cmd: "debug"
   max_level_file: "debug"
   max_level_error_file: "warn"
   log_dir: "./log"

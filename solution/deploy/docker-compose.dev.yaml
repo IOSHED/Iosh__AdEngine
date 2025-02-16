@@ -28,6 +28,9 @@ services:
       - APP__HTTP_SERVER__HOST=0.0.0.0
       - APP__HTTP_SERVER__PORT=8000
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
+      - APP__DATABASE__REDIS__HOST=redis_database
+      - APP__DATABASE__REDIS__PORT=6379
+      - APP__DATABASE__REDIS__DB=1
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]

@@ -57,10 +57,10 @@ impl AppMetrics {
             .expect("Failed create metric total_clients".into()),
 
             total_advertisers: prometheus::register_int_gauge!(prometheus::opts!(
-                "total_recommenders",
-                "Total number of recommenders",
+                "total_advertisers",
+                "Total number of advertisers",
             ))
-            .expect("Failed create metric total_recommenders".into()),
+            .expect("Failed create metric total_advertisers".into()),
 
             http_requests_total: prometheus::register_int_counter_vec!(
                 prometheus::opts!("http_requests_total", "HTTP requests total"),
