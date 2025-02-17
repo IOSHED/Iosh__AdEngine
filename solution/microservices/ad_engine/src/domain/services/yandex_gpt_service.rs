@@ -37,10 +37,7 @@ impl YandexGptService {
         match generate_schema.generate_type.as_str() {
             "ALL" => {
                 campaign.ad_text = self
-                    .generate_body(
-                        &generate_schema.ad_text.unwrap_or(campaign.ad_text.clone()),
-                        campaign.targeting.clone(),
-                    )
+                    .generate_body(&generate_schema.ad_text.unwrap_or(campaign.ad_text.clone()))
                     .await?;
 
                 campaign.ad_title = self
@@ -55,10 +52,7 @@ impl YandexGptService {
             },
             "TEXT" => {
                 campaign.ad_text = self
-                    .generate_body(
-                        &generate_schema.ad_text.unwrap_or(campaign.ad_text.clone()),
-                        campaign.targeting.clone(),
-                    )
+                    .generate_body(&generate_schema.ad_text.unwrap_or(campaign.ad_text.clone()))
                     .await?;
             },
             _ =>
@@ -76,21 +70,9 @@ impl YandexGptService {
             .map_err(|e| domain::services::ServiceError::GptNotResponse(e.to_string()))
     }
 
-    pub async fn generate_body(
-        &self,
-        text: &str,
-        target: domain::schemas::TargetingCampaignSchema,
-    ) -> domain::services::ServiceResult<String> {
-        let target_str = format!(
-            "Возраст от {} до {}, в локации {}, для гендера {}",
-            target.age_from.unwrap_or(0),
-            target.age_to.unwrap_or(160),
-            target.location.unwrap_or("любой".into()),
-            target.gender.unwrap_or("любого".into()),
-        );
-        let system_prompt = self.system_prompt_for_generate_body.replace("{target}", &target_str);
+    pub async fn generate_body(&self, text: &str) -> domain::services::ServiceResult<String> {
         self.gpt_client
-            .ask_gpt(text, &system_prompt)
+            .ask_gpt(text, &self.system_prompt_for_generate_body)
             .await
             .map_err(|e| domain::services::ServiceError::GptNotResponse(e.to_string()))
     }
