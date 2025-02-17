@@ -6,5 +6,8 @@ pub use base::{
     ActiveCampaignSchema, AdSchema, AdvertiserProfileSchema, CampaignSchema, ClientProfileSchema,
     TargetingCampaignSchema,
 };
-pub use request::{AdClickRequest, CampaignsCreateRequest, CampaignsUpdateRequest, MlScoreRequest, TimeAdvanceRequest};
+pub use request::{
+    AdClickRequest, CampaignsCreateRequest, CampaignsGenerateTextRequest, CampaignsUpdateRequest, MlScoreRequest,
+    TimeAdvanceRequest,
+};
 pub use response::{StatDailyResponse, StatResponse, TimeAdvanceResponse};

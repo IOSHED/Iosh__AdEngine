@@ -55,3 +55,33 @@ pub struct CampaignsUpdateRequest {
 
     pub targeting: domain::schemas::TargetingCampaignSchema,
 }
+
+#[derive(serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug)]
+pub struct CampaignsGenerateTextRequest {
+    #[schema(example = "ALL")]
+    #[validate(regex(
+        path = "crate::domain::validators::RE_GENERATE_TYPE",
+        message = "Generate type not equal TITLE or TEXT or ALL"
+    ))]
+    pub generate_type: String,
+    #[schema(example = "Mega Ad")]
+    pub ad_title: Option<String>,
+    #[schema(example = "His omega must be Ad")]
+    pub ad_text: Option<String>,
+}
+
+impl std::convert::From<domain::schemas::CampaignSchema> for CampaignsUpdateRequest {
+    fn from(campaign: domain::schemas::CampaignSchema) -> Self {
+        Self {
+            impressions_limit: campaign.impressions_limit,
+            clicks_limit: campaign.clicks_limit,
+            cost_per_impressions: campaign.cost_per_impressions,
+            cost_per_clicks: campaign.cost_per_clicks,
+            ad_title: campaign.ad_title,
+            ad_text: campaign.ad_text,
+            start_date: campaign.start_date,
+            end_date: campaign.end_date,
+            targeting: campaign.targeting,
+        }
+    }
+}

@@ -14,6 +14,9 @@ pub enum ServiceError {
     #[error("Cash error - {0}")]
     Cash(String),
 
+    #[error("Gpt not response - {0}")]
+    GptNotResponse(String),
+
     /// Represents an unknown or unexpected error
     #[error("Unknown error")]
     Unknown,

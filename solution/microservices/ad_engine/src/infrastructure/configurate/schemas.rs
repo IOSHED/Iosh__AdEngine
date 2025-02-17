@@ -20,6 +20,15 @@ pub struct AdsRecommendationConfig {
 pub struct YandexConfig {
     pub api_key: String,
     pub folder_id: String,
+    pub gpt: GptYandexConfig,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct GptYandexConfig {
+    pub temperature: f32,
+    pub max_tokens: u32,
+    pub system_prompt_for_generate_title: String,
+    pub system_prompt_for_generate_body: String,
 }
 
 #[serde_with::serde_as]

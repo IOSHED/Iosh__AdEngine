@@ -7,6 +7,7 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
         .service(campaigns_update_handler)
         .service(campaigns_get_by_id_handler)
         .service(campaigns_get_list_handler)
+        .service(campaigns_generate_text_handler)
 }
 
 #[utoipa::path(
@@ -36,6 +37,36 @@ pub async fn campaigns_create_handler(
 }
 
 #[utoipa::path(
+    patch,
+    path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}/generate_text",
+    tag = "Campaigns",
+    request_body = domain::schemas::CampaignsGenerateTextRequest,
+    responses(
+        (status = 201, description = "Created campaign", body = domain::schemas::CampaignSchema),
+        (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "Not found", body = interface::actix::exception::ExceptionResponse),
+        (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse),
+        (status = 503, description = "Yandex GPT not response", body = interface::actix::exception::ExceptionResponse),
+    )
+)]
+#[actix_web::patch("/{campaign_id}/generate_text")]
+#[tracing::instrument(name = "Generate title or description for campaign", skip(db_pool))]
+pub async fn campaigns_generate_text_handler(
+    generate_request: actix_web::web::Json<domain::schemas::CampaignsGenerateTextRequest>,
+    path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
+    db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    app_state: actix_web::web::Data<domain::configurate::AppState>,
+) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let (advertiser_id, campaign_id) = path_param.into_inner();
+    let campaign = domain::usecase::CampaignsGeneratorTextUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
+        .generate(generate_request.into_inner(), advertiser_id, campaign_id)
+        .await?;
+
+    Ok(actix_web::HttpResponse::Created().json(campaign))
+}
+
+#[utoipa::path(
     put,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}",
     tag = "Campaigns",
@@ -43,6 +74,7 @@ pub async fn campaigns_create_handler(
     responses(
         (status = 200, description = "Updated campaign", body = domain::schemas::CampaignSchema),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
+        (status = 404, description = "Not found", body = interface::actix::exception::ExceptionResponse),
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]

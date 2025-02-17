@@ -13,6 +13,7 @@ mod error;
 mod ml_score_service;
 mod prometheus_service;
 mod redis_service;
+mod yandex_gpt_service;
 
 pub use ads_service::AdsService;
 pub use advertiser_service::AdvertiserService;
@@ -24,6 +25,7 @@ pub use error::ServiceError;
 pub use ml_score_service::MlScoreService;
 pub use prometheus_service::PrometheusService;
 pub use redis_service::RedisService;
+pub use yandex_gpt_service::YandexGptService;
 
 pub mod repository {
     pub use super::{

@@ -72,10 +72,11 @@ utoipa-swagger-ui = { version="9", features = ["actix-web", "debug-embed"] }
 uuid = { version = "1.13.1", features = ["v4", "fast-rng", "macro-diagnostics", "serde"] }
 rust_decimal = "1.36.0"
 bigdecimal = "0.4.7"
+anyhow = "1.0.95"
+
 
 # Metrics
 prometheus = "0.13.4"
-
 
 [dev-dependencies]
 mockall = "0.13.1"

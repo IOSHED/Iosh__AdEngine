@@ -12,3 +12,5 @@ pub mod repository;
 
 pub mod cash;
 pub mod metrics;
+
+pub mod gpt;

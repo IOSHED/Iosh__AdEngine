@@ -9,11 +9,16 @@ use crate::infrastructure;
 pub struct AppState {
     pub yandex_api_key: String,
     pub yandex_folder_id: String,
+    pub system_prompt_for_generate_title: String,
+    pub system_prompt_for_generate_body: String,
 
     pub ads_weight_profit: f64,
     pub ads_weight_relevance: f64,
     pub ads_weight_fulfillment: f64,
     pub ads_weight_time_left: f64,
+
+    pub gpt_temperature: f32,
+    pub gpt_max_tokens: u32,
 }
 
 impl From<&infrastructure::configurate::Config> for AppState {
@@ -34,6 +39,10 @@ impl From<&infrastructure::configurate::Config> for AppState {
             ads_weight_relevance: config.ads_recommendation.weight_relevance,
             ads_weight_fulfillment: config.ads_recommendation.weight_fulfillment,
             ads_weight_time_left: config.ads_recommendation.weight_time_left,
+            gpt_temperature: config.yandex.gpt.temperature,
+            gpt_max_tokens: config.yandex.gpt.max_tokens,
+            system_prompt_for_generate_title: config.yandex.gpt.system_prompt_for_generate_title.clone(),
+            system_prompt_for_generate_body: config.yandex.gpt.system_prompt_for_generate_body.clone(),
         }
     }
 }
