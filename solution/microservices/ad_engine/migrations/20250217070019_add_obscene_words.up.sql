@@ -565,5 +565,6 @@ INSERT INTO obscene_words (word) VALUES
 
     ('шлюха'),
 
+    ('шлюшка'),
+
     ('fuck');
-    
