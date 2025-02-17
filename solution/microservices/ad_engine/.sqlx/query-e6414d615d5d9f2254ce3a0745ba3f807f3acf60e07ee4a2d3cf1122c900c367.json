@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT data, mime_type \n            FROM campaigns_images \n            WHERE \n                campaign_id = $1 \n                AND file_name = $2\n                AND EXISTS (\n                    SELECT 1 FROM campaigns \n                    WHERE id = $1 \n                    AND advertiser_id = $3\n                )\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "data",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "mime_type",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "e6414d615d5d9f2254ce3a0745ba3f807f3acf60e07ee4a2d3cf1122c900c367"
+}

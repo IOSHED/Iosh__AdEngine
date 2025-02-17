@@ -61,3 +61,93 @@ impl<'p> domain::services::repository::IUploadCampaignImage for PgCampaignImageR
         Ok(())
     }
 }
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetCampaignNamesImage for PgCampaignImageRepository<'p> {
+    async fn get_names(&self, campaign_id: uuid::Uuid) -> infrastructure::repository::RepoResult<Vec<String>> {
+        let names = sqlx::query_scalar!(
+            r#"
+            SELECT file_name FROM campaigns_images WHERE campaign_id = $1
+            "#,
+            campaign_id
+        )
+        .fetch_all(self.db_pool)
+        .await?
+        .into_iter()
+        .collect();
+
+        Ok(names)
+    
+    }
+}
+
+#[async_trait]
+impl<'p> domain::services::repository::IGetCampaignImage for PgCampaignImageRepository<'p> {
+    async fn get(
+        &self,
+        campaign_id: uuid::Uuid,
+        advertiser_id: uuid::Uuid,
+        file_name: String,
+    ) -> infrastructure::repository::RepoResult<(String, Vec<u8>)> {
+
+        let image = sqlx::query!(
+            r#"
+            SELECT data, mime_type 
+            FROM campaigns_images 
+            WHERE 
+                campaign_id = $1 
+                AND file_name = $2
+                AND EXISTS (
+                    SELECT 1 FROM campaigns 
+                    WHERE id = $1 
+                    AND advertiser_id = $3
+                )
+            "#,
+            campaign_id,
+            file_name,
+            advertiser_id
+        )
+        .fetch_optional(self.db_pool)
+        .await?;
+
+        let image = image.ok_or(infrastructure::repository::RepoError::ObjDoesNotExists("image".into()))?;
+
+        Ok((image.mime_type, image.data))
+    }
+}
+
+
+#[async_trait]
+impl<'p> domain::services::repository::IDeleteCampaignImage for PgCampaignImageRepository<'p> {
+    async fn delete(
+        &self,
+        campaign_id: uuid::Uuid,
+        advertiser_id: uuid::Uuid,
+        file_name: String,
+    ) -> infrastructure::repository::RepoResult<()> {
+        let result = sqlx::query!(
+            r#"
+            DELETE FROM campaigns_images
+            WHERE
+                campaign_id = $1
+                AND file_name = $2
+                AND EXISTS (
+                    SELECT 1 FROM campaigns
+                    WHERE id = $1
+                    AND advertiser_id = $3
+                )
+            "#,
+            campaign_id,
+            file_name,
+            advertiser_id
+        )
+        .execute(self.db_pool)
+        .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(infrastructure::repository::RepoError::ObjDoesNotExists("image".into()));
+        }
+        Ok(())
+       
+    }
+}

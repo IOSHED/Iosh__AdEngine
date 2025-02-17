@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM campaigns_images\n            WHERE\n                campaign_id = $1\n                AND file_name = $2\n                AND EXISTS (\n                    SELECT 1 FROM campaigns\n                    WHERE id = $1\n                    AND advertiser_id = $3\n                )\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "48c0fbffcf8a9bc71db254bdb897e23e9cb67f5846e92c88d5f97aa157ea3c63"
+}

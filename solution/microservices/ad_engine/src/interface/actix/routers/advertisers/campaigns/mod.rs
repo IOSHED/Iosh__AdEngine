@@ -1,6 +1,8 @@
 
 use crate::{domain, infrastructure, interface};
 
+pub mod images;
+
 pub fn campaigns_scope(path: &str) -> actix_web::Scope {
     actix_web::web::scope(path)
         .service(campaigns_create_handler)
@@ -9,7 +11,7 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
         .service(campaigns_get_by_id_handler)
         .service(campaigns_get_list_handler)
         .service(campaigns_generate_text_handler)
-        .service(upload_image_campaign_handler)
+        .service(images::images_scope("/{campaign_id}/images"))
 }
 
 #[utoipa::path(
@@ -183,36 +185,4 @@ pub async fn campaigns_get_list_handler(
     Ok(actix_web::HttpResponse::Created()
         .append_header(("x-total-count", total_count.to_string()))
         .json(campaigns))
-}
-#[utoipa::path(
-    post,
-    path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}/upload_image",
-    tag = "Campaigns",
-    responses(
-        (status = 204, description = "Success upload", body = ()),
-        (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
-        (status = 404, description = "Not found", body = interface::actix::exception::ExceptionResponse),
-        (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
-    )
-)]
-#[actix_web::post("/{campaign_id}/upload_image")]
-pub async fn upload_image_campaign_handler(
-    path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
-    db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
-    app_state: actix_web::web::Data<domain::configurate::AppState>,
-    request: actix_web::HttpRequest,
-    payload: actix_web::web::Payload,
-) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-   
-    let (advertiser_id, campaign_id) = path_param.into_inner();
-
-    let files: Vec<(String, Vec<u8>, String)> = interface::actix::http_client::loader_files(payload, request, app_state.media_max_size, app_state.media_support_mime.clone())
-        .await
-        .map_err(|e| domain::services::ServiceError::PayloadError(e.to_string()))?;
-
-    domain::usecase::CampaignsUploadImageUsecase::new(db_pool.get_ref(), app_state.media_max_image_on_campaign)
-        .upload(advertiser_id, campaign_id, files)
-        .await?;
-
-    Ok(actix_web::HttpResponse::NoContent().into())
 }

@@ -23,7 +23,10 @@
         super::super::routers::advertisers::campaigns::campaigns_delete_handler,
         super::super::routers::advertisers::campaigns::campaigns_get_by_id_handler,
         super::super::routers::advertisers::campaigns::campaigns_get_list_handler,
-        super::super::routers::advertisers::campaigns::upload_image_campaign_handler,
+        super::super::routers::advertisers::campaigns::images::upload_image_campaign_handler,
+        super::super::routers::advertisers::campaigns::images::get_campaign_image_handler,
+        super::super::routers::advertisers::campaigns::images::get_campaign_name_images_handler,
+        super::super::routers::advertisers::campaigns::images::delete_campaign_image_handler,
     ),
 )]
 pub struct ApiDocSwagger;
