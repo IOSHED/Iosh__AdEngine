@@ -7,6 +7,12 @@ pub struct Config {
     pub yandex: YandexConfig,
     pub ads_recommendation: AdsRecommendationConfig,
     pub upload_content: UploadContentConfig,
+    pub auto_moderating: AutoModeratingConfig,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct AutoModeratingConfig {
+    pub sensitivity: f32,
 }
 
 #[derive(Clone, serde::Deserialize)]

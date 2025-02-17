@@ -26,14 +26,15 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
     )
 )]
 #[actix_web::post("")]
-#[tracing::instrument(name = "Create campaign", skip(db_pool))]
+#[tracing::instrument(name = "Create campaign", skip(db_pool, app_state))]
 pub async fn campaigns_create_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsCreateRequest>,
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let campaign = domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
+    let campaign = domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
         .create(campaign_request.into_inner(), advertiser_id.into_inner())
         .await?;
 
@@ -83,15 +84,16 @@ pub async fn campaigns_generate_text_handler(
     )
 )]
 #[actix_web::put("/{campaign_id}")]
-#[tracing::instrument(name = "Update campaign", skip(db_pool))]
+#[tracing::instrument(name = "Update campaign", skip(db_pool, app_state))]
 pub async fn campaigns_update_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsUpdateRequest>,
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let (advertiser_id, campaign_id) = path_param.into_inner();
-    let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
+    let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
         .update(campaign_request.into_inner(), advertiser_id, campaign_id)
         .await?;
 

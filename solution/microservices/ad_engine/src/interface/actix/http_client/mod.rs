@@ -98,6 +98,7 @@ impl HttpServer {
             .service(super::routers::ads_scope("/ads"))
             .service(super::routers::client_scope("/client"))
             .service(super::routers::advertisers_scope("/advertisers"))
+            .service(super::routers::moderate_scope("/moderate"))
     }
 
     /// Configures Swagger documentation UI

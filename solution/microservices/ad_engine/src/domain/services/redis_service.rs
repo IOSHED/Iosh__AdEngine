@@ -93,6 +93,20 @@ impl<'p> RedisService<'p> {
     pub async fn set_advance_time(&self, data: u32) -> domain::services::ServiceResult<()> {
         self.repo.set("advance_time", data).await
     }
+
+    pub async fn get_is_activate_auto_moderate(&self) -> domain::services::ServiceResult<bool> {
+        match self.repo.get("is_activate_auto_moderate").await {
+            Ok(data) => Ok(data),
+            Err(_) => {
+                self.set_is_activate_auto_moderate(false).await?;
+                self.repo.get("is_activate_auto_moderate").await
+            },
+        }
+    }
+
+    pub async fn set_is_activate_auto_moderate(&self, data: bool) -> domain::services::ServiceResult<()> {
+        self.repo.set("is_activate_auto_moderate", data).await
+    }
 }
 
 impl redis::ToRedisArgs for domain::schemas::ActiveCampaignSchema {

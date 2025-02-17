@@ -38,6 +38,8 @@ pub struct AppState {
     pub media_support_mime: Vec<String>,
     pub media_max_size: usize,
     pub media_max_image_on_campaign: usize,
+
+    pub auto_moderating_sensitivity: f32,
 }
 
 /// Implements conversion from Config to AppState
@@ -60,6 +62,7 @@ impl From<&infrastructure::configurate::Config> for AppState {
             media_support_mime: config.upload_content.support_mime.clone(),
             media_max_size: config.upload_content.max_size,
             media_max_image_on_campaign: config.upload_content.max_image_on_campaign,
+            auto_moderating_sensitivity: config.auto_moderating.sensitivity,
         }
     }
 }

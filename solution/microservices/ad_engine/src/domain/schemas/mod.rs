@@ -3,7 +3,7 @@ mod request;
 mod response;
 
 pub use base::{
-    ActiveCampaignSchema, AdSchema, AdvertiserProfileSchema, CampaignSchema, ClientProfileSchema,
+    ActiveCampaignSchema, AdSchema, AdvertiserProfileSchema, CampaignSchema, ClientProfileSchema, ModerateSchema,
     TargetingCampaignSchema,
 };
 pub use request::{

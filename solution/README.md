@@ -37,20 +37,20 @@ flowchart TD
 
 ## Scripts
 
-### How do work with [project](/scripts/project.bat)?
+### Как работать с [project](/scripts/project.bat)?
 
-This documentation provides a guide on how to use the provided `.bat` or `.sh` script, which allows the user to start services locally or in Docker containers with various actions such as running or building services.
+Эта документация предоставляет руководство по использованию предоставленного скрипта `.bat` или `.sh`, который позволяет пользователю запускать сервисы локально или в контейнерах Docker с различными действиями, такими как запуск или сборка сервисов.
 
 ### Usage
 
-To run the script, execute it in the command line with the required parameters. Use the following syntax:
+Чтобы запустить скрипт, выполните его в командной строке с необходимыми параметрами. Используйте следующий синтаксис:
 
-For Windows:
+Для Windows:
 ```shell
 .\project.bat [options] [service]
 ```
 
-For Unix/Linux:
+Для Unix/Linux:
 ```shell
 ./project.sh [options] [service]
 ```
@@ -59,13 +59,13 @@ For Unix/Linux:
 
 | Option             | Short Form | Description                                  |
 |--------------------|------------|----------------------------------------------|
-| --local            | -L         | Start services locally                       |
-| --docker           | -D         | Start services in Docker                     |
-| --run              | -R         | Run the service(s)                           |
-| --build            | -B         | Build the service(s)                         |
-| --help             |            | Display the help message                     |
-| --tests            |            | Run tests defined in the testing suite       |
-| --tests --init     |            | First Run tests defined in the testing suite |
+| --local            | -L         | Запустить сервисы локалько                   |
+| --docker           | -D         | Запустить сервисы в докер                    |
+| --run              | -R         | Запустить сервис(ы)                          |
+| --build            | -B         | Собрать сервис(ы)                            |
+| --help             |            | Вывести help сообщение                       |
+| --tests            |            | Запустить `unit` и `e2e` тесты               |
+| --tests --init     |            | Запустить тестировние впервый раз            |
 
 ### Example Usage
 
@@ -131,29 +131,29 @@ For Unix/Linux:
 
 ### Parameter Definitions
 
-- **mode**: Determines whether the script will execute commands locally or in Docker. It can be set to `local` or `docker`.
-- **action**: Specifies the action to perform, which can be either `run` or `build`.
-- **service**: (Optional) The specific service you want to target for the action.
+- **mode**: Определяет, будет ли скрипт выполнять команды локально или в Docker. Может быть установлен в `local` или `docker`.
+- **action**: Указывает действие, которое необходимо выполнить, которое может быть либо `run`, либо `build`.
+- **service**: (Необязательно) Конкретный сервис, который вы хотите выбрать для действия.
 
 ### Internal Flow
 
-- **Argument Parsing**:
-    - The script uses a loop to parse command line arguments.
-    - It checks for mode and action flags and sets the corresponding variables.
-    - If an invalid argument is provided, it uses the remaining argument as a service name.
+- **Парсинг аргументов**:
+    - Скрипт использует цикл для разбора аргументов командной строки.
+    - Он проверяет наличие флагов режима и действия и устанавливает соответствующие переменные.
+    - Если предоставлен недопустимый аргумент, он использует оставшийся аргумент в качестве имени сервиса.
 
-- **Execution**:
-    - After parsing, it checks if the required mode and action have been specified.
-    - If a specific service is provided, the script will run it; otherwise, it will run all services.
+- **Выполнение**:
+    - После разбора скрипт проверяет, указаны ли необходимые режим и действие.
+    - Если указан конкретный сервис, скрипт запустит его; в противном случае он запустит все сервисы.
 
-- **Commands Execution**:
-    - **For Local Mode**:
-        - Executes the specified action on all or a specific service using the appropriate build or run commands.
-  
-    - **For Docker Mode**:
-        - Uses `docker-compose` commands to start the services as needed.
+- **Выполнение команд**:
+    - Для локального режима:
+        - Выполняет указанное действие на всех или конкретном сервисе с использованием соответствующих команд сборки или запуска.
+
+    - Для режима Docker:
+        - Использует команды `docker-compose` для запуска сервисов по необходимости.
 
 ### Error Handling
 
-- If neither `--local` nor `--docker` is provided, the script will inform the user about the missing mode.
-- If neither `--run` nor `--build` is specified, the user will receive a notification prompting them to specify an action.
+- Если не указан ни `--local`, ни `--docker`, скрипт уведомит пользователя о недостаточной информации по режиму.
+- Если не указано ни `--run`, ни `--build`, пользователь получит уведомление с просьбой указать действие.

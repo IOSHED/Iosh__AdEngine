@@ -17,6 +17,7 @@
         super::super::routers::client::client_by_id_handler,
         super::super::routers::advertisers::advertiser_bulk_handler,
         super::super::routers::advertisers::advertiser_by_id_handler,
+        super::super::routers::moderate::moderate_config_handler,
         super::super::routers::advertisers::campaigns::campaigns_create_handler,
         super::super::routers::advertisers::campaigns::campaigns_generate_text_handler,
         super::super::routers::advertisers::campaigns::campaigns_update_handler,

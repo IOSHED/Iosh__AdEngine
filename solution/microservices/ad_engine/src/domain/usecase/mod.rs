@@ -20,6 +20,7 @@ mod campaings_update;
 mod client_bulk_register;
 mod client_profile;
 mod ml_score;
+mod moderate_set_settings;
 mod stat_campaign;
 mod time_advance;
 
@@ -40,5 +41,6 @@ pub use campaings_update::CampaignsUpdateUsecase;
 pub use client_bulk_register::ClientBulkRegisterUsecase;
 pub use client_profile::ClientProfileUsecase;
 pub use ml_score::MlScoreUsecase;
+pub use moderate_set_settings::ModerateSetSettingsUsecase;
 pub use stat_campaign::StatCampaignUsecase;
 pub use time_advance::TimeAdvanceUsecase;

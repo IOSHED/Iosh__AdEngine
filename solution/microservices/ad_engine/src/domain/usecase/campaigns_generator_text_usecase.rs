@@ -29,7 +29,7 @@ impl<'p> CampaignsGeneratorTextUsecase<'p> {
                 app_state.system_prompt_for_generate_title.clone(),
                 app_state.system_prompt_for_generate_body.clone(),
             ),
-            moderate_text_service: domain::services::ModerateTextService,
+            moderate_text_service: domain::services::ModerateTextService::new(app_state.auto_moderating_sensitivity),
             campaign_service: domain::services::CampaignService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,
@@ -50,6 +50,7 @@ impl<'p> CampaignsGeneratorTextUsecase<'p> {
                     generate_schema.ad_text.clone().unwrap_or("".into()),
                     generate_schema.ad_title.clone().unwrap_or("".into()),
                 ],
+                self.redis_service.get_is_activate_auto_moderate().await?,
                 infrastructure::repository::redis::RedisObsceneWordRepository::new(self.redis_pool, self.db_pool),
             )
             .await?;

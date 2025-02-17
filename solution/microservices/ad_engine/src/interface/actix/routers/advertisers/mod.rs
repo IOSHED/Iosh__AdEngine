@@ -20,13 +20,14 @@ pub fn advertisers_scope(path: &str) -> actix_web::Scope {
     )
 )]
 #[actix_web::post("/bulk")]
-#[tracing::instrument(name = "create bulk advertisers", skip(db_pool))]
+#[tracing::instrument(name = "create bulk advertisers", skip(db_pool, app_state))]
 pub async fn advertiser_bulk_handler(
     register_data: actix_web::web::Json<Vec<domain::schemas::AdvertiserProfileSchema>>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let regsiters_user = domain::usecase::AdvertiserBulkRegisterUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
+    let regsiters_user = domain::usecase::AdvertiserBulkRegisterUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
         .registers(register_data.into_inner())
         .await?;
 

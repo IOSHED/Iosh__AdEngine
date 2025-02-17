@@ -9,14 +9,26 @@ pub trait IGetAbusiveWords {
 }
 
 #[derive(Debug)]
-pub struct ModerateTextService;
+pub struct ModerateTextService {
+    sensitivity: f32,
+}
+
+impl ModerateTextService {
+    pub fn new(sensitivity: f32) -> Self {
+        Self { sensitivity }
+    }
+}
 
 impl ModerateTextService {
     pub async fn check_abusive_content<R: IGetAbusiveWords>(
         &self,
         text: &[String],
+        is_activated: bool,
         repo: R,
     ) -> domain::services::ServiceResult<()> {
+        if !is_activated {
+            return Ok(());
+        }
         let abusive_words = repo
             .get_words()
             .await
@@ -35,7 +47,9 @@ impl ModerateTextService {
 
             (0..=phrase_length.saturating_sub(word_length)).find_map(|part| {
                 let fragment: String = filtered_phrase.chars().skip(part).take(word_length).collect();
-                if self.levenshtein_distance(&fragment, word) <= (word_length as f64 * 0.12).round() as usize {
+                if self.levenshtein_distance(&fragment, word)
+                    <= (word_length as f32 * self.sensitivity).round() as usize
+                {
                     Some(word)
                 } else {
                     None

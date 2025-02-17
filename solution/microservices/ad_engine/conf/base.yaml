@@ -19,6 +19,9 @@ ads_recommendation:
   weight_fulfillment: 0.07
   weight_time_left: 0.08
 
+auto_moderating:
+  sensitivity: 0.12
+
 yandex:
   gpt:
     temperature: 0.3
