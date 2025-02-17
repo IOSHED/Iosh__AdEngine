@@ -22,7 +22,8 @@
         super::super::routers::advertisers::campaigns::campaigns_update_handler,
         super::super::routers::advertisers::campaigns::campaigns_delete_handler,
         super::super::routers::advertisers::campaigns::campaigns_get_by_id_handler,
-        super::super::routers::advertisers::campaigns::campaigns_get_list_handler
+        super::super::routers::advertisers::campaigns::campaigns_get_list_handler,
+        super::super::routers::advertisers::campaigns::upload_image_campaign_handler,
     ),
 )]
 pub struct ApiDocSwagger;

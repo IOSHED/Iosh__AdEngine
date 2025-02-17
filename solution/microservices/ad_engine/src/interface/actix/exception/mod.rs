@@ -23,6 +23,7 @@ impl actix_web::error::ResponseError for domain::services::ServiceError {
             domain::services::ServiceError::Cash(_) => actix_web::http::StatusCode::IM_A_TEAPOT,
             domain::services::ServiceError::GptNotResponse(_) => actix_web::http::StatusCode::SERVICE_UNAVAILABLE,
             domain::services::ServiceError::Censorship(_) => actix_web::http::StatusCode::NOT_ACCEPTABLE,
+            domain::services::ServiceError::PayloadError(_) => actix_web::http::StatusCode::BAD_REQUEST,
         }
     }
 

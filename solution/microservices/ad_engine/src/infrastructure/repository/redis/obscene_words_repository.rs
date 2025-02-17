@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use sqlx::query;
 
 use crate::{
     domain,

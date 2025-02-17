@@ -12,7 +12,10 @@
 use async_trait::async_trait;
 use utoipa::OpenApi;
 
+mod loader;
 mod swagger;
+
+pub use loader::loader_files;
 
 use crate::{domain, infrastructure, interface};
 
@@ -81,6 +84,10 @@ impl HttpServer {
             })
     }
 
+    fn get_media_config(&self) -> actix_web::web::PayloadConfig {
+        actix_web::web::PayloadConfig::new(self.config.limit_size_media)
+    }
+
     /// Creates the main API scope with routes
     fn get_api_scope(&self) -> actix_web::Scope {
         actix_web::web::scope("/api")
@@ -141,6 +148,7 @@ impl interface::IServer for HttpServer {
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(actix_web::middleware::Compress::default())
                 .wrap(server.get_cors())
+                .app_data(server.get_media_config())
                 .app_data(server.get_json_config())
                 .app_data(redis_pool_data.clone())
                 .app_data(database_pool_data.clone())

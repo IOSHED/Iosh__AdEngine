@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO campaigns_images \n                    (data, mime_type, file_name, file_size, campaign_id)\n                VALUES \n                    ($1, $2, $3, $4, $5)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Varchar",
+        "Varchar",
+        "Int8",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3ce3854cee4ab70c7d0002af12326eb147cbdf9996bc92038f1e0ece292afcaf"
+}

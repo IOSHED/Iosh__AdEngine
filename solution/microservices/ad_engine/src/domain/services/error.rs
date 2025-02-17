@@ -20,6 +20,9 @@ pub enum ServiceError {
     #[error("Not acceptable word - {0}")]
     Censorship(String),
 
+    #[error("Payload error - {0}")]
+    PayloadError(String),
+
     /// Represents an unknown or unexpected error
     #[error("Unknown error")]
     Unknown,

@@ -6,6 +6,14 @@ pub struct Config {
     pub cors: CorsConfig,
     pub yandex: YandexConfig,
     pub ads_recommendation: AdsRecommendationConfig,
+    pub upload_content: UploadContentConfig,
+}
+
+#[derive(Clone, serde::Deserialize)]
+pub struct UploadContentConfig {
+    pub support_mime: Vec<String>,
+    pub max_size: usize,
+    pub max_image_on_campaign: usize,
 }
 
 #[derive(Clone, serde::Deserialize)]
@@ -44,6 +52,7 @@ pub struct HttpServerConfig {
     #[serde_as(as = "serde_with::DurationSeconds")]
     pub keep_alive: std::time::Duration,
     pub limit_size_json: usize,
+    pub limit_size_media: usize,
 }
 
 #[derive(Clone, serde::Deserialize)]

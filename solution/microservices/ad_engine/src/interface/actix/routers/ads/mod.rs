@@ -27,7 +27,7 @@ struct AdsQuery {
     )
 )]
 #[actix_web::get("")]
-#[tracing::instrument(name = "Get suitable ads for client", skip(db_pool))]
+#[tracing::instrument(name = "Get suitable ads for client", skip(db_pool, app_state))]
 pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

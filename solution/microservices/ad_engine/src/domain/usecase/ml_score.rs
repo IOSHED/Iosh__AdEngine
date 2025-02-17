@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub struct MlScoreUsecase<'p> {
-    pub ml_score_service: domain::services::MlScoreService,
+    ml_score_service: domain::services::MlScoreService,
     db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
 
