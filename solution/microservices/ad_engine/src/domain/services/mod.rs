@@ -11,6 +11,7 @@ mod campaigns_stat_service;
 mod client_service;
 mod error;
 mod ml_score_service;
+mod moderate_text;
 mod prometheus_service;
 mod redis_service;
 mod yandex_gpt_service;
@@ -23,6 +24,7 @@ pub use campaigns_stat_service::CampaignStatService;
 pub use client_service::ClientService;
 pub use error::ServiceError;
 pub use ml_score_service::MlScoreService;
+pub use moderate_text::ModerateTextService;
 pub use prometheus_service::PrometheusService;
 pub use redis_service::RedisService;
 pub use yandex_gpt_service::YandexGptService;
@@ -38,6 +40,7 @@ pub mod repository {
         campaigns_stat_service::{IClickCampaign, IGetDailyStat, IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
         client_service::{IGetClientById, IRegisterBulkClient},
         ml_score_service::ISetMlScore,
+        moderate_text::IGetAbusiveWords,
     };
 }
 

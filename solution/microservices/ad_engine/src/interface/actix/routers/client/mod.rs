@@ -22,8 +22,9 @@ pub fn client_scope(path: &str) -> actix_web::Scope {
 pub async fn client_bulk_handler(
     register_data: actix_web::web::Json<Vec<domain::schemas::ClientProfileSchema>>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let regsiters_user = domain::usecase::ClientBulkRegisterUsecase::new(db_pool.get_ref())
+    let regsiters_user = domain::usecase::ClientBulkRegisterUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .registers(register_data.into_inner())
         .await?;
 

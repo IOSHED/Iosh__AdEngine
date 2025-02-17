@@ -8,7 +8,9 @@ use crate::{
 pub struct CampaignsGeneratorTextUsecase<'p> {
     yandex_gpt_service: domain::services::YandexGptService,
     campaign_service: domain::services::CampaignService,
+    moderate_text_service: domain::services::ModerateTextService,
     redis_service: domain::services::RedisService<'p>,
+    redis_pool: &'p infrastructure::database_connection::redis::RedisPool,
     db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
 }
 
@@ -27,9 +29,11 @@ impl<'p> CampaignsGeneratorTextUsecase<'p> {
                 app_state.system_prompt_for_generate_title.clone(),
                 app_state.system_prompt_for_generate_body.clone(),
             ),
+            moderate_text_service: domain::services::ModerateTextService,
             campaign_service: domain::services::CampaignService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,
+            redis_pool,
         }
     }
 
@@ -40,6 +44,15 @@ impl<'p> CampaignsGeneratorTextUsecase<'p> {
         campaign_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<domain::schemas::CampaignSchema> {
         generate_schema.validate()?;
+        self.moderate_text_service
+            .check_abusive_content(
+                &[
+                    generate_schema.ad_text.clone().unwrap_or("".into()),
+                    generate_schema.ad_title.clone().unwrap_or("".into()),
+                ],
+                infrastructure::repository::redis::RedisObsceneWordRepository::new(self.redis_pool, self.db_pool),
+            )
+            .await?;
 
         let mut campaign = self
             .campaign_service

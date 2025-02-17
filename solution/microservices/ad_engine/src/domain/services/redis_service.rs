@@ -3,13 +3,13 @@ use serde::Serialize;
 use crate::{domain, infrastructure};
 
 pub struct RedisService<'p> {
-    repo: infrastructure::cash::redis::RedisRepository<'p>,
+    repo: infrastructure::cash::redis::RedisExecutor<'p>,
 }
 
 impl<'p> RedisService<'p> {
     pub fn new(pool: &'p infrastructure::database_connection::redis::RedisPool) -> Self {
         RedisService {
-            repo: infrastructure::cash::redis::RedisRepository::new(pool),
+            repo: infrastructure::cash::redis::RedisExecutor::new(pool),
         }
     }
 

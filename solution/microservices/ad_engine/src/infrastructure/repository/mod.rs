@@ -4,6 +4,7 @@
 //! data.
 
 mod error;
+pub mod redis;
 pub mod sqlx_lib;
 
 pub use error::RepoError;

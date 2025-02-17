@@ -17,6 +17,9 @@ pub enum ServiceError {
     #[error("Gpt not response - {0}")]
     GptNotResponse(String),
 
+    #[error("Not acceptable word - {0}")]
+    Censorship(String),
+
     /// Represents an unknown or unexpected error
     #[error("Unknown error")]
     Unknown,

@@ -8,8 +8,10 @@ use crate::{
 pub struct CampaignsUpdateUsecase<'p> {
     campaign_service: domain::services::CampaignService,
     campaign_stat_service: domain::services::CampaignStatService,
+    moderate_text_service: domain::services::ModerateTextService,
     redis_service: domain::services::RedisService<'p>,
     db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
+    redis_pool: &'p infrastructure::database_connection::redis::RedisPool,
 }
 
 impl<'p> CampaignsUpdateUsecase<'p> {
@@ -20,8 +22,10 @@ impl<'p> CampaignsUpdateUsecase<'p> {
         Self {
             campaign_service: domain::services::CampaignService,
             campaign_stat_service: domain::services::CampaignStatService,
+            moderate_text_service: domain::services::ModerateTextService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,
+            redis_pool,
         }
     }
 
@@ -44,6 +48,13 @@ impl<'p> CampaignsUpdateUsecase<'p> {
             time_advance,
         )
         .await?;
+
+        self.moderate_text_service
+            .check_abusive_content(
+                &[update_data.ad_text.clone(), update_data.ad_title.clone()],
+                infrastructure::repository::redis::RedisObsceneWordRepository::new(self.redis_pool, self.db_pool),
+            )
+            .await?;
 
         let campaign = self
             .campaign_service

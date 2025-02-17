@@ -2,13 +2,13 @@ use redis::Commands;
 
 use crate::{domain, infrastructure};
 
-pub struct RedisRepository<'p> {
+pub struct RedisExecutor<'p> {
     pool: &'p infrastructure::database_connection::redis::RedisPool,
 }
 
-impl<'p> RedisRepository<'p> {
+impl<'p> RedisExecutor<'p> {
     pub fn new(pool: &'p infrastructure::database_connection::redis::RedisPool) -> Self {
-        RedisRepository { pool }
+        RedisExecutor { pool }
     }
 
     #[tracing::instrument(name = "RedisService.set", skip(self, data), level = "debug")]
