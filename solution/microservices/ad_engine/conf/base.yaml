@@ -20,7 +20,7 @@ ads_recommendation:
   weight_time_left: 0.08
 
 auto_moderating:
-  sensitivity: 0.14
+  sensitivity: 0.25
 
 yandex:
   gpt:

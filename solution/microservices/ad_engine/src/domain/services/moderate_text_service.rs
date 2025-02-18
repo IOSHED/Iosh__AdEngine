@@ -20,6 +20,52 @@ impl ModerateTextService {
 }
 
 impl ModerateTextService {
+    pub async fn hide_abusive_content<R: IGetAbusiveWords>(
+        &self,
+        text: &[String],
+        is_activated: bool,
+        repo: R,
+    ) -> domain::services::ServiceResult<Vec<String>> {
+        if !is_activated {
+            return Ok(text.to_vec());
+        }
+        let abusive_words = repo
+            .get_words()
+            .await
+            .map_err(domain::services::ServiceError::Repository)?;
+
+        let result = text
+            .iter()
+            .map(|original_str| {
+                let phrase = original_str.to_lowercase().replace(' ', "");
+                let filtered_phrase = self.filter_phrase(phrase);
+
+                let phrase_length = filtered_phrase.len();
+
+                let has_abusive_content = abusive_words.par_iter().any(|word| {
+                    let word_length = word.len();
+                    if word_length == 0 || word_length > phrase_length {
+                        return false;
+                    }
+
+                    (0..=phrase_length.saturating_sub(word_length)).any(|part| {
+                        let fragment: String = filtered_phrase.chars().skip(part).take(word_length).collect();
+                        self.levenshtein_distance(&fragment, word)
+                            <= (word_length as f32 * self.sensitivity).round() as usize
+                    })
+                });
+
+                if has_abusive_content {
+                    "***".to_string()
+                } else {
+                    original_str.clone()
+                }
+            })
+            .collect();
+
+        Ok(result)
+    }
+
     pub async fn check_abusive_content<R: IGetAbusiveWords>(
         &self,
         text: &[String],

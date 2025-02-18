@@ -8,6 +8,8 @@ pub struct AdsGetUsecase<'p> {
     campaign_stat_service: domain::services::CampaignStatService,
     redis_service: domain::services::RedisService<'p>,
     db_pool: &'p infrastructure::database_connection::sqlx_lib::SqlxPool,
+    redis_pool: &'p infrastructure::database_connection::redis::RedisPool,
+    moderate_text_service: domain::services::ModerateTextService,
 }
 
 impl<'p> AdsGetUsecase<'p> {
@@ -23,9 +25,11 @@ impl<'p> AdsGetUsecase<'p> {
                 app_state.ads_weight_fulfillment,
                 app_state.ads_weight_time_left,
             ),
+            moderate_text_service: domain::services::ModerateTextService::new(app_state.auto_moderating_sensitivity),
             campaign_stat_service: domain::services::CampaignStatService,
             redis_service: domain::services::RedisService::new(redis_pool),
             db_pool,
+            redis_pool,
         }
     }
 
@@ -33,7 +37,7 @@ impl<'p> AdsGetUsecase<'p> {
         let active_campaigns = self.redis_service.get_all_active_campaigns().await?;
         let advanced_time = self.redis_service.get_advance_time().await?;
 
-        let ads = self
+        let mut ads = self
             .ads_service
             .recommendation_ads(
                 active_campaigns,
@@ -60,6 +64,18 @@ impl<'p> AdsGetUsecase<'p> {
         self.redis_service.set_active_campaign(campaign).await?;
 
         domain::services::PrometheusService::increment_ads_visits(advanced_time);
+
+        let new_texts = self
+            .moderate_text_service
+            .hide_abusive_content(
+                &[ads.ad_text, ads.ad_title],
+                self.redis_service.get_is_activate_auto_moderate().await?,
+                infrastructure::repository::redis::RedisObsceneWordRepository::new(self.redis_pool, self.db_pool),
+            )
+            .await?;
+
+        ads.ad_text = new_texts[0].clone();
+        ads.ad_title = new_texts[1].clone();
 
         Ok(ads)
     }
