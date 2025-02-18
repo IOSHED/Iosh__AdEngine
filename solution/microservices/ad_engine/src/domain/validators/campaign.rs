@@ -1,5 +1,7 @@
 use crate::domain;
 
+/// Validates that the campaign start date is not earlier than the required time
+/// advance
 async fn validate_start_date(start_date: u32, time_advance: u32) -> Result<(), domain::services::ServiceError> {
     if start_date < time_advance {
         return Err(domain::services::ServiceError::Validation(
@@ -9,6 +11,7 @@ async fn validate_start_date(start_date: u32, time_advance: u32) -> Result<(), d
     Ok(())
 }
 
+/// Validates that the campaign end date is not earlier than the start date
 async fn validate_date_range(start_date: u32, end_date: u32) -> Result<(), domain::services::ServiceError> {
     if start_date > end_date {
         return Err(domain::services::ServiceError::Validation(
@@ -18,6 +21,7 @@ async fn validate_date_range(start_date: u32, end_date: u32) -> Result<(), domai
     Ok(())
 }
 
+/// Validates that the age range is valid when both bounds are specified
 async fn validate_age_range(age_from: Option<u8>, age_to: Option<u8>) -> Result<(), domain::services::ServiceError> {
     if age_from.is_none() || age_to.is_none() {
         return Ok(());
@@ -30,6 +34,7 @@ async fn validate_age_range(age_from: Option<u8>, age_to: Option<u8>) -> Result<
     Ok(())
 }
 
+/// Validates that the clicks limit does not exceed the impressions limit
 async fn validate_limits_range(
     impressions_limit: u32,
     clicks_limit: u32,
@@ -42,6 +47,7 @@ async fn validate_limits_range(
     Ok(())
 }
 
+/// Validates all campaign parameters for consistency
 pub async fn validate_campaign_data(
     start_date: u32,
     end_date: u32,

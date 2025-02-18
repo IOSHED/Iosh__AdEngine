@@ -2,8 +2,23 @@ use async_trait::async_trait;
 
 use crate::{domain, infrastructure};
 
+/// Trait defining the interface for bulk client registration operations.
+/// Implementations should handle the registration of multiple clients
+/// simultaneously.
 #[async_trait]
 pub trait IRegisterBulkClient {
+    /// Registers multiple clients in bulk.
+    ///
+    /// # Arguments
+    /// * `client_ids` - Vector of UUIDs for each client
+    /// * `logins` - Vector of login names corresponding to each client
+    /// * `locations` - Vector of location strings for each client
+    /// * `genders` - Vector of gender strings for each client
+    /// * `ages` - Vector of ages as integers for each client
+    ///
+    /// # Returns
+    /// A Result containing a vector of registered client data on success,
+    /// or a repository error on failure
     async fn register(
         &self,
         client_ids: Vec<uuid::Uuid>,
@@ -14,18 +29,42 @@ pub trait IRegisterBulkClient {
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::ClientReturningSchema>>;
 }
 
+/// Trait defining the interface for retrieving individual client data by ID.
 #[async_trait]
 pub trait IGetClientById {
+    /// Retrieves a single client's data by their UUID.
+    ///
+    /// # Arguments
+    /// * `client_id` - UUID of the client to retrieve
+    ///
+    /// # Returns
+    /// A Result containing the client data on success,
+    /// or a repository error if the client is not found or other errors occur
     async fn get_by_id(
         &self,
         client_id: uuid::Uuid,
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::ClientReturningSchema>;
 }
 
+/// Service struct handling client-related business logic operations.
+/// Provides methods for client registration and retrieval.
 #[derive(std::fmt::Debug)]
 pub struct ClientService;
 
 impl<'p> ClientService {
+    /// Registers multiple clients while handling potential duplicates.
+    ///
+    /// # Arguments
+    /// * `register_data` - Vector of client profile data to register
+    /// * `repo` - Repository implementation handling the actual storage
+    ///
+    /// # Returns
+    /// A ServiceResult containing a vector of registered client profiles on
+    /// success, or a service error on failure
+    ///
+    /// # Note
+    /// This method automatically deduplicates clients based on their UUID
+    /// before registration
     #[tracing::instrument(name = "`UserService` register bulk clients", skip(repo))]
     pub async fn register<R: IRegisterBulkClient>(
         &self,
@@ -61,6 +100,15 @@ impl<'p> ClientService {
         Ok(repo_user.into_iter().map(|user| user.into()).collect())
     }
 
+    /// Retrieves a single client by their UUID.
+    ///
+    /// # Arguments
+    /// * `client_id` - UUID of the client to retrieve
+    /// * `repo` - Repository implementation handling the data retrieval
+    ///
+    /// # Returns
+    /// A ServiceResult containing the client profile on success,
+    /// or a service error if the client is not found or other errors occur
     #[tracing::instrument(name = "`UserService` get client by id", skip(repo))]
     pub async fn get_by_id<R: IGetClientById>(
         &self,

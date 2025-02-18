@@ -1,5 +1,27 @@
 use futures_util::TryStreamExt;
 
+/// Asynchronously loads and validates multiple files from a multipart form
+/// request.
+///
+/// # Arguments
+/// * `payload` - The request payload containing the multipart form data
+/// * `req` - The HTTP request object
+/// * `max_file_size` - Maximum allowed size in bytes for each individual file
+/// * `allowed_mime_types` - List of allowed MIME types for file validation
+///
+/// # Returns
+/// A Result containing a vector of tuples, where each tuple contains:
+/// * File name (String)
+/// * File contents (Vec<u8>)
+/// * Content type (String)
+///
+/// # Errors
+/// Returns `MultipartError` in the following cases:
+/// * Missing content type
+/// * Missing content disposition
+/// * Missing filename
+/// * File type not in allowed MIME types
+/// * File size exceeds maximum limit
 pub async fn loader_files(
     payload: actix_web::web::Payload,
     req: actix_web::HttpRequest,

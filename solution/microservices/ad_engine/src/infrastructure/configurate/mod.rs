@@ -28,42 +28,6 @@
 //!    APP__HTTP_SERVER__HOST="127.0.0.1"   # http_server.host
 //!    ```
 
-//! All settings in configuration files:
-//! ```yml
-
-//! ```yml
-
-//! http_server:
-//!   port: 8000
-//!   host: "127.0.0.1"
-//!   path_swagger_docs: "/docs"
-//!   path_openapi_docs: "/docs"
-//!   start_workers: 8
-//!   timeout_shutdown_workers: 30 # sec
-//!   keep_alive: 75 # sec
-//!   limit_size_json: 2048 # 2048 = 2kb
-
-//! logger:
-//!   max_level_cmd: "debug"
-//!   max_level_file: "debug"
-//!   max_level_error_file: "warn"
-//!   log_dir: "./log"
-
-//! database:
-//!   postgres:
-//!     postgres_conn: "postgres://postgres:44541@localhost:5555/pulse"
-//!     max_connections: 5
-
-//! cors:
-//!   allowed_origin: "http://localhost:8001/"
-//!   allowed_methods: ["GET", "POST", "PUT", "UPDATE", "DELETE"]
-//!   allowed_headers: ["Content-Type", "Authorization"]
-//!   max_age: 3600
-
-//! hashing:
-//!   random_secret: "random1234"
-//! ```
-
 mod deserializer;
 mod schemas;
 

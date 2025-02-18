@@ -1,3 +1,12 @@
+/// Deserializes a string into a `tracing::level_filters::LevelFilter`.
+///
+/// # Arguments
+/// * `deserializer` - The deserializer to use for deserialization
+///
+/// # Returns
+/// * `Result<LevelFilter, D::Error>` - The deserialized level filter on
+///   success, or an error if the string does not match a valid level filter
+///   value
 pub fn deserialize_level_filter<'de, D>(deserializer: D) -> Result<tracing::level_filters::LevelFilter, D::Error>
 where
     D: serde::Deserializer<'de>,

@@ -2,8 +2,19 @@ use async_trait::async_trait;
 
 use crate::{domain, infrastructure};
 
+/// Trait for retrieving machine learning scores for advertisers.
+/// This trait is used to get relevance scores between a client and advertisers.
 #[async_trait]
 pub trait IGetMlScores {
+    /// Gets ML scores for a client-advertiser pair
+    ///
+    /// # Arguments
+    /// * `client_id` - UUID of the client
+    /// * `advertisers_id` - Vector of advertiser UUIDs to get scores for
+    ///
+    /// # Returns
+    /// * `RepoResult<Vec<f64>>` - Vector of scores between 0 and 1 for each
+    ///   advertiser
     async fn get_ml_scores(
         &self,
         client_id: uuid::Uuid,
@@ -11,6 +22,11 @@ pub trait IGetMlScores {
     ) -> infrastructure::repository::RepoResult<Vec<f64>>;
 }
 
+/// Service for managing and scoring advertising campaigns
+///
+/// This service handles the core business logic for selecting and scoring ad
+/// campaigns based on multiple weighted factors including profit potential,
+/// relevance, fulfillment rate and time constraints.
 #[derive(Debug)]
 pub struct AdsService {
     weight_profit: f64,
@@ -20,6 +36,14 @@ pub struct AdsService {
 }
 
 impl AdsService {
+    /// Creates a new AdsService instance with specified weights for scoring
+    /// factors
+    ///
+    /// # Arguments
+    /// * `weight_profit` - Weight factor for profit scoring (0-1)
+    /// * `weight_relevance` - Weight factor for relevance scoring (0-1)
+    /// * `weight_fulfillment` - Weight factor for campaign fulfillment (0-1)
+    /// * `weight_time_left` - Weight factor for remaining campaign time (0-1)
     pub fn new(weight_profit: f64, weight_relevance: f64, weight_fulfillment: f64, weight_time_left: f64) -> Self {
         Self {
             weight_profit,
@@ -31,6 +55,21 @@ impl AdsService {
 }
 
 impl AdsService {
+    /// Recommends the most suitable ad for a client based on multiple factors
+    ///
+    /// # Arguments
+    /// * `active_campaigns` - List of currently active ad campaigns
+    /// * `client_id` - UUID of the target client
+    /// * `advanced_time` - Current timestamp for time-based calculations
+    /// * `repo_client` - Repository for accessing client data
+    /// * `repo_score` - Repository for accessing ML scores
+    ///
+    /// # Returns
+    /// * `ServiceResult<AdSchema>` - The recommended ad if found
+    ///
+    /// # Type Parameters
+    /// * `R1` - Type implementing IGetClientById trait
+    /// * `R2` - Type implementing IGetMlScores trait
     pub async fn recommendation_ads<R1, R2>(
         &self,
         active_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
@@ -58,6 +97,11 @@ impl AdsService {
         })
     }
 
+    /// Retrieves client information from the repository
+    ///
+    /// # Arguments
+    /// * `repo_client` - Repository implementing IGetClientById
+    /// * `client_id` - UUID of the client to retrieve
     async fn get_client<R>(
         &self,
         repo_client: R,
@@ -72,6 +116,15 @@ impl AdsService {
             .map_err(domain::services::ServiceError::Repository)
     }
 
+    /// Filters campaigns based on targeting criteria and campaign limits
+    ///
+    /// # Arguments
+    /// * `active_campaigns` - List of active campaigns to filter
+    /// * `client` - Client information for targeting matching
+    ///
+    /// # Returns
+    /// * List of campaigns that match targeting criteria and have available
+    ///   impressions
     async fn get_suitable_campaigns(
         &self,
         active_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
@@ -99,6 +152,16 @@ impl AdsService {
         Ok(filtered_campaigns)
     }
 
+    /// Scores campaigns based on multiple weighted factors
+    ///
+    /// # Arguments
+    /// * `suitable_campaigns` - Pre-filtered list of suitable campaigns
+    /// * `client_id` - Target client UUID
+    /// * `advanced_time` - Current timestamp
+    /// * `repo_score` - Repository for ML scores
+    ///
+    /// # Returns
+    /// * Sorted vector of (score, end_date, campaign) tuples
     async fn score_campaigns<R>(
         &self,
         suitable_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
@@ -152,6 +215,10 @@ impl AdsService {
         Ok(scored_campaigns)
     }
 
+    /// Gets the highest scoring campaign from scored campaigns list
+    ///
+    /// # Arguments
+    /// * `scored_campaigns` - List of campaigns with their scores
     async fn get_top_campaign<'a>(
         &self,
         scored_campaigns: &'a [(f64, u32, domain::schemas::ActiveCampaignSchema)],
@@ -162,6 +229,13 @@ impl AdsService {
             .ok_or_else(|| domain::services::ServiceError::Validation("No top campaign found".into()))
     }
 
+    /// Filters campaigns based on targeting criteria
+    ///
+    /// # Arguments
+    /// * `active_campaigns` - List of campaigns to filter
+    /// * `age` - Client age for targeting
+    /// * `gender` - Client gender for targeting
+    /// * `location` - Client location for targeting
     async fn filter_targeted_campaigns(
         &self,
         active_campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
@@ -182,12 +256,30 @@ impl AdsService {
             .collect()
     }
 
+    /// Calculates minimum and maximum values from a slice of f64
+    ///
+    /// # Arguments
+    /// * `values` - Slice of f64 values
+    ///
+    /// # Returns
+    /// * Tuple of (minimum, maximum) values
     fn calculate_min_max(&self, values: &[f64]) -> (f64, f64) {
         let min = values.iter().cloned().fold(f64::INFINITY, f64::min);
         let max = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         (min, max)
     }
 
+    /// Calculates final scores for campaigns considering all weighted factors
+    ///
+    /// # Arguments
+    /// * `campaigns` - List of campaigns to score
+    /// * `profits` - Pre-calculated profit values
+    /// * `scores` - ML relevance scores
+    /// * `min_profit` - Minimum profit value for normalization
+    /// * `max_profit` - Maximum profit value for normalization
+    /// * `min_score` - Minimum ML score for normalization
+    /// * `max_score` - Maximum ML score for normalization
+    /// * `advanced_time` - Current timestamp
     async fn calculate_scores(
         &self,
         campaigns: Vec<domain::schemas::ActiveCampaignSchema>,
@@ -217,6 +309,12 @@ impl AdsService {
         .await
     }
 
+    /// Normalizes a value using natural logarithm scaling
+    ///
+    /// # Arguments
+    /// * `value` - Value to normalize
+    /// * `min` - Minimum value in range
+    /// * `max` - Maximum value in range
     fn normalize_value(&self, value: f64, min: f64, max: f64) -> f64 {
         if max != min {
             return ((value + 1.0).ln() - (min + 1.0).ln()) / ((max + 1.0).ln() - (min + 1.0).ln());
@@ -224,12 +322,22 @@ impl AdsService {
         0.0
     }
 
+    /// Calculates campaign fulfillment rate based on remaining impressions and
+    /// clicks
+    ///
+    /// # Arguments
+    /// * `campaign` - Campaign to calculate fulfillment for
     fn calculate_fulfillment(&self, campaign: &domain::schemas::ActiveCampaignSchema) -> f64 {
         let remaining_impressions = campaign.impressions_limit as f64 - campaign.view_clients_id.len() as f64;
         let remaining_clicks = campaign.clicks_limit as f64 - campaign.click_clients_id.len() as f64;
         (remaining_impressions / campaign.impressions_limit as f64) + (remaining_clicks / campaign.clicks_limit as f64)
     }
 
+    /// Calculates normalized time remaining for a campaign
+    ///
+    /// # Arguments
+    /// * `end_date` - Campaign end timestamp
+    /// * `advanced_time` - Current timestamp
     fn calculate_time_left(&self, end_date: u32, advanced_time: u32) -> f64 {
         1.0 - ((end_date as f64 - advanced_time as f64) / u32::MAX as f64).clamp(0.0, 1.0)
     }

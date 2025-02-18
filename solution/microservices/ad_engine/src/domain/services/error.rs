@@ -1,34 +1,59 @@
 use crate::{domain, infrastructure};
 
-/// Represents possible service-level errors that can occur in the application
-#[derive(thiserror::Error, Debug)]
+/// Represents possible service-level errors that can occur in the application.
+/// This enum encapsulates all error types that can be returned by service layer
+/// operations.
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum ServiceError {
-    /// Error that occurs during data validation
+    /// Error that occurs during data validation when input fails validation
+    /// rules. Contains a descriptive message of what validation failed.
     #[error("Validation error - {0}")]
     Validation(String),
 
-    /// Error that occurs during database operations
+    /// Error that occurs during database operations when interacting with the
+    /// repository layer. Wraps the underlying repository error to maintain
+    /// error context.
     #[error("Database error - {0}")]
     Repository(infrastructure::repository::RepoError),
 
+    /// Error that occurs during cash/payment processing operations.
+    /// Contains details about what went wrong during the cash transaction.
     #[error("Cash error - {0}")]
     Cash(String),
 
+    /// Error that occurs when GPT service fails to provide a response.
+    /// Contains information about why the GPT request failed.
     #[error("Gpt not response - {0}")]
     GptNotResponse(String),
 
+    /// Error that occurs when content is flagged by content
+    /// moderation/censorship rules. Contains details about which content
+    /// was not acceptable.
     #[error("Not acceptable word - {0}")]
     Censorship(String),
 
+    /// Error that occurs during payload processing or validation.
+    /// Contains information about what was wrong with the payload.
     #[error("Payload error - {0}")]
     PayloadError(String),
 
-    /// Represents an unknown or unexpected error
+    /// Represents an unknown or unexpected error that doesn't fit other
+    /// categories. Used as a fallback when the error type cannot be
+    /// determined.
     #[error("Unknown error")]
     Unknown,
 }
 
-/// Implements conversion from validator::ValidationErrors to ServiceError
+/// Implements conversion from validator::ValidationErrors to ServiceError.
+/// This implementation handles the mapping of validation framework errors to
+/// our domain-specific error types.
+///
+/// # Arguments
+/// * `value` - The ValidationErrors instance to convert
+///
+/// # Returns
+/// * `ServiceError` - The corresponding service error with appropriate context
+
 impl From<validator::ValidationErrors> for domain::services::ServiceError {
     fn from(value: validator::ValidationErrors) -> Self {
         if let Some((field, kind)) = value.errors().iter().next() {

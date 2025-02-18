@@ -3,23 +3,53 @@ use rayon::prelude::*;
 
 use crate::{domain, infrastructure};
 
+/// Trait for retrieving abusive words from a data source.
 #[async_trait]
 pub trait IGetAbusiveWords {
+    /// Retrieves the list of abusive words.
+    ///
+    /// # Returns
+    /// A `RepoResult` containing a vector of abusive words as strings.
     async fn get_words(&self) -> infrastructure::repository::RepoResult<Vec<String>>;
 }
 
+/// Service for moderating and filtering abusive content from text.
+///
+/// This service provides functionality to detect and mask abusive words in text
+/// content, with configurable sensitivity for fuzzy matching.
 #[derive(Debug)]
 pub struct ModerateTextService {
+    /// Sensitivity threshold for fuzzy matching of abusive words (0.0 to 1.0).
+    /// Higher values allow more variations of words to be matched.
     sensitivity: f32,
 }
 
 impl ModerateTextService {
+    /// Creates a new `ModerateTextService` with the specified sensitivity.
+    ///
+    /// # Arguments
+    /// * `sensitivity` - Fuzzy matching sensitivity threshold (0.0 to 1.0)
+    ///
+    /// # Returns
+    /// A new instance of `ModerateTextService`
     pub fn new(sensitivity: f32) -> Self {
         Self { sensitivity }
     }
 }
 
 impl ModerateTextService {
+    /// Masks abusive content in the provided text by replacing offensive words
+    /// with asterisks.
+    ///
+    /// # Arguments
+    /// * `text` - Slice of strings to check for abusive content
+    /// * `is_activated` - Whether content moderation is enabled
+    /// * `repo` - Repository implementing `IGetAbusiveWords` to fetch abusive
+    ///   word list
+    ///
+    /// # Returns
+    /// A `ServiceResult` containing a vector of strings with abusive content
+    /// masked
     pub async fn hide_abusive_content<R: IGetAbusiveWords>(
         &self,
         text: &[String],
@@ -41,6 +71,14 @@ impl ModerateTextService {
             .collect())
     }
 
+    /// Masks abusive words in a single string with asterisks.
+    ///
+    /// # Arguments
+    /// * `original_str` - String to check for abusive content
+    /// * `abusive_words` - List of abusive words to match against
+    ///
+    /// # Returns
+    /// String with abusive words replaced by "***"
     fn mask_abusive_words(&self, original_str: &str, abusive_words: &[String]) -> String {
         let words: Vec<&str> = original_str.split_whitespace().collect();
 
@@ -51,6 +89,14 @@ impl ModerateTextService {
             .join(" ")
     }
 
+    /// Masks a single word if it matches any abusive word.
+    ///
+    /// # Arguments
+    /// * `word` - Word to check
+    /// * `abusive_words` - List of abusive words to match against
+    ///
+    /// # Returns
+    /// Either "***" if word is abusive, or the original word
     fn mask_word(&self, word: &str, abusive_words: &[String]) -> String {
         let cleaned_word = word.to_lowercase().replace(' ', "");
 
@@ -64,6 +110,16 @@ impl ModerateTextService {
         }
     }
 
+    /// Checks if a word matches an abusive word within the sensitivity
+    /// threshold.
+    ///
+    /// # Arguments
+    /// * `cleaned_word` - Normalized word to check
+    /// * `abusive_word` - Abusive word to match against
+    ///
+    /// # Returns
+    /// `true` if the word matches within sensitivity threshold, `false`
+    /// otherwise
     pub fn is_abusive_word(&self, cleaned_word: &str, abusive_word: &str) -> bool {
         let word_length = abusive_word.len();
         let cleaned_word_length = cleaned_word.len();
@@ -79,6 +135,18 @@ impl ModerateTextService {
         })
     }
 
+    /// Checks if text contains any abusive content.
+    ///
+    /// # Arguments
+    /// * `text` - Slice of strings to check
+    /// * `is_activated` - Whether content moderation is enabled
+    /// * `repo` - Repository implementing `IGetAbusiveWords`
+    ///
+    /// # Returns
+    /// A `ServiceResult` containing:
+    /// - `Ok(true)` if abusive content found
+    /// - `Ok(false)` if no abusive content
+    /// - `Err` with the first abusive word found
     pub async fn check_abusive_content<R: IGetAbusiveWords>(
         &self,
         text: &[String],
@@ -94,22 +162,49 @@ impl ModerateTextService {
             .await
             .map_err(domain::services::ServiceError::Repository)?;
 
-        for original_str in text {
+        let contains_abusive = text.par_iter().any(|original_str| {
             let filtered_str = self.filter_phrase(original_str.clone());
-            if self.contains_abusive_words(&filtered_str, &abusive_words) {
-                return Ok(true);
+            self.contains_abusive_words(&filtered_str, &abusive_words)
+        });
+
+        if contains_abusive {
+            for original_str in text {
+                let filtered_str = self.filter_phrase(original_str.clone());
+                if self.contains_abusive_words(&filtered_str, &abusive_words) {
+                    let abusive_word = abusive_words.iter().find(|&word| filtered_str.contains(word)).cloned();
+
+                    return Err(domain::services::ServiceError::Censorship(
+                        abusive_word.unwrap_or_else(|| "".into()),
+                    ));
+                }
             }
         }
 
-        Ok(false)
+        Ok(contains_abusive)
     }
 
+    /// Checks if a string contains any abusive words.
+    ///
+    /// # Arguments
+    /// * `original_str` - String to check
+    /// * `abusive_words` - List of abusive words to match against
+    ///
+    /// # Returns
+    /// `true` if any abusive words found, `false` otherwise
     fn contains_abusive_words(&self, original_str: &str, abusive_words: &[String]) -> bool {
         let words: Vec<&str> = original_str.split_whitespace().collect();
 
         words.iter().any(|&word| self.is_abusive_word_vec(word, abusive_words))
     }
 
+    /// Checks if a word matches any abusive word in the list.
+    ///
+    /// # Arguments
+    /// * `word` - Word to check
+    /// * `abusive_words` - List of abusive words to match against
+    ///
+    /// # Returns
+    /// `true` if word matches any abusive word, `false` otherwise
     fn is_abusive_word_vec(&self, word: &str, abusive_words: &[String]) -> bool {
         let cleaned_word = word.to_lowercase().replace(' ', "");
 
@@ -119,6 +214,13 @@ impl ModerateTextService {
         })
     }
 
+    /// Normalizes text by replacing common character substitutions.
+    ///
+    /// # Arguments
+    /// * `phrase` - Text to normalize
+    ///
+    /// # Returns
+    /// Normalized text with substituted characters replaced
     fn filter_phrase(&self, phrase: String) -> String {
         let substitution_map = self.get_map_symbol();
         let mut filtered_phrase = phrase;
@@ -132,6 +234,14 @@ impl ModerateTextService {
         filtered_phrase
     }
 
+    /// Calculates the Levenshtein distance between two strings.
+    ///
+    /// # Arguments
+    /// * `a` - First string
+    /// * `b` - Second string
+    ///
+    /// # Returns
+    /// The Levenshtein distance as a usize
     fn levenshtein_distance(&self, a: &str, b: &str) -> usize {
         let n = a.len();
         let m = b.len();
@@ -172,7 +282,7 @@ impl ModerateTextService {
                 "к": ["к", "k", "i{", "|{"],
                 "л": ["л", "l", "ji"],
                 "м": ["м", "m"],
-                "н": ["н", "h", "n"],
+                "н": ["н", "n"],
                 "о": ["о", "o", "0"],
                 "п": ["п", "n", "p"],
                 "р": ["р", "r", "p"],
@@ -257,11 +367,11 @@ mod tests {
         let repo = MockRepo {
             words: vec!["плохо".to_string()],
         };
-        let text = vec!["Не очнеь плоhо".to_string(), "Хя хя нет п".to_string()];
+        let text = vec!["Не очнеь плоhов".to_string(), "Хя хя нет п".to_string()];
 
-        let result = service.check_abusive_content(&text, true, repo).await.unwrap();
+        let result = service.check_abusive_content(&text, true, repo).await;
 
-        assert!(result);
+        assert_eq!(result, Err(domain::services::ServiceError::Censorship("плохо".into())));
 
         let repo = MockRepo {
             words: vec!["плохо".to_string()],

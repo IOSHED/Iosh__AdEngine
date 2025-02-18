@@ -3,16 +3,37 @@ use bigdecimal::ToPrimitive;
 
 use crate::{domain, infrastructure};
 
+/// Trait for getting or creating unique IDs for campaign statistics
+///
+/// This trait provides functionality to retrieve or generate unique identifiers
+/// associated with campaign statistics tracking.
 #[async_trait]
 pub trait IGetOrCreateUniqIdForStatCampaign {
+    /// Gets existing or creates new unique IDs for a campaign
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the campaign to get/create IDs for
+    ///
+    /// # Returns
+    /// A tuple containing two vectors of UUIDs representing different ID sets
     async fn get_or_create_uniq_id(
         &self,
         campaign_id: uuid::Uuid,
     ) -> infrastructure::repository::RepoResult<(Vec<uuid::Uuid>, Vec<uuid::Uuid>)>;
 }
 
+/// Trait for recording campaign view events
+///
+/// Provides functionality to track when a campaign is viewed by a client.
 #[async_trait]
 pub trait IViewCampaign {
+    /// Records a campaign view event
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the viewed campaign
+    /// * `client_id` - UUID of the client viewing the campaign
+    /// * `cost` - Cost associated with this view
+    /// * `advanced_time` - Time spent viewing in seconds
     async fn view_campaign(
         &self,
         campaign_id: uuid::Uuid,
@@ -22,8 +43,18 @@ pub trait IViewCampaign {
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
+/// Trait for recording campaign click events
+///
+/// Provides functionality to track when a campaign is clicked by a client.
 #[async_trait]
 pub trait IClickCampaign {
+    /// Records a campaign click event
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the clicked campaign
+    /// * `client_id` - UUID of the client clicking the campaign
+    /// * `cost` - Cost associated with this click
+    /// * `advanced_time` - Time of interaction in seconds
     async fn click_campaign(
         &self,
         campaign_id: uuid::Uuid,
@@ -33,18 +64,37 @@ pub trait IClickCampaign {
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
+/// Trait for retrieving daily campaign statistics
+///
+/// Provides functionality to fetch aggregated daily statistics for campaigns.
 #[async_trait]
 pub trait IGetDailyStat {
+    /// Retrieves daily statistics for a campaign
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the campaign to get statistics for
     async fn get_by_day(
         &self,
         campaign_id: uuid::Uuid,
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::StatDailyReturningSchema>>;
 }
 
+/// Service for managing campaign statistics
+///
+/// Provides high-level business logic for tracking and analyzing campaign
+/// performance metrics.
 #[derive(std::fmt::Debug)]
 pub struct CampaignStatService;
 
 impl<'p> CampaignStatService {
+    /// Gets or creates unique identifiers for campaign statistics tracking
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the target campaign
+    /// * `repo` - Repository implementation for data access
+    ///
+    /// # Returns
+    /// A tuple of UUID vectors representing different ID sets for the campaign
     #[tracing::instrument(name = "`CampaignStatService` get ot create uniq id for stats campaign", skip(repo))]
     pub async fn get_or_create_uniq_id<R: IGetOrCreateUniqIdForStatCampaign>(
         &self,
@@ -56,6 +106,14 @@ impl<'p> CampaignStatService {
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 
+    /// Records a campaign view event
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the viewed campaign
+    /// * `client_id` - UUID of the viewing client
+    /// * `cost` - Associated view cost
+    /// * `advanced_time` - View duration in seconds
+    /// * `repo` - Repository implementation for data access
     #[tracing::instrument(name = "`CampaignStatService` add view to campaign", skip(repo))]
     pub async fn view_campaign<R: IViewCampaign>(
         &self,
@@ -70,6 +128,14 @@ impl<'p> CampaignStatService {
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 
+    /// Records a campaign click event
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the clicked campaign
+    /// * `client_id` - UUID of the clicking client
+    /// * `cost` - Associated click cost
+    /// * `advanced_time` - Interaction time in seconds
+    /// * `repo` - Repository implementation for data access
     #[tracing::instrument(name = "`CampaignStatService` add click to campaign", skip(repo))]
     pub async fn click_campaign<R: IClickCampaign>(
         &self,
@@ -84,6 +150,17 @@ impl<'p> CampaignStatService {
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 
+    /// Retrieves daily statistics for a campaign with gap filling
+    ///
+    /// Gets daily stats and fills any missing dates with default values to
+    /// ensure continuous data series.
+    ///
+    /// # Arguments
+    /// * `campaign_id` - UUID of the target campaign
+    /// * `repo` - Repository implementation for data access
+    ///
+    /// # Returns
+    /// Vector of daily statistics with gaps filled with default values
     #[tracing::instrument(name = "`CampaignStatService` add click to campaign", skip(repo))]
     pub async fn get_by_day<R: IGetDailyStat>(
         &self,
@@ -120,7 +197,12 @@ impl<'p> CampaignStatService {
     }
 }
 
+/// Conversion implementation for transforming database schema to domain
+/// response
 impl From<infrastructure::repository::sqlx_lib::StatDailyReturningSchema> for domain::schemas::StatDailyResponse {
+    /// Converts database daily statistics to domain response format
+    ///
+    /// Handles null values and calculates derived metrics like conversion rate
     fn from(daily_stat: infrastructure::repository::sqlx_lib::StatDailyReturningSchema) -> Self {
         let impressions_count = daily_stat.impressions_count.unwrap_or(0);
         let clicks_count = daily_stat.clicks_count.unwrap_or(0);

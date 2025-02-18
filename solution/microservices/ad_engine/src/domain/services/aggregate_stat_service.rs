@@ -1,9 +1,24 @@
 use crate::domain;
 
+/// Service for aggregating and calculating statistics from daily responses
+///
+/// This service provides methods to process and aggregate statistical data
+/// related to impressions, clicks, and conversions.
 #[derive(Debug)]
 pub struct AggregateStatService;
 
 impl AggregateStatService {
+    /// Calculates total statistics from a slice of daily stat responses
+    ///
+    /// # Arguments
+    /// * `stats` - Slice of StatDailyResponse objects to process
+    ///
+    /// # Returns
+    /// Tuple containing:
+    /// * Total impression count (u32)
+    /// * Total click count (u32)
+    /// * Total spent on impressions (f64)
+    /// * Total spent on clicks (f64)
     pub fn calculate_total_stats(&self, stats: &[domain::schemas::StatDailyResponse]) -> (u32, u32, f64, f64) {
         stats.iter().fold((0, 0, 0.0, 0.0), |(imp, clk, si, sc), s| {
             (
@@ -15,6 +30,15 @@ impl AggregateStatService {
         })
     }
 
+    /// Calculates conversion rate as a percentage
+    ///
+    /// # Arguments
+    /// * `impressions` - Number of impressions
+    /// * `clicks` - Number of clicks
+    ///
+    /// # Returns
+    /// Conversion rate as percentage (clicks/impressions * 100)
+    /// Returns 0.0 if impressions is 0
     pub fn calculate_conversion(&self, impressions: u32, clicks: u32) -> f64 {
         if impressions > 0 {
             (clicks as f64 / impressions as f64) * 100.0
@@ -23,6 +47,19 @@ impl AggregateStatService {
         }
     }
 
+    /// Aggregates multiple vectors of daily statistics into a single sorted
+    /// vector
+    ///
+    /// # Arguments
+    /// * `stats` - Vector of vectors containing StatDailyResponse objects
+    ///
+    /// # Returns
+    /// Vector of aggregated StatDailyResponse objects sorted by date descending
+    ///
+    /// # Details
+    /// - Combines statistics for matching dates
+    /// - Recalculates conversion rates for aggregated entries
+    /// - Returns results sorted with most recent dates first
     pub fn aggregate_daily_stats(
         &self,
         stats: Vec<Vec<domain::schemas::StatDailyResponse>>,
@@ -45,6 +82,16 @@ impl AggregateStatService {
         result
     }
 
+    /// Creates a new StatResponse from individual statistics
+    ///
+    /// # Arguments
+    /// * `impressions` - Number of impressions
+    /// * `clicks` - Number of clicks
+    /// * `spent_imp` - Amount spent on impressions
+    /// * `spent_clk` - Amount spent on clicks
+    ///
+    /// # Returns
+    /// New StatResponse object with calculated totals and conversion rate
     pub fn create_stat_response(
         &self,
         impressions: u32,

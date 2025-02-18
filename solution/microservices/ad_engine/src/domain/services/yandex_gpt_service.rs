@@ -1,7 +1,8 @@
 use crate::{domain, infrastructure};
 
+/// YandexGptService handles text generation using Yandex GPT API
+/// for campaign titles and body content
 #[derive(Debug)]
-
 pub struct YandexGptService {
     gpt_client: infrastructure::gpt::yandex::YandexGptClient,
     system_prompt_for_generate_title: String,
@@ -9,6 +10,15 @@ pub struct YandexGptService {
 }
 
 impl YandexGptService {
+    /// Creates a new YandexGptService instance
+    /// 
+    /// # Arguments
+    /// * `folder_id` - Yandex folder ID for API access
+    /// * `auth_token` - Authentication token for Yandex API
+    /// * `temperature` - Temperature parameter for text generation (0.0-1.0)
+    /// * `max_tokens` - Maximum number of tokens in generated response
+    /// * `system_prompt_for_generate_title` - System prompt for title generation
+    /// * `system_prompt_for_generate_body` - System prompt for body text generation
     pub fn new(
         folder_id: String,
         auth_token: String,
@@ -29,6 +39,14 @@ impl YandexGptService {
         }
     }
 
+    /// Generates text content for a campaign based on specified generation type
+    /// 
+    /// # Arguments
+    /// * `campaign` - Mutable reference to campaign schema to update
+    /// * `generate_schema` - Schema containing generation parameters
+    ///
+    /// # Returns
+    /// * `ServiceResult<()>` - Result indicating success or error
     pub async fn generate_text_for_campaign(
         &self,
         campaign: &mut domain::schemas::CampaignSchema,
@@ -63,6 +81,13 @@ impl YandexGptService {
         Ok(())
     }
 
+    /// Generates campaign title using Yandex GPT
+    ///
+    /// # Arguments
+    /// * `text` - Input text for title generation
+    ///
+    /// # Returns
+    /// * `ServiceResult<String>` - Generated title or error
     pub async fn generate_title(&self, text: &str) -> domain::services::ServiceResult<String> {
         self.gpt_client
             .ask_gpt(text, &self.system_prompt_for_generate_title)
@@ -70,6 +95,13 @@ impl YandexGptService {
             .map_err(|e| domain::services::ServiceError::GptNotResponse(e.to_string()))
     }
 
+    /// Generates campaign body text using Yandex GPT
+    ///
+    /// # Arguments  
+    /// * `text` - Input text for body generation
+    ///
+    /// # Returns
+    /// * `ServiceResult<String>` - Generated body text or error
     pub async fn generate_body(&self, text: &str) -> domain::services::ServiceResult<String> {
         self.gpt_client
             .ask_gpt(text, &self.system_prompt_for_generate_body)

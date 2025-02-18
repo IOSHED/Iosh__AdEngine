@@ -1,4 +1,4 @@
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum RepoError {
     #[error("`{0}` does not exists")]
     ObjDoesNotExists(String),

@@ -2,8 +2,20 @@ use async_trait::async_trait;
 
 use crate::{domain, infrastructure};
 
+/// Trait for bulk registration of advertisers in the system.
+/// Implementations should handle the persistence of multiple advertisers in a
+/// single operation.
 #[async_trait]
 pub trait IRegisterBulkAdvertiser {
+    /// Registers multiple advertisers simultaneously
+    ///
+    /// # Arguments
+    /// * `advertiser_ids` - Vector of UUIDs for the advertisers to register
+    /// * `names` - Vector of names corresponding to the advertiser IDs
+    ///
+    /// # Returns
+    /// * `RepoResult<Vec<AdvertiserReturningSchema>>` - Result containing
+    ///   vector of created advertisers or repository error
     async fn register(
         &self,
         advertiser_ids: Vec<uuid::Uuid>,
@@ -11,18 +23,49 @@ pub trait IRegisterBulkAdvertiser {
     ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>>;
 }
 
+/// Trait for retrieving individual advertiser records by their unique
+/// identifier.
 #[async_trait]
 pub trait IGetAdvertiserById {
+    /// Retrieves a single advertiser by their UUID
+    ///
+    /// # Arguments
+    /// * `advertiser_id` - UUID of the advertiser to retrieve
+    ///
+    /// # Returns
+    /// * `RepoResult<AdvertiserReturningSchema>` - Result containing the found
+    ///   advertiser or repository error
     async fn get_by_id(
         &self,
         advertiser_id: uuid::Uuid,
     ) -> infrastructure::repository::RepoResult<infrastructure::repository::sqlx_lib::AdvertiserReturningSchema>;
 }
 
+/// Service struct handling advertiser-related business logic
 #[derive(std::fmt::Debug)]
 pub struct AdvertiserService;
 
 impl<'p> AdvertiserService {
+    /// Registers multiple advertisers while handling deduplication based on
+    /// advertiser ID
+    ///
+    /// # Arguments
+    /// * `register_data` - Vector of advertiser profile schemas to register
+    /// * `repo` - Repository implementation handling the persistence
+    ///
+    /// # Returns
+    /// * `ServiceResult<Vec<AdvertiserProfileSchema>>` - Result containing
+    ///   registered advertisers or service error
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// let service = AdvertiserService;
+    /// let advertisers = vec![AdvertiserProfileSchema {
+    ///     advertiser_id: uuid::Uuid::new_v4(),
+    ///     name: "Test Advertiser".to_string(),
+    /// }];
+    /// let result = service.register(advertisers, repository).await?;
+    /// ```
     #[tracing::instrument(name = "`UserService` register bulk Advertisers", skip(repo))]
     pub async fn register<R: IRegisterBulkAdvertiser>(
         &self,
@@ -55,6 +98,22 @@ impl<'p> AdvertiserService {
         Ok(repo_user.into_iter().map(|user| user.into()).collect())
     }
 
+    /// Retrieves a single advertiser by their UUID
+    ///
+    /// # Arguments
+    /// * `advertiser_id` - UUID of the advertiser to retrieve
+    /// * `repo` - Repository implementation handling the data access
+    ///
+    /// # Returns
+    /// * `ServiceResult<AdvertiserProfileSchema>` - Result containing found
+    ///   advertiser or service error
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// let service = AdvertiserService;
+    /// let advertiser_id = uuid::Uuid::new_v4();
+    /// let advertiser = service.get_by_id(advertiser_id, repository).await?;
+    /// ```
     #[tracing::instrument(name = "`UserService` get Advertiser by id", skip(repo))]
     pub async fn get_by_id<R: IGetAdvertiserById>(
         &self,

@@ -2,8 +2,22 @@ use async_trait::async_trait;
 
 use crate::{domain, infrastructure};
 
+/// Trait defining the interface for setting ML scores in a repository
+///
+/// This trait provides an abstraction over the storage mechanism for machine
+/// learning scores, allowing different implementations for different storage
+/// backends while maintaining a consistent interface.
 #[async_trait]
 pub trait ISetMlScore {
+    /// Sets the ML score for a specific client-advertiser pair
+    ///
+    /// # Arguments
+    /// * `client_id` - UUID identifying the client
+    /// * `advertiser_id` - UUID identifying the advertiser
+    /// * `score` - ML score value between 0.0 and 1.0
+    ///
+    /// # Returns
+    /// * `RepoResult<()>` - Ok(()) on success, or RepoError on failure
     async fn set_ml_score(
         &self,
         client_id: uuid::Uuid,
@@ -12,10 +26,29 @@ pub trait ISetMlScore {
     ) -> infrastructure::repository::RepoResult<()>;
 }
 
+/// Service for managing ML score operations
+///
+/// This service provides the business logic layer for handling ML score
+/// operations, abstracting away the underlying repository implementation
+/// details.
 #[derive(std::fmt::Debug)]
 pub struct MlScoreService;
 
 impl<'p> MlScoreService {
+    /// Sets an ML score for a client-advertiser pair using the provided
+    /// repository
+    ///
+    /// # Arguments
+    /// * `client_id` - UUID identifying the client
+    /// * `advertiser_id` - UUID identifying the advertiser
+    /// * `score` - ML score value between 0.0 and 1.0
+    /// * `repo` - Repository implementation conforming to ISetMlScore trait
+    ///
+    /// # Returns
+    /// * `ServiceResult<()>` - Ok(()) on success, or ServiceError on failure
+    ///
+    /// # Type Parameters
+    /// * `R` - Type implementing the ISetMlScore trait
     #[tracing::instrument(name = "`MlScoreService` set ML score", skip(repo))]
     pub async fn set_ml_score<R: ISetMlScore>(
         &self,

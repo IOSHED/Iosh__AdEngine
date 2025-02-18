@@ -2,6 +2,10 @@ use anyhow::Context;
 
 mod schemas;
 
+/// A client for interacting with Yandex GPT API.
+///
+/// This client handles authentication and communication with the Yandex GPT
+/// service, allowing you to send prompts and receive AI-generated responses.
 #[derive(Debug)]
 pub struct YandexGptClient {
     client: reqwest::Client,
@@ -12,6 +16,20 @@ pub struct YandexGptClient {
 }
 
 impl YandexGptClient {
+    /// Creates a new instance of YandexGptClient.
+    ///
+    /// # Arguments
+    ///
+    /// * `folder_id` - The Yandex Cloud folder ID where the GPT model is
+    ///   located
+    /// * `auth_token` - OAuth token for authentication with Yandex Cloud
+    /// * `temperature` - Controls randomness in the model's output (0.0 to 1.0)
+    /// * `max_tokens` - Maximum number of tokens in the generated response
+    ///
+    /// # Returns
+    ///
+    /// Returns a new `YandexGptClient` instance configured with the provided
+    /// parameters.
     pub fn new(folder_id: String, auth_token: String, temperature: f32, max_tokens: u32) -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -23,6 +41,15 @@ impl YandexGptClient {
         }
     }
 
+    /// Retrieves an IAM token for API authentication.
+    ///
+    /// Makes a request to Yandex IAM service to exchange the OAuth token for an
+    /// IAM token.
+    ///
+    /// # Returns
+    ///
+    /// Returns a Result containing the IAM token string or an error if the
+    /// request fails.
     async fn get_iam_token(&self) -> anyhow::Result<String> {
         let response = self
             .client
@@ -38,6 +65,33 @@ impl YandexGptClient {
         Ok(token_response.iam_token)
     }
 
+    /// Sends a prompt to Yandex GPT and returns the generated response.
+    ///
+    /// # Arguments
+    ///
+    /// * `user_prompt` - The main prompt text to send to the model
+    /// * `system_prompt` - System-level instructions that guide the model's
+    ///   behavior
+    ///
+    /// # Returns
+    ///
+    /// Returns a Result containing the generated response text or an error if
+    /// the request fails.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # async fn example() -> anyhow::Result<()> {
+    /// let client = YandexGptClient::new("folder_id".to_string(), "auth_token".to_string(), 0.7, 1000);
+    /// let response = client
+    ///     .ask_gpt(
+    ///         "What is the capital of France?",
+    ///         "You are a helpful assistant.",
+    ///     )
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn ask_gpt(&self, user_prompt: &str, system_prompt: &str) -> anyhow::Result<String> {
         let iam_token = self.get_iam_token().await?;
 

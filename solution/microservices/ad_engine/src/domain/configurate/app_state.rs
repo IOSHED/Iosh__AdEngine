@@ -1,25 +1,41 @@
 use crate::infrastructure;
 
-/// Application state containing configuration parameters for Yandex GPT
-/// integration and ad recommendation weights
+/// Configuration state for the application's core functionality
 ///
-/// # Fields
-/// * `yandex_api_key` - Authentication key for Yandex API access
-/// * `yandex_folder_id` - Identifier for the Yandex resource folder
-/// * `system_prompt_for_generate_title` - System prompt template for title
+/// Encapsulates all configuration parameters needed for the application's
+/// operation, including Yandex GPT integration, content generation settings, ad
+/// recommendation algorithms, and media handling constraints.
+///
+/// # Configuration Categories
+///
+/// ## Yandex GPT Integration
+/// * `yandex_api_key` - API authentication key for Yandex services
+/// * `yandex_folder_id` - Resource folder identifier in Yandex cloud
+/// * `gpt_temperature` - Controls output randomness (0.0 = deterministic, 1.0 =
+///   creative)
+/// * `gpt_max_tokens` - Response length limit in tokens
+///
+/// ## Content Generation
+/// * `system_prompt_for_generate_title` - Template prompt for AI title
 ///   generation
-/// * `system_prompt_for_generate_body` - System prompt template for body text
+/// * `system_prompt_for_generate_body` - Template prompt for AI body text
 ///   generation
-/// * `ads_weight_profit` - Weight coefficient for profit in ad recommendations
+///
+/// ## Ad Recommendation Weights
+/// All weights are normalized values between 0.0 and 1.0:
+/// * `ads_weight_profit` - Profit optimization factor
+/// * `ads_weight_relevance` - Content relevance factor
+/// * `ads_weight_fulfillment` - Delivery success factor
+/// * `ads_weight_time_left` - Time urgency factor
+///
+/// ## Media Handling
+/// * `media_support_mime` - List of supported MIME types
+/// * `media_max_size` - Maximum allowed file size in bytes
+/// * `media_max_image_on_campaign` - Image limit per campaign
+///
+/// ## Content Moderation
+/// * `auto_moderating_sensitivity` - Sensitivity threshold for auto-moderation
 ///   (0.0 to 1.0)
-/// * `ads_weight_relevance` - Weight coefficient for relevance in ad
-///   recommendations (0.0 to 1.0)
-/// * `ads_weight_fulfillment` - Weight coefficient for fulfillment in ad
-///   recommendations (0.0 to 1.0)
-/// * `ads_weight_time_left` - Weight coefficient for time remaining in ad
-///   recommendations (0.0 to 1.0)
-/// * `gpt_temperature` - Controls randomness in GPT responses (0.0 to 1.0)
-/// * `gpt_max_tokens` - Maximum number of tokens in GPT response
 #[derive(Clone)]
 pub struct AppState {
     pub yandex_api_key: String,
@@ -42,10 +58,24 @@ pub struct AppState {
     pub auto_moderating_sensitivity: f32,
 }
 
-/// Implements conversion from Config to AppState
+/// Provides conversion from infrastructure Config to AppState
 ///
-/// Transforms the infrastructure configuration into application state,
-/// copying all necessary fields and cloning String values where needed.
+/// # Implementation Details
+///
+/// This implementation handles the transformation of the raw configuration data
+/// into a properly structured application state. It performs:
+/// - Deep cloning of String values to ensure ownership
+/// - Direct copying of primitive values
+/// - Preservation of all configuration hierarchies
+///
+/// # Arguments
+///
+/// * `config` - Reference to a Config instance containing raw configuration
+///   data
+///
+/// # Returns
+///
+/// Returns a new AppState instance populated with the configuration values
 impl From<&infrastructure::configurate::Config> for AppState {
     fn from(config: &infrastructure::configurate::Config) -> Self {
         Self {
