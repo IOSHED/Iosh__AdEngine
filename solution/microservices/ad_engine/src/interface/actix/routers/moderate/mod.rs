@@ -5,6 +5,7 @@ pub fn moderate_scope(path: &str) -> actix_web::Scope {
         .service(moderate_config_handler)
         .service(moderate_add_list_handler)
         .service(moderate_delete_list_handler)
+        .service(moderate_get_list_handler)
 }
 
 #[utoipa::path(
@@ -19,6 +20,7 @@ pub fn moderate_scope(path: &str) -> actix_web::Scope {
     )
 )]
 #[actix_web::post("/config")]
+#[tracing::instrument(name = "moderate_config_handler", skip(redis_pool))]
 pub async fn moderate_config_handler(
     modarate_request: actix_web::web::Json<domain::schemas::ModerateSchema>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
@@ -43,6 +45,7 @@ pub async fn moderate_config_handler(
     )
 )]
 #[actix_web::post("/list")]
+#[tracing::instrument(name = "moderate_add_list_handler", skip(redis_pool, db_pool))]
 pub async fn moderate_add_list_handler(
     new_word_to_list: actix_web::web::Json<Vec<String>>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -56,6 +59,27 @@ pub async fn moderate_add_list_handler(
 }
 
 #[utoipa::path(
+    get,
+    path = "/moderate/list",
+    tag = "Moderate",
+    responses(
+        (status = 200, description = "Set activate moderate to value", body = Vec<String>),
+        (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
+    )
+)]
+#[actix_web::get("/list")]
+#[tracing::instrument(name = "moderate_get_list_handler", skip(redis_pool))]
+pub async fn moderate_get_list_handler(
+    redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+) -> interface::actix::ActixResult<actix_web::HttpResponse> {
+    let words = domain::usecase::ModerateGetListUsecase::new(redis_pool.get_ref())
+        .get_list()
+        .await?;
+
+    Ok(actix_web::HttpResponse::Ok().json(words))
+}
+
+#[utoipa::path(
     delete,
     path = "/moderate/list",
     tag = "Moderate",
@@ -66,6 +90,7 @@ pub async fn moderate_add_list_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "moderate_delete_list_handler", skip(redis_pool, db_pool))]
 #[actix_web::delete("/list")]
 pub async fn moderate_delete_list_handler(
     new_delete_word_to_list: actix_web::web::Json<Vec<String>>,
