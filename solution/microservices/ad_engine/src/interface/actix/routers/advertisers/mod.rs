@@ -19,8 +19,8 @@ pub fn advertisers_scope(path: &str) -> actix_web::Scope {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[tracing::instrument(name = "advertiser_bulk_handler", skip(db_pool, app_state, redis_pool))]
 #[actix_web::post("/bulk")]
+#[tracing::instrument(name = "advertiser_bulk_handler", skip(db_pool, app_state, redis_pool))]
 pub async fn advertiser_bulk_handler(
     register_data: actix_web::web::Json<Vec<domain::schemas::AdvertiserProfileSchema>>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -49,8 +49,8 @@ pub async fn advertiser_bulk_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse),
     )
 )]
-#[tracing::instrument(name = "advertiser_by_id_handler", skip(db_pool,))]
 #[actix_web::get("/{advertiser_id}")]
+#[tracing::instrument(name = "advertiser_by_id_handler", skip(db_pool,))]
 pub async fn advertiser_by_id_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

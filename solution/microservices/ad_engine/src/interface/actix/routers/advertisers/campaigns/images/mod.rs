@@ -28,12 +28,12 @@ pub fn images_scope(path: &str) -> actix_web::Scope {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[actix_web::post("")]
 #[tracing::instrument(
     name = "upload_image_campaign", 
     skip(db_pool, app_state, request, payload), 
     fields(advertiser_id = %path_param.0, campaign_id = %path_param.1)
 )]
-#[actix_web::post("")]
 pub async fn upload_image_campaign_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -74,12 +74,12 @@ pub async fn upload_image_campaign_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[actix_web::get("/{file_name}")]
 #[tracing::instrument(
-    name = "get_campaign_image", 
+    name = "get_campaign_image_handler", 
     skip(db_pool), 
     fields(advertiser_id = %path_param.0, campaign_id = %path_param.1, file_name = %path_param.2)
 )]
-#[actix_web::get("/{file_name}")]
 pub async fn get_campaign_image_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid, String)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -108,12 +108,12 @@ pub async fn get_campaign_image_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[actix_web::delete("/{file_name}")]
 #[tracing::instrument(
     name = "delete_campaign_image", 
     skip(db_pool), 
     fields(advertiser_id = %path_param.0, campaign_id = %path_param.1, file_name = %path_param.2)
 )]
-#[actix_web::delete("/{file_name}")]
 pub async fn delete_campaign_image_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid, String)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -141,12 +141,12 @@ pub async fn delete_campaign_image_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[actix_web::get("")]
 #[tracing::instrument(
     name = "get_campaign_name_images", 
     skip(db_pool),
     fields(advertiser_id = %path_param.0, campaign_id = %path_param.1)
 )]
-#[actix_web::get("")]
 pub async fn get_campaign_name_images_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

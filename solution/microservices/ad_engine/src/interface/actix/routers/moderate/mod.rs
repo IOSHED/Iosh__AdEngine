@@ -90,8 +90,8 @@ pub async fn moderate_get_list_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[tracing::instrument(name = "moderate_delete_list_handler", skip(redis_pool, db_pool))]
 #[actix_web::delete("/list")]
+#[tracing::instrument(name = "moderate_delete_list_handler", skip(redis_pool, db_pool))]
 pub async fn moderate_delete_list_handler(
     new_delete_word_to_list: actix_web::web::Json<Vec<String>>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

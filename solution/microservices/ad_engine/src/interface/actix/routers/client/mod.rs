@@ -43,8 +43,8 @@ pub async fn client_bulk_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse),
     )
 )]
-#[tracing::instrument(name = "client_by_id_handler", skip(db_pool))]
 #[actix_web::get("/{client_id}")]
+#[tracing::instrument(name = "client_by_id_handler", skip(db_pool))]
 pub async fn client_by_id_handler(
     client_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
