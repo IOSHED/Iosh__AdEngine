@@ -152,7 +152,7 @@ pub async fn campaigns_get_by_id_handler(
         .get(advertiser_id, campaign_id)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created().json(campaign))
+    Ok(actix_web::HttpResponse::Ok().json(campaign))
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -189,7 +189,7 @@ pub async fn campaigns_get_list_handler(
         .get(advertiser_id.into_inner(), size, page)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created()
+    Ok(actix_web::HttpResponse::Ok()
         .append_header(("x-total-count", total_count.to_string()))
         .json(campaigns))
 }
