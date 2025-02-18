@@ -208,7 +208,7 @@ impl<'p> CampaignService {
             .map_err(|e| domain::services::ServiceError::Repository(e))?
             .into();
 
-        if (time_advance >= campaign.start_date)
+        if (time_advance >= old_campaign.start_date)
             & ((old_campaign.impressions_limit != campaign.impressions_limit)
                 | (old_campaign.clicks_limit != campaign.clicks_limit)
                 | (old_campaign.end_date != campaign.end_date)

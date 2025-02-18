@@ -49,11 +49,6 @@ impl<'p> CampaignsUpdateUsecase<'p> {
             time_advance,
         )
         .await?;
-        if time_advance >= update_data.start_date {
-            return Err(domain::services::ServiceError::Validation(
-                "campaign already start".to_string(),
-            ));
-        }
 
         self.moderate_text_service
             .check_abusive_content(
