@@ -1,0 +1,185 @@
+
+---
+test_name: Успешное создание рекламных кампаний
+stages:
+  - name: Создание рекломадателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "00000000-0000-0000-0000-000000000001"
+          name: "user1"
+        - advertiser_id: "00000000-0000-0000-0000-000000000002"
+          name: "user2"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламных кампаний
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        impressions_limit: 105
+        start_date: 3
+        targeting:
+          age_from: 18
+          age_to: 18
+          gender: MALE
+          location: 'Moscow, mcad'
+    response:
+      status_code: 201
+
+---
+test_name: Успешное создание рекламных кампаний без опциональных полей
+stages:
+  - name: Успешное создание рекламных кампаний
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        impressions_limit: 105
+        start_date: 3
+        targeting: {}
+    response:
+      status_code: 201
+
+---
+test_name: Не успешное создание рекламных кампаний c 409
+stages:
+  - name: Рекламная компания без обязатлельных полей (target)
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        impressions_limit: 105
+        start_date: 3
+    response:
+      status_code: 409
+
+  - name: Рекламная компания без обязатлельных полей
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        start_date: 3
+        target: {}
+    response:
+      status_code: 409
+
+---
+test_name: Не успешное создание рекламных кампаний c 400
+stages:
+  - name: Рекламная компания end_date < start_date
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 3
+        impressions_limit: 105
+        start_date: 6
+        targeting: {}
+    response:
+      status_code: 400
+
+  - name: Рекламная компания clicks_limit > impressions_limit
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 205
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 3
+        impressions_limit: 105
+        start_date: 6
+        targeting: {}
+    response:
+      status_code: 400
+
+  - name: Рекламная компания age_from > age_to
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 205
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 3
+        impressions_limit: 105
+        start_date: 6
+        targeting: 
+          age_from: 20
+          age_to: 18
+    response:
+      status_code: 400
+
+  - name: Рекламная компания с неверным гендером
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 205
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 3
+        impressions_limit: 105
+        start_date: 6
+        targeting: 
+          age_from: 20
+          gender: 'MALE1'
+    response:
+      status_code: 400
+
+---
+test_name: Не успешное создание рекламных кампаний c 404
+stages:
+  - name: Рекламная компания end_date < start_date
+    request:
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000003/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 9
+        impressions_limit: 105
+        start_date: 6
+        targeting: {}
+    response:
+      status_code: 404

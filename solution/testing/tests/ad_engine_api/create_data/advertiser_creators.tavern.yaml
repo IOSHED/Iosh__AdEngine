@@ -7,9 +7,9 @@ stages:
       url: "{ad_engine_url}/advertisers/bulk"
       method: POST
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000006"
           name: "user1"
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa7"
+        - advertiser_id: "00000000-0000-0000-0000-000000000007"
           name: "user2"
     response:
       status_code: 201
@@ -22,12 +22,12 @@ stages:
       url: "{ad_engine_url}/advertisers/bulk"
       method: POST
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user3"
     response:
       status_code: 201
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user3"
 
   - name: Обновление рекломадателя
@@ -35,12 +35,12 @@ stages:
       url: "{ad_engine_url}/advertisers/bulk"
       method: POST
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user4"
     response:
       status_code: 201
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user4"
 
 ---
@@ -61,12 +61,12 @@ test_name: Получение рекломадателя по ID
 stages:
   - name: Получение рекломадателя по ID
     request:
-      url: "{ad_engine_url}/advertisers/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      url: "{ad_engine_url}/advertisers/00000000-0000-0000-0000-000000000006"
       method: GET
     response:
       status_code: 200
       json:
-        advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        advertiser_id: "00000000-0000-0000-0000-000000000006"
         name: "user1"
 
 ---
@@ -109,12 +109,12 @@ stages:
       url: "{ad_engine_url}/advertisers/bulk"
       method: POST
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user8"
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user9"
     response:
       status_code: 201
       json:
-        - advertiser_id: "3fa85f64-5717-4562-b3fc-2c963f66afb6"
+        - advertiser_id: "00000000-0000-0000-0000-000000000016"
           name: "user9"
