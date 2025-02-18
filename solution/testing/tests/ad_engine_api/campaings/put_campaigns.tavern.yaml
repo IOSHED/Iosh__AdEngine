@@ -1,0 +1,233 @@
+---
+test_name: Успешное изменение рекламных кампаний
+stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 1
+
+  - name: Создание рекламодателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "20000000-0000-0000-0000-000000000001"
+          name: "user1"
+        - advertiser_id: "20000000-0000-0000-0000-000000000002"
+          name: "user2"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламных кампаний [1]
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: Text 1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100
+        cost_per_impressions: 100
+        end_date: 1
+        start_date: 1
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign1_id: campaign_id
+
+  - name: Успешное создание рекламных кампаний [2]
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: Text 2
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100
+        cost_per_impressions: 100
+        end_date: 2
+        start_date: 2
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign2_id: campaign_id
+
+  - name: Успешное создание рекламных кампаний [3]
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000002/campaigns"
+      method: POST
+      json:
+        ad_text: Text 3
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100
+        cost_per_impressions: 100
+        end_date: 2
+        start_date: 2
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign3_id: campaign_id
+
+  - name: Успешное обновление рекламных кампаний
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000002/campaigns/{campaign3_id}"
+      method: PUT
+      json:
+          ad_text: Text 3.1
+          ad_title: Title
+          clicks_limit: 50
+          impressions_limit: 100
+          cost_per_clicks: 100
+          cost_per_impressions: 100
+          end_date: 2
+          start_date: 2
+          targeting: {}
+    response:
+      status_code: 200
+      json:
+        advertiser_id: 20000000-0000-0000-0000-000000000002
+        campaign_id: "{campaign3_id}"
+        ad_text: Text 3.1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100.0
+        cost_per_impressions: 100.0
+        end_date: 2
+        start_date: 2
+        targeting: 
+          age_from: null
+          age_to: null
+          gender: null
+          location: null
+
+  - name: Успешное обновление рекламных кампаний
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000001/campaigns/{campaign2_id}"
+      method: PUT
+      json:
+        ad_text: Text 2.1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100.0
+        cost_per_impressions: 100.0
+        end_date: 2
+        start_date: 2
+        targeting:
+          age_to: 18
+          gender: MALE
+    response:
+      status_code: 200
+      json:
+        advertiser_id: 20000000-0000-0000-0000-000000000001
+        campaign_id: "{campaign2_id}"
+        ad_text: Text 2.1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100.0
+        cost_per_impressions: 100.0
+        end_date: 2
+        start_date: 2
+        targeting:
+          age_to: 18
+          gender: MALE
+          age_from: null
+          location: null
+
+---
+test_name: Неуспешное изменение рекламных кампаний
+stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 1
+
+  - name: Создание рекламодателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "20000000-0000-0000-0000-000000000003"
+          name: "user1"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламных кампаний [1]
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000003/campaigns"
+      method: POST
+      json:
+        ad_text: Text 1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100
+        cost_per_impressions: 100
+        end_date: 1
+        start_date: 1
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign1_id: campaign_id
+
+  - name: Успешное создание рекламных кампаний [2]
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000003/campaigns"
+      method: POST
+      json:
+        ad_text: Text 2
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 100
+        cost_per_impressions: 100
+        end_date: 2
+        start_date: 2
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign2_id: campaign_id
+  
+  - name: Ставим время чтобы нельзя было изменить
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 2
+
+  - name: Не Успешное обновление рекламных кампаний из-за времени
+    request:
+      url: "{ad_engine_url}/advertisers/20000000-0000-0000-0000-000000000003/campaigns/{campaign2_id}"
+      method: PUT
+      json:
+          ad_text: Text 2.1
+          ad_title: Title
+          clicks_limit: 500
+          impressions_limit: 1000
+          cost_per_clicks: 100
+          cost_per_impressions: 100
+          end_date: 3
+          start_date: 3
+          targeting: {}
+    response:
+      status_code: 400

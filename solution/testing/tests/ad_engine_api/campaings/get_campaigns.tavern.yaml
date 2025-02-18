@@ -215,3 +215,47 @@ stages:
             gender: null
             location: null
 
+---
+test_name: Не успешное получение рекламных кампаний
+stages:
+  - name: Получение рекламной кампании по не верному id кампании
+    request:
+      url: "{ad_engine_url}/advertisers/10000000-0000-0000-0000-000000000002/campaigns/campaign3_id"
+      method: GET
+    response: 
+      status_code: 404
+
+  - name: Получение рекламной кампаний по не верному id рекломадателя
+    request:
+      url: "{ad_engine_url}/advertisers/advertiser/campaigns"
+      method: GET
+    response:
+      status_code: 404
+
+  - name: Получение рекламной кампании по не верному id рекломадателя
+    request:
+      url: "{ad_engine_url}/advertisers/advertiser/campaigns/campaign3_id"
+      method: GET
+    response:
+      status_code: 404
+
+  - name: Получение рекламной кампании по отрицательной пагинации [1]
+    request:
+      url: "{ad_engine_url}/advertisers/10000000-0000-0000-0000-000000000001/campaigns"
+      method: GET
+      params:
+        size: -1
+        page: 2
+    response:
+      status_code: 400
+  
+  - name: Получение рекламной кампании по отрицательной пагинации [2]
+    request:
+      url: "{ad_engine_url}/advertisers/10000000-0000-0000-0000-000000000001/campaigns"
+      method: GET
+      params:
+        size: 1
+        page: -2
+    response:
+      status_code: 400
+  
