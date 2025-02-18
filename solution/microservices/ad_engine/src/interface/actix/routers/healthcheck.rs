@@ -7,7 +7,7 @@
     )
 )]
 #[actix_web::get("/ping")]
-#[tracing::instrument(name = "healthcheck_handler get ping")]
+#[tracing::instrument(name = "healthcheck_handler")]
 pub async fn healthcheck_handler() -> impl actix_web::Responder {
     actix_web::HttpResponse::Ok().body("pong")
 }

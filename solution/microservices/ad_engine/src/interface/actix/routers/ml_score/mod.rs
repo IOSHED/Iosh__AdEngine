@@ -13,8 +13,8 @@ use crate::{domain, infrastructure, interface};
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "ml_score_handler", skip(db_pool))]
 #[actix_web::post("/ml-score")]
-#[tracing::instrument(name = "Calculate ML score", skip(db_pool))]
 pub async fn ml_score_handler(
     score_request: actix_web::web::Json<domain::schemas::MlScoreRequest>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

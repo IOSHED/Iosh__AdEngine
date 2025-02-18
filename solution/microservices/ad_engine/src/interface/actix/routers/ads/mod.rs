@@ -27,13 +27,12 @@ struct AdsQuery {
 )]
 #[actix_web::get("")]
 #[tracing::instrument(
-    name = "Get suitable ads for client",
+    name = "ads_handler",
     skip(db_pool, redis_pool, app_state),
     fields(
         client_id = %ads_query.client_id,
         request_id = %uuid::Uuid::new_v4()
-    ),
-    level = "info"
+    )
 )]
 pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
@@ -64,14 +63,13 @@ pub async fn ads_handler(
 )]
 #[actix_web::post("/{ads_id}/click")]
 #[tracing::instrument(
-    name = "Click ads",
+    name = "ads_click_handler",
     skip(db_pool, redis_pool, ads_request),
     fields(
         campaign_id = %campaign_id,
         client_id = %ads_request.client_id,
         request_id = %uuid::Uuid::new_v4()
-    ),
-    level = "info"
+    )
 )]
 pub async fn ads_click_handler(
     campaign_id: actix_web::web::Path<uuid::Uuid>,

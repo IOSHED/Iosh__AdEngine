@@ -24,8 +24,11 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(
+    name = "campaigns_create_handler", 
+    skip(db_pool, app_state, redis_pool),
+)]
 #[actix_web::post("")]
-#[tracing::instrument(name = "Create campaign", skip(db_pool, app_state))]
 pub async fn campaigns_create_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsCreateRequest>,
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
@@ -54,8 +57,8 @@ pub async fn campaigns_create_handler(
         (status = 503, description = "Yandex GPT not response", body = interface::actix::exception::ExceptionResponse),
     )
 )]
+#[tracing::instrument(name = "campaigns_generate_text_handler", skip(db_pool, redis_pool, app_state))]
 #[actix_web::patch("/{campaign_id}/generate_text")]
-#[tracing::instrument(name = "Generate title or description for campaign", skip(db_pool, app_state))]
 pub async fn campaigns_generate_text_handler(
     generate_request: actix_web::web::Json<domain::schemas::CampaignsGenerateTextRequest>,
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
@@ -87,8 +90,8 @@ pub async fn campaigns_generate_text_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "campaigns_update_handler", skip(db_pool, redis_pool, app_state))]
 #[actix_web::put("/{campaign_id}")]
-#[tracing::instrument(name = "Update campaign", skip(db_pool, app_state))]
 pub async fn campaigns_update_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsUpdateRequest>,
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
@@ -116,8 +119,8 @@ pub async fn campaigns_update_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "campaigns_delete_handler", skip(db_pool, redis_pool))]
 #[actix_web::delete("/{campaign_id}")]
-#[tracing::instrument(name = "Delete campaign", skip(db_pool))]
 pub async fn campaigns_delete_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -141,8 +144,8 @@ pub async fn campaigns_delete_handler(
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "campaigns_get_by_id_handler", skip(db_pool))]
 #[actix_web::get("/{campaign_id}")]
-#[tracing::instrument(name = "Get campaign by id", skip(db_pool))]
 pub async fn campaigns_get_by_id_handler(
     path_param: actix_web::web::Path<(uuid::Uuid, uuid::Uuid)>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -175,8 +178,8 @@ struct Pagination {
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
+#[tracing::instrument(name = "campaigns_get_list_handler", skip(db_pool))]
 #[actix_web::get("")]
-#[tracing::instrument(name = "Get list of campaigns", skip(db_pool))]
 pub async fn campaigns_get_list_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     pagination: actix_web::web::Query<Pagination>,

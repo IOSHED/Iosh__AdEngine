@@ -19,7 +19,7 @@ pub fn stat_scope(path: &str) -> actix_web::Scope {
     )
 )]
 #[actix_web::get("/campaigns/{campaign_id}")]
-#[tracing::instrument(name = "Get stat campaign by id", skip(db_pool))]
+#[tracing::instrument(name = "stat_campaign_handler", skip(db_pool))]
 pub async fn stat_campaign_handler(
     campaign_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -42,7 +42,7 @@ pub async fn stat_campaign_handler(
     )
 )]
 #[actix_web::get("/campaigns/{campaign_id}/daily")]
-#[tracing::instrument(name = "Get stat campaign by id", skip(db_pool))]
+#[tracing::instrument(name = "stat_campaign_daily_handler", skip(db_pool))]
 pub async fn stat_campaign_daily_handler(
     campaign_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -65,7 +65,7 @@ pub async fn stat_campaign_daily_handler(
     )
 )]
 #[actix_web::get("/advertisers/{advertiser_id}/campaigns")]
-#[tracing::instrument(name = "Get stat campaign by id", skip(db_pool))]
+#[tracing::instrument(name = "stat_advertisers_handler", skip(db_pool))]
 pub async fn stat_advertisers_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -88,7 +88,7 @@ pub async fn stat_advertisers_handler(
     )
 )]
 #[actix_web::get("/advertisers/{advertiser_id}/campaigns/daily")]
-#[tracing::instrument(name = "Get stat campaign by id", skip(db_pool))]
+#[tracing::instrument(name = "stat_advertisers_daily_handler", skip(db_pool))]
 pub async fn stat_advertisers_daily_handler(
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,

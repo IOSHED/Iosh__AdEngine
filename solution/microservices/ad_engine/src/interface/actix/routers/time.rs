@@ -11,7 +11,7 @@ use crate::{domain, infrastructure, interface};
     )
 )]
 #[actix_web::post("/time/advance")]
-#[tracing::instrument(name = "time_advance_handler set global time")]
+#[tracing::instrument(name = "time_advance_handler", skip(redis_pool, db_pool))]
 pub async fn time_advance_handler(
     time_advance_request: actix_web::web::Json<domain::schemas::TimeAdvanceRequest>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
