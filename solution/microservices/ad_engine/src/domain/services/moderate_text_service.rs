@@ -308,6 +308,7 @@ impl ModerateTextService {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     struct MockRepo {

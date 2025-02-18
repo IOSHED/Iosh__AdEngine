@@ -66,6 +66,7 @@ impl<'p> MlScoreService {
 
 #[cfg(test)]
 mod tests {
+
     use async_trait::async_trait;
     use mockall::{mock, predicate::*};
     use uuid::Uuid;

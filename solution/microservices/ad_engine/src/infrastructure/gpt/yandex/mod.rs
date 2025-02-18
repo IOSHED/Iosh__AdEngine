@@ -77,21 +77,7 @@ impl YandexGptClient {
     ///
     /// Returns a Result containing the generated response text or an error if
     /// the request fails.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # async fn example() -> anyhow::Result<()> {
-    /// let client = YandexGptClient::new("folder_id".to_string(), "auth_token".to_string(), 0.7, 1000);
-    /// let response = client
-    ///     .ask_gpt(
-    ///         "What is the capital of France?",
-    ///         "You are a helpful assistant.",
-    ///     )
-    ///     .await?;
-    /// # Ok(())
-    /// # }
-    /// ```
+
     pub async fn ask_gpt(&self, user_prompt: &str, system_prompt: &str) -> anyhow::Result<String> {
         let iam_token = self.get_iam_token().await?;
 

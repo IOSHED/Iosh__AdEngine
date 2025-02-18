@@ -67,17 +67,18 @@ impl AggregateStatService {
         let mut aggregated = std::collections::HashMap::new();
 
         for daily in stats.into_iter().flatten() {
-            let entry = aggregated.entry(daily.date).or_insert_with(|| daily.clone());
-            entry.clicks_count += daily.clicks_count;
-            entry.impressions_count += daily.impressions_count;
-            entry.spent_clicks += daily.spent_clicks;
-            entry.spent_impressions += daily.spent_impressions;
-            entry.spent_total += daily.spent_total;
-            entry.conversion = self.calculate_conversion(entry.impressions_count, entry.clicks_count);
+            let entry = aggregated.entry(daily.date.clone()).or_insert(daily.clone());
+            if entry.impressions_count != daily.impressions_count || entry.clicks_count != daily.clicks_count {
+                entry.clicks_count += daily.clicks_count;
+                entry.impressions_count += daily.impressions_count;
+                entry.spent_clicks += daily.spent_clicks;
+                entry.spent_impressions += daily.spent_impressions;
+                entry.spent_total += daily.spent_total;
+                entry.conversion = self.calculate_conversion(entry.impressions_count, entry.clicks_count);
+            }
         }
 
         let mut result: Vec<_> = aggregated.into_values().collect();
-
         result.sort_by(|a, b| b.date.cmp(&a.date));
         result
     }
@@ -107,5 +108,118 @@ impl AggregateStatService {
             spent_total: spent_clk + spent_imp,
             conversion: self.calculate_conversion(impressions, clicks),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use domain::schemas::StatDailyResponse;
+
+    use super::*;
+
+    #[test]
+    fn test_calculate_total_stats() {
+        let service = AggregateStatService;
+
+        let stats = vec![
+            StatDailyResponse {
+                impressions_count: 100,
+                clicks_count: 10,
+                spent_impressions: 5.0,
+                spent_clicks: 1.0,
+                date: 1,
+                conversion: 10.0,
+                spent_total: 6.0,
+            },
+            StatDailyResponse {
+                impressions_count: 200,
+                clicks_count: 20,
+                spent_impressions: 8.0,
+                spent_clicks: 2.0,
+                date: 2,
+                conversion: 10.0,
+                spent_total: 10.0,
+            },
+        ];
+
+        let (total_imp, total_clk, total_spent_imp, total_spent_clk) = service.calculate_total_stats(&stats);
+
+        assert_eq!(total_imp, 300);
+        assert_eq!(total_clk, 30);
+        assert_eq!(total_spent_imp, 13.0);
+        assert_eq!(total_spent_clk, 3.0);
+    }
+
+    #[test]
+    fn test_calculate_conversion() {
+        let service = AggregateStatService;
+
+        let conversion_with_impressions = service.calculate_conversion(100, 10);
+        assert_eq!(conversion_with_impressions, 10.0);
+
+        let conversion_without_impressions = service.calculate_conversion(0, 10);
+        assert_eq!(conversion_without_impressions, 0.0);
+    }
+
+    #[test]
+    fn test_aggregate_daily_stats() {
+        let service = AggregateStatService;
+
+        let stats_vec = vec![
+            vec![StatDailyResponse {
+                impressions_count: 100,
+                clicks_count: 10,
+                spent_impressions: 5.0,
+                spent_clicks: 1.0,
+                date: 1,
+                conversion: 10.0,
+                spent_total: 6.0,
+            }],
+            vec![
+                StatDailyResponse {
+                    impressions_count: 300,
+                    clicks_count: 20,
+                    spent_impressions: 8.0,
+                    spent_clicks: 2.0,
+                    date: 2,
+                    conversion: 10.0,
+                    spent_total: 10.0,
+                },
+                StatDailyResponse {
+                    impressions_count: 100,
+                    clicks_count: 15,
+                    spent_impressions: 3.0,
+                    spent_clicks: 1.5,
+                    date: 1,
+                    conversion: 15.0,
+                    spent_total: 4.5,
+                },
+            ],
+        ];
+
+        let aggregated_stats = service.aggregate_daily_stats(stats_vec);
+
+        assert_eq!(aggregated_stats.len(), 2);
+        assert_eq!(aggregated_stats[0].date, 2);
+        assert_eq!(aggregated_stats[0].impressions_count, 300);
+        assert_eq!(aggregated_stats[0].clicks_count, 20);
+
+        assert_eq!(aggregated_stats[1].date, 1);
+        assert_eq!(aggregated_stats[1].impressions_count, 200);
+        assert_eq!(aggregated_stats[1].clicks_count, 25);
+    }
+
+    #[test]
+    fn test_create_stat_response() {
+        let service = AggregateStatService;
+
+        let response = service.create_stat_response(100, 10, 5.0, 1.0);
+
+        assert_eq!(response.impressions_count, 100);
+        assert_eq!(response.clicks_count, 10);
+        assert_eq!(response.spent_impressions, 5.0);
+        assert_eq!(response.spent_clicks, 1.0);
+        assert_eq!(response.spent_total, 6.0);
+        assert_eq!(response.conversion, 10.0);
     }
 }

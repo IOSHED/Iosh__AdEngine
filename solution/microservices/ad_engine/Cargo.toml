@@ -84,3 +84,4 @@ prometheus = "0.13.4"
 
 [dev-dependencies]
 mockall = "0.13.1"
+mockito = "1.6.0"

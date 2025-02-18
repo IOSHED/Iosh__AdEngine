@@ -140,3 +140,87 @@ impl<'p> CampaignImageService {
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use uuid::Uuid;
+
+    use super::*;
+    struct MockCampaignNamesImageRepo {
+        names: Vec<String>,
+    }
+
+    #[async_trait]
+    impl IGetCampaignNamesImage for MockCampaignNamesImageRepo {
+        async fn get_names(&self, _campaign_id: Uuid) -> infrastructure::repository::RepoResult<Vec<String>> {
+            Ok(self.names.clone())
+        }
+    }
+
+    struct MockCampaignImageRepo {
+        image_data: Option<(String, Vec<u8>)>,
+    }
+
+    #[async_trait]
+    impl IGetCampaignImage for MockCampaignImageRepo {
+        async fn get(
+            &self,
+            _campaign_id: Uuid,
+            _advertiser_id: Uuid,
+            _file_name: String,
+        ) -> infrastructure::repository::RepoResult<(String, Vec<u8>)> {
+            if let Some(data) = &self.image_data {
+                Ok(data.clone())
+            } else {
+                Err(infrastructure::repository::RepoError::ObjDoesNotExists("obj".into()))
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_get_names_success() {
+        let campaign_id = Uuid::new_v4();
+        let mock_repo = MockCampaignNamesImageRepo {
+            names: vec!["image1.png".to_string(), "image2.png".to_string()],
+        };
+        let service = CampaignImageService;
+
+        let result = service.get_names(campaign_id, mock_repo).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), vec!["image1.png", "image2.png"]);
+    }
+
+    #[tokio::test]
+    async fn test_get_image_success() {
+        let campaign_id = Uuid::new_v4();
+        let advertiser_id = Uuid::new_v4();
+        let file_name = "image1.png".to_string();
+
+        let mock_repo = MockCampaignImageRepo {
+            image_data: Some((file_name.clone(), vec![1, 2, 3, 4])),
+        };
+        let service = CampaignImageService;
+
+        let result = service
+            .get(campaign_id, advertiser_id, file_name.clone(), mock_repo)
+            .await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), (file_name, vec![1, 2, 3, 4]));
+    }
+
+    #[tokio::test]
+    async fn test_get_image_not_found() {
+        let campaign_id = Uuid::new_v4();
+        let advertiser_id = Uuid::new_v4();
+        let file_name = "image_not_found.png".to_string();
+
+        let mock_repo = MockCampaignImageRepo { image_data: None };
+        let service = CampaignImageService;
+
+        let result = service.get(campaign_id, advertiser_id, file_name, mock_repo).await;
+
+        assert!(result.is_err());
+    }
+}

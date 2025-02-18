@@ -325,7 +325,7 @@ impl<'p> domain::services::repository::IClickCampaign for PgCampaignRepository<'
     }
 }
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Clone)]
 pub struct StatDailyReturningSchema {
     pub impressions_count: Option<i32>,
     pub clicks_count: Option<i32>,

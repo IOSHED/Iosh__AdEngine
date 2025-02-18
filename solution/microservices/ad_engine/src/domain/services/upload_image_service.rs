@@ -53,3 +53,66 @@ impl UploadImageService {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+    use mockall::{mock, predicate::*};
+
+    use super::*;
+
+    mock! {
+        pub UploadCampaignImageMock {}
+
+        #[async_trait]
+        impl IUploadCampaignImage for UploadCampaignImageMock {
+            async fn upload(
+                &self,
+                campaign_id: uuid::Uuid,
+                media_max_image_on_campaign: usize,
+                files: Vec<(String, Vec<u8>, String)>
+            ) -> infrastructure::repository::RepoResult<()>;
+        }
+    }
+
+    #[tokio::test]
+    async fn test_upload_for_campaign_success() {
+        let mut mock_repo = MockUploadCampaignImageMock::new();
+        let service = UploadImageService;
+
+        let campaign_id = uuid::Uuid::new_v4();
+        let files = vec![
+            ("image1.png".to_string(), vec![1, 2, 3], "image/png".to_string()),
+            ("image2.jpg".to_string(), vec![4, 5, 6], "image/jpeg".to_string()),
+        ];
+
+        mock_repo
+            .expect_upload()
+            .with(eq(campaign_id), eq(2), eq(files.clone()))
+            .times(1)
+            .returning(|_, _, _| Ok(()));
+
+        let result = service.upload_for_campaign(campaign_id, 2, files, mock_repo).await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_upload_for_campaign_repository_error() {
+        let mut mock_repo = MockUploadCampaignImageMock::new();
+        let service = UploadImageService;
+
+        let campaign_id = uuid::Uuid::new_v4();
+        let files = vec![("image1.png".to_string(), vec![1, 2, 3], "image/png".to_string())];
+
+        mock_repo
+            .expect_upload()
+            .with(eq(campaign_id), eq(1), eq(files.clone()))
+            .times(1)
+            .returning(|_, _, _| Err(infrastructure::repository::RepoError::Unknown));
+
+        let result = service.upload_for_campaign(campaign_id, 1, files, mock_repo).await;
+
+        assert!(result.is_err());
+    }
+}

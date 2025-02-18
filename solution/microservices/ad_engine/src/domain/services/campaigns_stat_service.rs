@@ -231,3 +231,153 @@ impl From<infrastructure::repository::sqlx_lib::StatDailyReturningSchema> for do
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+    use uuid::Uuid;
+
+    use super::*;
+
+    struct MockGetOrCreateUniqIdRepo {
+        result: Result<(Vec<Uuid>, Vec<Uuid>), infrastructure::repository::RepoError>,
+    }
+
+    #[async_trait]
+    impl IGetOrCreateUniqIdForStatCampaign for MockGetOrCreateUniqIdRepo {
+        async fn get_or_create_uniq_id(
+            &self,
+            _campaign_id: Uuid,
+        ) -> infrastructure::repository::RepoResult<(Vec<Uuid>, Vec<Uuid>)> {
+            self.result.clone()
+        }
+    }
+
+    struct MockViewCampaignRepo {
+        result: Result<(), infrastructure::repository::RepoError>,
+    }
+
+    #[async_trait]
+    impl IViewCampaign for MockViewCampaignRepo {
+        async fn view_campaign(
+            &self,
+            _campaign_id: Uuid,
+            _client_id: Uuid,
+            _cost: f64,
+            _advanced_time: u32,
+        ) -> infrastructure::repository::RepoResult<()> {
+            self.result.clone()
+        }
+    }
+
+    struct MockClickCampaignRepo {
+        result: Result<(), infrastructure::repository::RepoError>,
+    }
+
+    #[async_trait]
+    impl IClickCampaign for MockClickCampaignRepo {
+        async fn click_campaign(
+            &self,
+            _campaign_id: Uuid,
+            _client_id: Uuid,
+            _cost: f64,
+            _advanced_time: u32,
+        ) -> infrastructure::repository::RepoResult<()> {
+            self.result.clone()
+        }
+    }
+
+    struct MockGetDailyStatRepo {
+        result: Result<
+            Vec<infrastructure::repository::sqlx_lib::StatDailyReturningSchema>,
+            infrastructure::repository::RepoError,
+        >,
+    }
+
+    #[async_trait]
+    impl IGetDailyStat for MockGetDailyStatRepo {
+        async fn get_by_day(
+            &self,
+            _campaign_id: Uuid,
+        ) -> infrastructure::repository::RepoResult<Vec<infrastructure::repository::sqlx_lib::StatDailyReturningSchema>>
+        {
+            self.result.clone()
+        }
+    }
+
+    #[tokio::test]
+    async fn test_get_or_create_uniq_id_success() {
+        let campaign_id = Uuid::new_v4();
+        let mock_repo = MockGetOrCreateUniqIdRepo {
+            result: Ok((vec![Uuid::new_v4()], vec![Uuid::new_v4()])),
+        };
+        let service = CampaignStatService;
+
+        let result = service.get_or_create_uniq_id(campaign_id, mock_repo).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().0.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_view_campaign_success() {
+        let campaign_id = Uuid::new_v4();
+        let client_id = Uuid::new_v4();
+        let cost = 100.0;
+        let advanced_time = 123;
+        let mock_repo = MockViewCampaignRepo { result: Ok(()) };
+        let service = CampaignStatService;
+
+        let result = service
+            .view_campaign(campaign_id, client_id, cost, advanced_time, mock_repo)
+            .await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_click_campaign_success() {
+        let campaign_id = Uuid::new_v4();
+        let client_id = Uuid::new_v4();
+        let cost = 100.0;
+        let advanced_time = 123;
+        let mock_repo = MockClickCampaignRepo { result: Ok(()) };
+        let service = CampaignStatService;
+        let result = service
+            .click_campaign(campaign_id, client_id, cost, advanced_time, mock_repo)
+            .await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_by_day_success() {
+        let campaign_id = Uuid::new_v4();
+        let mock_repo = MockGetDailyStatRepo {
+            result: Ok(vec![infrastructure::repository::sqlx_lib::StatDailyReturningSchema {
+                date: Some(1),
+                impressions_count: None,
+                clicks_count: None,
+                spent_impressions: None,
+                spent_clicks: None,
+            }]),
+        };
+        let service = CampaignStatService;
+
+        let result = service.get_by_day(campaign_id, mock_repo).await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_by_day_empty() {
+        let campaign_id = Uuid::new_v4();
+        let mock_repo = MockGetDailyStatRepo { result: Ok(vec![]) };
+        let service = CampaignStatService;
+
+        let result = service.get_by_day(campaign_id, mock_repo).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+}

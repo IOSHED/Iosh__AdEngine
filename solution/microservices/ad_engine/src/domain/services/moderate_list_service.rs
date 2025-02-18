@@ -88,3 +88,80 @@ impl<'p> ModerateListService {
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+
+    use super::*;
+
+    struct MockAddModerateListRepo {
+        result: Result<(), infrastructure::repository::RepoError>,
+    }
+
+    #[async_trait]
+    impl IAddModerateList for MockAddModerateListRepo {
+        async fn add_list(&self, _add_words: Vec<String>) -> infrastructure::repository::RepoResult<()> {
+            self.result.clone()
+        }
+    }
+
+    struct MockDeleteModerateListRepo {
+        result: Result<(), infrastructure::repository::RepoError>,
+    }
+
+    #[async_trait]
+    impl IDeleteModerateList for MockDeleteModerateListRepo {
+        async fn delete_list(&self, _delete_words: Vec<String>) -> infrastructure::repository::RepoResult<()> {
+            self.result.clone()
+        }
+    }
+
+    #[tokio::test]
+    async fn test_add_list_success() {
+        let mock_repo = MockAddModerateListRepo { result: Ok(()) };
+        let service = ModerateListService;
+        let words_to_add = vec!["word1".into(), "word2".into()];
+
+        let result = service.add_list(words_to_add.clone(), mock_repo).await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_add_list_failure() {
+        let mock_repo = MockAddModerateListRepo {
+            result: Err(infrastructure::repository::RepoError::Unknown),
+        };
+        let service = ModerateListService;
+        let words_to_add = vec!["word1".into(), "word2".into()];
+
+        let result = service.add_list(words_to_add.clone(), mock_repo).await;
+
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_delete_list_success() {
+        let mock_repo = MockDeleteModerateListRepo { result: Ok(()) };
+        let service = ModerateListService;
+        let words_to_delete = vec!["word1".into(), "word2".into()];
+
+        let result = service.delete_list(words_to_delete.clone(), mock_repo).await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_delete_list_failure() {
+        let mock_repo = MockDeleteModerateListRepo {
+            result: Err(infrastructure::repository::RepoError::Unknown),
+        };
+        let service = ModerateListService;
+        let words_to_delete = vec!["word1".into(), "word2".into()];
+
+        let result = service.delete_list(words_to_delete.clone(), mock_repo).await;
+
+        assert!(result.is_err());
+    }
+}

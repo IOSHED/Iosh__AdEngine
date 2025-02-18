@@ -56,16 +56,7 @@ impl<'p> AdvertiserService {
     /// # Returns
     /// * `ServiceResult<Vec<AdvertiserProfileSchema>>` - Result containing
     ///   registered advertisers or service error
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// let service = AdvertiserService;
-    /// let advertisers = vec![AdvertiserProfileSchema {
-    ///     advertiser_id: uuid::Uuid::new_v4(),
-    ///     name: "Test Advertiser".to_string(),
-    /// }];
-    /// let result = service.register(advertisers, repository).await?;
-    /// ```
+
     #[tracing::instrument(name = "`UserService` register bulk Advertisers", skip(repo))]
     pub async fn register<R: IRegisterBulkAdvertiser>(
         &self,
@@ -107,13 +98,7 @@ impl<'p> AdvertiserService {
     /// # Returns
     /// * `ServiceResult<AdvertiserProfileSchema>` - Result containing found
     ///   advertiser or service error
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// let service = AdvertiserService;
-    /// let advertiser_id = uuid::Uuid::new_v4();
-    /// let advertiser = service.get_by_id(advertiser_id, repository).await?;
-    /// ```
+
     #[tracing::instrument(name = "`UserService` get Advertiser by id", skip(repo))]
     pub async fn get_by_id<R: IGetAdvertiserById>(
         &self,
