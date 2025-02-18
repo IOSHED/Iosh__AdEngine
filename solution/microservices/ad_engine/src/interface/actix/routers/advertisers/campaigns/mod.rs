@@ -1,4 +1,3 @@
-
 use crate::{domain, infrastructure, interface};
 
 pub mod images;
@@ -34,9 +33,10 @@ pub async fn campaigns_create_handler(
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
     app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let campaign = domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
-        .create(campaign_request.into_inner(), advertiser_id.into_inner())
-        .await?;
+    let campaign =
+        domain::usecase::CampaignsCreateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
+            .create(campaign_request.into_inner(), advertiser_id.into_inner())
+            .await?;
 
     Ok(actix_web::HttpResponse::Created().json(campaign))
 }
@@ -64,9 +64,13 @@ pub async fn campaigns_generate_text_handler(
     app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let (advertiser_id, campaign_id) = path_param.into_inner();
-    let campaign = domain::usecase::CampaignsGeneratorTextUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
-        .generate(generate_request.into_inner(), advertiser_id, campaign_id)
-        .await?;
+    let campaign = domain::usecase::CampaignsGeneratorTextUsecase::new(
+        db_pool.get_ref(),
+        redis_pool.get_ref(),
+        app_state.get_ref(),
+    )
+    .generate(generate_request.into_inner(), advertiser_id, campaign_id)
+    .await?;
 
     Ok(actix_web::HttpResponse::Created().json(campaign))
 }
@@ -93,9 +97,10 @@ pub async fn campaigns_update_handler(
     app_state: actix_web::web::Data<domain::configurate::AppState>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let (advertiser_id, campaign_id) = path_param.into_inner();
-    let campaign = domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
-        .update(campaign_request.into_inner(), advertiser_id, campaign_id)
-        .await?;
+    let campaign =
+        domain::usecase::CampaignsUpdateUsecase::new(db_pool.get_ref(), redis_pool.get_ref(), app_state.get_ref())
+            .update(campaign_request.into_inner(), advertiser_id, campaign_id)
+            .await?;
 
     Ok(actix_web::HttpResponse::Ok().json(campaign))
 }

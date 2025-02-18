@@ -80,6 +80,15 @@ impl<'p> RedisService<'p> {
         self.repo.set(&format!("active_campaign:{random_id}"), data).await
     }
 
+    pub async fn get_obscene_words(&self) -> domain::services::ServiceResult<Vec<String>> {
+        let word: String = self.repo.get("obscene_words").await?;
+        Ok(word.split(',').map(|s| s.to_string()).collect())
+    }
+
+    pub async fn set_obscene_words(&self, data: Vec<String>) -> domain::services::ServiceResult<()> {
+        self.repo.set("obscene_words", data.join(",").to_string()).await
+    }
+
     pub async fn get_advance_time(&self) -> domain::services::ServiceResult<u32> {
         match self.repo.get("advance_time").await {
             Ok(data) => Ok(data),

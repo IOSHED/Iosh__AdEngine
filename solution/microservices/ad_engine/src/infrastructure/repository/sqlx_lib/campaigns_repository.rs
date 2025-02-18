@@ -29,7 +29,6 @@ pub struct CampaignReturningSchema {
     pub targeting: Option<serde_json::Value>,
 }
 
-
 #[async_trait]
 impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<'p> {
     async fn create(
@@ -66,13 +65,14 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
             campaign.ad_text,
             campaign.start_date as i32,
             campaign.end_date as i32,
-            serde_json::to_value(&campaign.targeting)
-                .map_err(|_| infrastructure::repository::RepoError::Unknown)?,
+            serde_json::to_value(&campaign.targeting).map_err(|_| infrastructure::repository::RepoError::Unknown)?,
         )
         .fetch_one(self.db_pool)
         .await
         .map_err(|e| {
-            if e.to_string().contains("violates foreign key constraint \"campaigns_advertiser_id_fkey\"") {
+            if e.to_string()
+                .contains("violates foreign key constraint \"campaigns_advertiser_id_fkey\"")
+            {
                 return infrastructure::repository::RepoError::ObjDoesNotExists("advertiser".to_string());
             }
             e.into()
@@ -108,8 +108,7 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
                 .ok_or(infrastructure::repository::RepoError::Unknown)?,
             campaign.ad_title,
             campaign.ad_text,
-            serde_json::to_value(&campaign.targeting)
-                .map_err(|_| infrastructure::repository::RepoError::Unknown)?,
+            serde_json::to_value(&campaign.targeting).map_err(|_| infrastructure::repository::RepoError::Unknown)?,
             advertiser_id,
             campaign_id
         )
@@ -219,10 +218,7 @@ impl<'p> domain::services::repository::IGetCampaignList for PgCampaignRepository
         .fetch_one(self.db_pool)
         .await?;
 
-        Ok((
-            *total_count.get_or_insert(0) as u64,
-            campaigns,
-        ))
+        Ok((*total_count.get_or_insert(0) as u64, campaigns))
     }
 }
 
@@ -294,8 +290,7 @@ impl<'p> domain::services::repository::IViewCampaign for PgCampaignRepository<'p
             "#,
             campaign_id,
             client_id,
-            bigdecimal::BigDecimal::from_f64(cost)
-                .ok_or(infrastructure::repository::RepoError::Unknown)?,
+            bigdecimal::BigDecimal::from_f64(cost).ok_or(infrastructure::repository::RepoError::Unknown)?,
             advanced_time as i64
         )
         .execute(self.db_pool)
@@ -382,15 +377,13 @@ impl<'p> domain::services::repository::IGetDailyStat for PgCampaignRepository<'p
     }
 }
 
-
 #[async_trait]
 impl<'p> domain::services::repository::IGetIdsCampaign for PgCampaignRepository<'p> {
     async fn get_campaign_ids(
         &self,
         advertiser_id: uuid::Uuid,
     ) -> infrastructure::repository::RepoResult<Vec<uuid::Uuid>> {
-        let campaign_ids= sqlx::query_scalar!(
-     
+        let campaign_ids = sqlx::query_scalar!(
             r#"
             SELECT id FROM campaigns
             WHERE advertiser_id = $1

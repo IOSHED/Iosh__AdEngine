@@ -6,7 +6,6 @@ pub fn ads_scope(path: &str) -> actix_web::Scope {
         .service(ads_click_handler)
 }
 
-
 #[derive(serde::Deserialize, Debug)]
 struct AdsQuery {
     client_id: uuid::Uuid,
@@ -43,7 +42,6 @@ pub async fn ads_handler(
     Ok(actix_web::HttpResponse::Created().json(ads))
 }
 
-
 #[utoipa::path(
     post,
     path = "/ads/{ads_id}/click",
@@ -64,7 +62,6 @@ pub async fn ads_click_handler(
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-  
     domain::usecase::AdsClickUsecase::new(db_pool.get_ref(), redis_pool.get_ref())
         .click(campaign_id.into_inner(), ads_request.into_inner())
         .await?;

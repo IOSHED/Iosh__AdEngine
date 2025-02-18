@@ -83,7 +83,6 @@ pub async fn get_campaign_image_handler(
     Ok(actix_web::HttpResponse::Ok().content_type(mime_type).body(data))
 }
 
-
 #[utoipa::path(
     delete,
     path = "/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}",
@@ -106,13 +105,12 @@ pub async fn delete_campaign_image_handler(
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
     let (advertiser_id, campaign_id, file_name) = path_param.into_inner();
 
-   domain::usecase::CampaignsDeleteImageUsecase::new(db_pool.get_ref())
+    domain::usecase::CampaignsDeleteImageUsecase::new(db_pool.get_ref())
         .delete(advertiser_id, campaign_id, file_name)
         .await?;
 
     Ok(actix_web::HttpResponse::NoContent().into())
 }
-
 
 #[utoipa::path(
     get,

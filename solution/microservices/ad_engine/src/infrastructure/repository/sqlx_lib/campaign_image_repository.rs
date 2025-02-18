@@ -39,7 +39,7 @@ impl<'p> domain::services::repository::IUploadCampaignImage for PgCampaignImageR
 
         for (file_name, data, mime_type) in files {
             let file_size = data.len() as i64;
-            
+
             sqlx::query!(
                 r#"
                 INSERT INTO campaigns_images 
@@ -77,7 +77,6 @@ impl<'p> domain::services::repository::IGetCampaignNamesImage for PgCampaignImag
         .collect();
 
         Ok(names)
-    
     }
 }
 
@@ -89,7 +88,6 @@ impl<'p> domain::services::repository::IGetCampaignImage for PgCampaignImageRepo
         advertiser_id: uuid::Uuid,
         file_name: String,
     ) -> infrastructure::repository::RepoResult<(String, Vec<u8>)> {
-
         let image = sqlx::query!(
             r#"
             SELECT data, mime_type 
@@ -115,7 +113,6 @@ impl<'p> domain::services::repository::IGetCampaignImage for PgCampaignImageRepo
         Ok((image.mime_type, image.data))
     }
 }
-
 
 #[async_trait]
 impl<'p> domain::services::repository::IDeleteCampaignImage for PgCampaignImageRepository<'p> {
@@ -148,6 +145,5 @@ impl<'p> domain::services::repository::IDeleteCampaignImage for PgCampaignImageR
             return Err(infrastructure::repository::RepoError::ObjDoesNotExists("image".into()));
         }
         Ok(())
-       
     }
 }

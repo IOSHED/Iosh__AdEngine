@@ -1,7 +1,7 @@
 -- Add up migration script here
 
 CREATE TABLE IF NOT EXISTS obscene_words (
-    word VARCHAR(32) NOT NULL
+    word VARCHAR(32) UNIQUE NOT NULL
 );
 
 INSERT INTO obscene_words (word) VALUES 
@@ -280,8 +280,6 @@ INSERT INTO obscene_words (word) VALUES
     ('нахуйник'),
 
     ('насцать'),
-
-    ('обдристаться'),
 
     ('обдристаться'),
 

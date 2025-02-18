@@ -12,10 +12,11 @@ mod campaigns_stat_service;
 mod client_service;
 mod error;
 mod ml_score_service;
-mod moderate_text;
+mod moderate_list_service;
+mod moderate_text_service;
 mod prometheus_service;
 mod redis_service;
-mod upload_image;
+mod upload_image_service;
 mod yandex_gpt_service;
 
 pub use ads_service::AdsService;
@@ -27,10 +28,11 @@ pub use campaigns_stat_service::CampaignStatService;
 pub use client_service::ClientService;
 pub use error::ServiceError;
 pub use ml_score_service::MlScoreService;
-pub use moderate_text::ModerateTextService;
+pub use moderate_list_service::ModerateListService;
+pub use moderate_text_service::ModerateTextService;
 pub use prometheus_service::PrometheusService;
 pub use redis_service::RedisService;
-pub use upload_image::UploadImageService;
+pub use upload_image_service::UploadImageService;
 pub use yandex_gpt_service::YandexGptService;
 
 pub mod repository {
@@ -45,8 +47,9 @@ pub mod repository {
         campaigns_stat_service::{IClickCampaign, IGetDailyStat, IGetOrCreateUniqIdForStatCampaign, IViewCampaign},
         client_service::{IGetClientById, IRegisterBulkClient},
         ml_score_service::ISetMlScore,
-        moderate_text::IGetAbusiveWords,
-        upload_image::IUploadCampaignImage,
+        moderate_list_service::{IAddModerateList, IDeleteModerateList},
+        moderate_text_service::IGetAbusiveWords,
+        upload_image_service::IUploadCampaignImage,
     };
 }
 

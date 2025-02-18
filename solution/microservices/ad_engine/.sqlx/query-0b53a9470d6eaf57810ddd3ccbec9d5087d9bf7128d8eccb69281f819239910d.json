@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO obscene_words (word)\n            SELECT * FROM UNNEST($1::VARCHAR[]);\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "VarcharArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0b53a9470d6eaf57810ddd3ccbec9d5087d9bf7128d8eccb69281f819239910d"
+}

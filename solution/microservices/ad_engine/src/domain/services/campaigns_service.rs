@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use bigdecimal::ToPrimitive;
+
 use crate::{domain, infrastructure};
 
 #[async_trait]
@@ -170,7 +171,7 @@ impl<'p> CampaignService {
             .get_list(advertiser_id, size, page)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
-        
+
         let campaigns = campaigns.into_iter().map(|c| c.into()).collect();
 
         Ok((total_count, campaigns))
@@ -182,13 +183,11 @@ impl<'p> CampaignService {
         current_date: u32,
         repo: R,
     ) -> domain::services::ServiceResult<Vec<domain::schemas::CampaignSchema>> {
-        let campaign = repo.get_active_campaigns(current_date)
+        let campaign = repo
+            .get_active_campaigns(current_date)
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))?;
-        Ok(
-            campaign.into_iter().map(|c| c.into()).collect()
-        )
-        
+        Ok(campaign.into_iter().map(|c| c.into()).collect())
     }
 
     #[tracing::instrument(name = "`CampaignService` are exist campaign", skip(repo))]
@@ -212,7 +211,6 @@ impl<'p> CampaignService {
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
-
 }
 
 impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for domain::schemas::CampaignSchema {
@@ -251,7 +249,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //                 campaign: domain::schemas::CampaignsCreateRequest,
 //                 advertiser_id: Uuid,
 //                 created_at: u32,
-//             ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
+//             ) ->
+// infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
 //         }
 //     }
 
@@ -265,7 +264,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //                 advertiser_id: Uuid,
 //                 campaign_id: Uuid,
 //                 update_at: u32,
-//             ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
+//             ) ->
+// infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
 //         }
 //         #[async_trait]
 //         impl IGetCampaignById for UpdateCampaign {
@@ -273,7 +273,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //                 &self,
 //                 advertiser_id: Uuid,
 //                 campaign_id: Uuid,
-//             ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
+//             ) ->
+// infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
 //         }
 //     }
 
@@ -285,7 +286,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //                 &self,
 //                 advertiser_id: Uuid,
 //                 campaign_id: Uuid,
-//             ) -> infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
+//             ) ->
+// infrastructure::repository::RepoResult<domain::schemas::CampaignSchema>;
 //         }
 //     }
 
@@ -298,8 +300,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //                 advertiser_id: Uuid,
 //                 size: u32,
 //                 page: u32,
-//             ) -> infrastructure::repository::RepoResult<(u64, Vec<domain::schemas::CampaignSchema>)>;
-//         }
+//             ) -> infrastructure::repository::RepoResult<(u64,
+// Vec<domain::schemas::CampaignSchema>)>;         }
 //     }
 
 //     mock! {
@@ -362,7 +364,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //             .returning(move |_, _, _| Ok(expected_campaign_mock.clone()));
 
 //         let service = CampaignService;
-//         let result = service.create(campaign_request, advertiser_id, 12345, mock_repo).await;
+//         let result = service.create(campaign_request, advertiser_id, 12345,
+// mock_repo).await;
 
 //         assert!(result.is_ok());
 //         let returned_campaign = result.unwrap();
@@ -450,8 +453,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 
 //         let service = CampaignService;
 //         let result = service
-//             .update(campaign_request, advertiser_id, campaign_id, time_advance, mock_repo)
-//             .await;
+//             .update(campaign_request, advertiser_id, campaign_id,
+// time_advance, mock_repo)             .await;
 
 //         assert!(result.is_ok());
 //         let returned_campaign = result.unwrap();
@@ -471,7 +474,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //             .returning(|_, _| Ok(()));
 
 //         let service = CampaignService;
-//         let result = service.delete(advertiser_id, campaign_id, mock_repo).await;
+//         let result = service.delete(advertiser_id, campaign_id,
+// mock_repo).await;
 
 //         assert!(result.is_ok());
 //     }
@@ -509,7 +513,8 @@ impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for dom
 //             .returning(move |_, _| Ok(expected_campaign_mock.clone()));
 
 //         let service = CampaignService;
-//         let result = service.get_by_id(advertiser_id, campaign_id, mock_repo).await;
+//         let result = service.get_by_id(advertiser_id, campaign_id,
+// mock_repo).await;
 
 //         assert!(result.is_ok());
 //         let returned_campaign = result.unwrap();
