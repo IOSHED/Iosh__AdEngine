@@ -9,8 +9,10 @@ pub trait ICreateCampaign {
     /// Creates a new campaign for the given advertiser.
     ///
     /// # Arguments
-    /// * `campaign` - The campaign creation request containing all required fields
-    /// * `advertiser_id` - Unique identifier of the advertiser creating the campaign
+    /// * `campaign` - The campaign creation request containing all required
+    ///   fields
+    /// * `advertiser_id` - Unique identifier of the advertiser creating the
+    ///   campaign
     ///
     /// # Returns
     /// A Result containing the created campaign details or a repository error
@@ -70,7 +72,8 @@ pub trait IGetCampaignList {
     /// * `page` - Page number to retrieve
     ///
     /// # Returns
-    /// A Result containing total count and vector of campaigns, or a repository error
+    /// A Result containing total count and vector of campaigns, or a repository
+    /// error
     async fn get_list(
         &self,
         advertiser_id: uuid::Uuid,
@@ -171,22 +174,25 @@ impl<'p> CampaignService {
         Ok(repo_campaign.into())
     }
 
-    /// Updates an existing campaign with new details, validating that certain fields cannot be modified after campaign start.
+    /// Updates an existing campaign with new details, validating that certain
+    /// fields cannot be modified after campaign start.
     ///
     /// # Arguments
     /// * `campaign` - The campaign update request containing fields to modify
     /// * `advertiser_id` - ID of the advertiser who owns the campaign
     /// * `campaign_id` - Unique identifier of the campaign to update
-    /// * `time_advance` - Current timestamp to validate against campaign start date
+    /// * `time_advance` - Current timestamp to validate against campaign start
+    ///   date
     /// * `repo` - Repository implementation for campaign operations
     ///
     /// # Returns
-    /// A `ServiceResult` containing the updated campaign schema if successful, or a service error if:
+    /// A `ServiceResult` containing the updated campaign schema if successful,
+    /// or a service error if:
     /// - The campaign does not exist
     /// - The advertiser does not own the campaign
     /// - Attempting to modify restricted fields after campaign start
     /// - Repository operations fail
-    
+
     #[tracing::instrument(name = "`CampaignService` update campaign", skip(repo))]
     pub async fn update<R: IUpdateCampaign + IGetCampaignById>(
         &self,
@@ -225,12 +231,14 @@ impl<'p> CampaignService {
     /// Deletes a campaign after verifying ownership.
     ///
     /// # Arguments
-    /// * `advertiser_id` - ID of the advertiser attempting to delete the campaign
+    /// * `advertiser_id` - ID of the advertiser attempting to delete the
+    ///   campaign
     /// * `campaign_id` - Unique identifier of the campaign to delete
     /// * `repo` - Repository implementation for campaign operations
     ///
     /// # Returns
-    /// A `ServiceResult` containing unit type if successful, or a service error if:
+    /// A `ServiceResult` containing unit type if successful, or a service error
+    /// if:
     /// - The campaign does not exist
     /// - The advertiser does not own the campaign
     /// - Repository operations fail
@@ -277,11 +285,11 @@ impl<'p> CampaignService {
     /// * `repo` - Repository implementation for campaign operations
     ///
     /// # Returns
-    /// A `ServiceResult` containing the campaign schema if found, or a service error if:
+    /// A `ServiceResult` containing the campaign schema if found, or a service
+    /// error if:
     /// - The campaign does not exist
     /// - The advertiser does not own the campaign
     /// - Repository operations fail
-    ///
     #[tracing::instrument(name = "`CampaignService` get list of campaigns", skip(repo))]
     pub async fn get_list<R: IGetCampaignList>(
         &self,
@@ -330,8 +338,8 @@ impl<'p> CampaignService {
     /// * `repo` - Repository implementation for campaign operations
     ///
     /// # Returns
-    /// A `ServiceResult` containing a boolean indicating if the campaign exists,
-    /// or a service error if repository operations fail
+    /// A `ServiceResult` containing a boolean indicating if the campaign
+    /// exists, or a service error if repository operations fail
 
     #[tracing::instrument(name = "`CampaignService` are exist campaign", skip(repo))]
     pub async fn campaign_is_exist<R: ISearchCampaign>(
@@ -365,7 +373,8 @@ impl<'p> CampaignService {
     }
 }
 
-/// Implements conversion from repository campaign schema to domain campaign schema.
+/// Implements conversion from repository campaign schema to domain campaign
+/// schema.
 impl From<infrastructure::repository::sqlx_lib::CampaignReturningSchema> for domain::schemas::CampaignSchema {
     /// Converts a repository campaign schema into a domain campaign schema.
     ///

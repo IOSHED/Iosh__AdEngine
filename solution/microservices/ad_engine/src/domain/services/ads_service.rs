@@ -345,13 +345,13 @@ impl AdsService {
 
 #[cfg(test)]
 mod tests {
-    use crate::domain::services::repository::IGetClientById;
-
-    use super::*;
-    use mockall::{mock, predicate::*};
     use domain::services::ServiceError;
     use infrastructure::repository::RepoError;
+    use mockall::{mock, predicate::*};
     use uuid::Uuid;
+
+    use super::*;
+    use crate::domain::services::repository::IGetClientById;
 
     mock! {
         pub ClientRepo {}
@@ -401,29 +401,31 @@ mod tests {
         let client_id = Uuid::new_v4();
         let campaign_id = Uuid::new_v4();
         let advertiser_id = Uuid::new_v4();
-        
+
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
-            .returning(move |_| Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+        mock_client_repo.expect_get_by_id().returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
                 client_id,
                 login: "my_name".into(),
                 age: 25,
                 gender: "Male".into(),
                 location: "NY".into(),
-            }));
-        
+            })
+        });
+
         let mut mock_ml_repo = MockMlScoreRepo::new();
-        mock_ml_repo.expect_get_ml_scores()
-            .returning(|_, _| Ok(vec![0.8]));
+        mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.8]));
 
         let service = create_test_service();
-        let result = service.recommendation_ads(
-            vec![create_test_campaign(campaign_id, advertiser_id)],
-            client_id,
-            50,
-            mock_client_repo,
-            mock_ml_repo,
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![create_test_campaign(campaign_id, advertiser_id)],
+                client_id,
+                50,
+                mock_client_repo,
+                mock_ml_repo,
+            )
+            .await;
 
         assert!(result.is_ok());
         let ad = result.unwrap();
@@ -433,25 +435,28 @@ mod tests {
     #[tokio::test]
     async fn no_suitable_campaigns_error() {
         let client_id = Uuid::new_v4();
-        
+
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
-            .returning(move |_| Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+        mock_client_repo.expect_get_by_id().returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
                 client_id,
                 login: "my_name".into(),
                 age: 40,
                 gender: "Female".into(),
                 location: "LA".into(),
-            }));
+            })
+        });
 
         let service = create_test_service();
-        let result = service.recommendation_ads(
-            vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
-            client_id,
-            50,
-            mock_client_repo,
-            MockMlScoreRepo::new(),
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
+                client_id,
+                50,
+                mock_client_repo,
+                MockMlScoreRepo::new(),
+            )
+            .await;
 
         assert!(matches!(
             result,
@@ -463,32 +468,33 @@ mod tests {
     async fn ml_scores_repository_error_propagated() {
         let client_id = Uuid::new_v4();
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
-            .returning(move |_| Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+        mock_client_repo.expect_get_by_id().returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
                 client_id,
                 login: "my_name".into(),
                 age: 25,
                 gender: "Male".into(),
                 location: "NY".into(),
-            }));
+            })
+        });
 
         let mut mock_ml_repo = MockMlScoreRepo::new();
-        mock_ml_repo.expect_get_ml_scores()
+        mock_ml_repo
+            .expect_get_ml_scores()
             .returning(|_, _| Err(RepoError::Unknown));
 
         let service = create_test_service();
-        let result = service.recommendation_ads(
-            vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
-            client_id,
-            50,
-            mock_client_repo,
-            mock_ml_repo,
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
+                client_id,
+                50,
+                mock_client_repo,
+                mock_ml_repo,
+            )
+            .await;
 
-        assert!(matches!(
-            result,
-            Err(ServiceError::Repository(RepoError::Unknown))
-        ));
+        assert!(matches!(result, Err(ServiceError::Repository(RepoError::Unknown))));
     }
 
     #[tokio::test]
@@ -496,35 +502,37 @@ mod tests {
         let client_id = Uuid::new_v4();
         let campaign1_id = Uuid::new_v4();
         let campaign2_id = Uuid::new_v4();
-        
+
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
-            .returning(move |_| Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+        mock_client_repo.expect_get_by_id().returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
                 client_id,
                 login: "my_name".into(),
                 age: 25,
                 gender: "Male".into(),
                 location: "NY".into(),
-            }));
+            })
+        });
 
         let mut mock_ml_repo = MockMlScoreRepo::new();
-        mock_ml_repo.expect_get_ml_scores()
-            .returning(|_, _| Ok(vec![0.5, 0.5]));
+        mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
         let service = AdsService::new(1.0, 0.0, 0.0, 0.0);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.cost_per_impressions = 10.;
-        
+
         let mut campaign2 = create_test_campaign(campaign2_id, Uuid::new_v4());
         campaign2.cost_per_impressions = 20.;
 
-        let result = service.recommendation_ads(
-            vec![campaign1, campaign2],
-            client_id,
-            50,
-            mock_client_repo,
-            mock_ml_repo,
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![campaign1, campaign2],
+                client_id,
+                50,
+                mock_client_repo,
+                mock_ml_repo,
+            )
+            .await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().ad_id, campaign2_id);
@@ -535,35 +543,37 @@ mod tests {
         let client_id = Uuid::new_v4();
         let campaign1_id = Uuid::new_v4();
         let campaign2_id = Uuid::new_v4();
-        
+
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
-            .returning(move |_| Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
+        mock_client_repo.expect_get_by_id().returning(move |_| {
+            Ok(infrastructure::repository::sqlx_lib::ClientReturningSchema {
                 client_id,
                 login: "my_name".into(),
                 age: 25,
                 gender: "Male".into(),
                 location: "NY".into(),
-            }));
+            })
+        });
 
         let mut mock_ml_repo = MockMlScoreRepo::new();
-        mock_ml_repo.expect_get_ml_scores()
-            .returning(|_, _| Ok(vec![0.5, 0.5]));
+        mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
         let service = AdsService::new(0.0, 0.0, 0.0, 1.0);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.end_date = 100;
-        
+
         let mut campaign2 = create_test_campaign(campaign2_id, Uuid::new_v4());
         campaign2.end_date = 200;
 
-        let result = service.recommendation_ads(
-            vec![campaign1, campaign2],
-            client_id,
-            50,
-            mock_client_repo,
-            mock_ml_repo,
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![campaign1, campaign2],
+                client_id,
+                50,
+                mock_client_repo,
+                mock_ml_repo,
+            )
+            .await;
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap().ad_id, campaign1_id);
@@ -573,17 +583,20 @@ mod tests {
     async fn client_not_found_error() {
         let client_id = Uuid::new_v4();
         let mut mock_client_repo = MockClientRepo::new();
-        mock_client_repo.expect_get_by_id()
+        mock_client_repo
+            .expect_get_by_id()
             .returning(|_| Err(RepoError::ObjDoesNotExists("Client not found".into())));
 
         let service = create_test_service();
-        let result = service.recommendation_ads(
-            vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
-            client_id,
-            50,
-            mock_client_repo,
-            MockMlScoreRepo::new(),
-        ).await;
+        let result = service
+            .recommendation_ads(
+                vec![create_test_campaign(Uuid::new_v4(), Uuid::new_v4())],
+                client_id,
+                50,
+                mock_client_repo,
+                MockMlScoreRepo::new(),
+            )
+            .await;
 
         assert!(matches!(
             result,

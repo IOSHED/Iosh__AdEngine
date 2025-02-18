@@ -10,9 +10,10 @@
     })
 )]
 /// Represents an advertisement schema
-/// 
-/// This struct contains all the necessary information for an advertisement including
-/// its unique identifier, title, content text and the ID of the advertiser who created it.
+///
+/// This struct contains all the necessary information for an advertisement
+/// including its unique identifier, title, content text and the ID of the
+/// advertiser who created it.
 pub struct AdSchema {
     /// Unique identifier for the advertisement
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]

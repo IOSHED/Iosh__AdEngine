@@ -1,4 +1,3 @@
-
 #[derive(serde::Serialize, serde::Deserialize, validator::Validate, utoipa::ToSchema, Debug, Clone, PartialEq)]
 #[schema(
     example = json!({
@@ -36,11 +35,7 @@ pub struct ClientProfileSchema {
     pub gender: String,
 
     /// Client's age in years
-    #[schema(
-        example = 34,
-        maximum = 160,
-        minimum = 1
-    )]
+    #[schema(example = 34, maximum = 160, minimum = 1)]
     #[validate(range(min = 1, max = 160, message = "Age not must be over 160"))]
     pub age: u8,
 }

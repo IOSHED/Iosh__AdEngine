@@ -14,7 +14,7 @@ struct AdsQuery {
 #[utoipa::path(
     get,
     path = "/ads",
-    tag = "Ads",
+    tag = "Ads", 
     params(
         ("client_id" = uuid::Uuid, Query, description = "Id client for getting ads", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6"),
     ),
@@ -26,7 +26,15 @@ struct AdsQuery {
     )
 )]
 #[actix_web::get("")]
-#[tracing::instrument(name = "Get suitable ads for client", skip(db_pool, app_state))]
+#[tracing::instrument(
+    name = "Get suitable ads for client",
+    skip(db_pool, redis_pool, app_state),
+    fields(
+        client_id = %ads_query.client_id,
+        request_id = %uuid::Uuid::new_v4()
+    ),
+    level = "info"
+)]
 pub async fn ads_handler(
     ads_query: actix_web::web::Query<AdsQuery>,
     db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
@@ -55,7 +63,16 @@ pub async fn ads_handler(
     )
 )]
 #[actix_web::post("/{ads_id}/click")]
-#[tracing::instrument(name = "Click ads", skip(db_pool))]
+#[tracing::instrument(
+    name = "Click ads",
+    skip(db_pool, redis_pool, ads_request),
+    fields(
+        campaign_id = %campaign_id,
+        client_id = %ads_request.client_id,
+        request_id = %uuid::Uuid::new_v4()
+    ),
+    level = "info"
+)]
 pub async fn ads_click_handler(
     campaign_id: actix_web::web::Path<uuid::Uuid>,
     ads_request: actix_web::web::Json<domain::schemas::AdClickRequest>,

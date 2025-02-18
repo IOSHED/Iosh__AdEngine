@@ -53,20 +53,14 @@ impl PrometheusService {
     /// Increments ad visit counter with time advance label
     pub fn increment_ads_visits(time_advance: u32) {
         if let Ok(metrics) = infrastructure::metrics::prometheus::APP_METRICS.lock() {
-            metrics
-                .ads_visits
-                .with_label_values(&[&time_advance.to_string()])
-                .inc();
+            metrics.ads_visits.with_label_values(&[&time_advance.to_string()]).inc();
         }
     }
 
     /// Increments ad click counter with time advance label
     pub fn increment_ads_clicks(time_advance: u32) {
         if let Ok(metrics) = infrastructure::metrics::prometheus::APP_METRICS.lock() {
-            metrics
-                .ads_clicks
-                .with_label_values(&[&time_advance.to_string()])
-                .inc();
+            metrics.ads_clicks.with_label_values(&[&time_advance.to_string()]).inc();
         }
     }
 

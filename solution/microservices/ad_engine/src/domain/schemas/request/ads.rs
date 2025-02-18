@@ -11,9 +11,6 @@
 pub struct AdClickRequest {
     /// Unique identifier for the client
     /// Must be a valid UUID v4 format
-    #[schema(
-        example = "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        format = "uuid"
-    )]
+    #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid")]
     pub client_id: uuid::Uuid,
 }

@@ -22,13 +22,14 @@
     })
 )]
 /// Campaign configuration schema
-/// 
-/// Represents the configuration for an advertising campaign including targeting parameters
+///
+/// Represents the configuration for an advertising campaign including targeting
+/// parameters
 pub struct CampaignSchema {
     /// Unique identifier for the campaign
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]
     pub campaign_id: uuid::Uuid,
-    
+
     /// Unique identifier for the advertiser
     #[schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6", format = "uuid v4")]
     pub advertiser_id: uuid::Uuid,
@@ -36,7 +37,7 @@ pub struct CampaignSchema {
     /// Maximum number of impressions allowed for this campaign
     #[schema(example = 205, minimum = 0)]
     pub impressions_limit: u32,
-    
+
     /// Maximum number of clicks allowed for this campaign
     #[schema(example = 105, minimum = 0)]
     pub clicks_limit: u32,
@@ -44,7 +45,7 @@ pub struct CampaignSchema {
     /// Cost per thousand impressions (CPM) in campaign currency
     #[schema(example = 100.0, minimum = 0)]
     pub cost_per_impressions: f64,
-    
+
     /// Cost per click (CPC) in campaign currency
     #[schema(example = 150.0, minimum = 0)]
     pub cost_per_clicks: f64,
@@ -52,7 +53,7 @@ pub struct CampaignSchema {
     /// Title of the advertisement
     #[schema(example = "Mega Ad")]
     pub ad_title: String,
-    
+
     /// Main text content of the advertisement
     #[schema(example = "His omega must be Ad")]
     pub ad_text: String,
@@ -85,7 +86,7 @@ pub struct CampaignSchema {
     })
 )]
 /// Campaign targeting configuration
-/// 
+///
 /// Defines the demographic and geographic targeting parameters for a campaign
 pub struct TargetingCampaignSchema {
     /// Target gender (MALE or FEMALE)
@@ -103,7 +104,7 @@ pub struct TargetingCampaignSchema {
     #[schema(example = 18, minimum = 0)]
     #[validate(range(min = 0, message = "age must be under or equal 0"))]
     pub age_from: Option<u8>,
-    
+
     /// Maximum age for targeting
     #[schema(example = 18, minimum = 0)]
     #[validate(range(min = 0, message = "age must be under or equal 0"))]
@@ -116,42 +117,43 @@ pub struct TargetingCampaignSchema {
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 /// Active campaign state
-/// 
-/// Represents the current state of an active campaign including performance metrics
+///
+/// Represents the current state of an active campaign including performance
+/// metrics
 pub struct ActiveCampaignSchema {
     /// Unique identifier for the campaign
     pub campaign_id: uuid::Uuid,
-    
+
     /// Unique identifier for the advertiser
     pub advertiser_id: uuid::Uuid,
 
     /// Maximum number of impressions allowed
     pub impressions_limit: u32,
-    
+
     /// Maximum number of clicks allowed
     pub clicks_limit: u32,
 
     /// Cost per thousand impressions (CPM)
     pub cost_per_impressions: f64,
-    
+
     /// Cost per click (CPC)
     pub cost_per_clicks: f64,
 
     /// Advertisement title
     pub ad_title: String,
-    
+
     /// Advertisement text content
     pub ad_text: String,
 
     /// Campaign start date
     pub start_date: u32,
-    
+
     /// Campaign end date
     pub end_date: u32,
 
     /// List of client IDs who viewed the ad
     pub view_clients_id: Vec<uuid::Uuid>,
-    
+
     /// List of client IDs who clicked the ad
     pub click_clients_id: Vec<uuid::Uuid>,
 
