@@ -1,0 +1,226 @@
+
+---
+test_name: Успешное загрузка изобрадений
+stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 1
+
+  - name: Создание рекломадателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "50000000-0000-0000-0000-000000000001"
+          name: "user1"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламной кампании
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        impressions_limit: 105
+        start_date: 3
+        targeting:
+          age_from: 18
+          age_to: 18
+          gender: MALE
+          location: 'Moscow, mcad'
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign1_id: campaign_id
+
+  - name: Загрузка изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/1.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204
+  
+  - name: Получение имени изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns/{campaign1_id}/images"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        - 1.jpg
+
+  - name: Получение изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns/{campaign1_id}/images/1.jpg"
+      method: GET
+    response:
+      status_code: 200
+      headers:
+        Content-Type: image/jpeg
+
+  - name: Удаление изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns/{campaign1_id}/images/1.jpg"
+      method: DELETE
+    response:
+      status_code: 204
+
+  - name: Получение пустого списка имён изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000001/campaigns/{campaign1_id}/images"
+      method: GET
+    response:
+      status_code: 200
+      json: []
+  
+
+---
+test_name: Не успешное загрузка изобрадений
+stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 1
+
+  - name: Создание рекломадателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "50000000-0000-0000-0000-000000000002"
+          name: "user1"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламной кампании
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns"
+      method: POST
+      json:
+        ad_text: His omega must be Ad
+        ad_title: Mega Ad
+        clicks_limit: 25
+        cost_per_clicks: 150
+        cost_per_impressions: 100
+        end_date: 5
+        impressions_limit: 105
+        start_date: 3
+        targeting:
+          age_from: 18
+          age_to: 18
+          gender: MALE
+          location: 'Moscow, mcad'
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign1_id: campaign_id
+  
+  - name: Загрузка изображения сверх лимита [1]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/1.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204
+    
+  - name: Загрузка изображения сверх лимита [2]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/2.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204
+    
+  - name: Загрузка изображения сверх лимита [3]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/3.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204
+
+  - name: Загрузка изображения сверх лимита [4]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/1.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204
+    
+  - name: Загрузка изображения сверх лимита [5]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/3.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 204  
+
+  - name: Загрузка изображения сверх лимита [6]
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/1.jpg
+          content_type: "image/jpeg"
+    response:
+      status_code: 409
+
+  - name: Неверный upload type изображения
+    request:
+      url: "{ad_engine_url}/advertisers/50000000-0000-0000-0000-000000000002/campaigns/{campaign1_id}/images"
+      method: POST
+      headers:
+        Content-Type: multipart/form-data
+      files:
+        common:
+          file_path: tests/ad_engine_api/images/jpg/1.jpg
+          content_type: "image/gif"
+    response:
+      status_code: 400

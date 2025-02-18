@@ -2,6 +2,13 @@
 ---
 test_name: Успешное создание рекламных кампаний
 stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 1
+        
   - name: Создание рекломадателей
     request:
       url: "{ad_engine_url}/advertisers/bulk"
