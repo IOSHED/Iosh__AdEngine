@@ -155,10 +155,10 @@ exit /B
 
 :run_tests
 cd ../testing
-docker-compose -f docker-compose.test.yaml up --build -d
-set AD_ENGINE_ADDRESS=localhost:8000
+docker-compose -f docker-compose.test.yaml up -d
+set AD_ENGINE_ADDRESS=localhost:9000
 call .venv\Scripts\activate
-timeout /t 3
+timeout /t 5
 pytest -v --tavern-global-cfg=tavern.config.yaml  
 docker-compose -f docker-compose.test.yaml down -v
 cd ../microservices/ad_engine
