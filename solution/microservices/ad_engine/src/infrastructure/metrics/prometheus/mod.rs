@@ -74,7 +74,7 @@ impl AppMetrics {
             .expect("Failed create metric total_make_money_visits".into()),
 
             total_make_money_clicks: prometheus::register_gauge!(prometheus::opts!(
-                "total_advertisers",
+                "total_make_money_clicks",
                 "Total money of clicks we make",
             ))
             .expect("Failed create metric total_make_money_clicks".into()),

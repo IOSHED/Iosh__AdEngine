@@ -99,8 +99,6 @@ impl YandexGptClient {
             ],
         });
 
-        tracing::info!("Sending GPT request: {}", format!("Bearer {}", iam_token));
-
         let response = self
             .client
             .post("https://llm.api.cloud.yandex.net/foundationModels/v1/completion")
@@ -110,7 +108,14 @@ impl YandexGptClient {
             .await
             .context("Failed to send GPT request")?;
 
-        let gpt_response: schemas::GptResponse = response.json().await.context("Failed to parse GPT response")?;
+        let gpt_response: schemas::GptResponse = response
+            .json()
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed request ro ya gpt: {:#?}", e);
+                e
+            })
+            .context("Failed to parse GPT response")?;
 
         Ok(gpt_response.result.alternatives[0].message.text.clone())
     }
