@@ -1,0 +1,159 @@
+---
+test_name: Успешные клики по объявлениям
+stages:
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 10
+
+  - name: Создание рекламодателей
+    request:
+      url: "{ad_engine_url}/advertisers/bulk"
+      method: POST
+      json:
+        - advertiser_id: "90000000-0000-0000-0000-000000000001"
+          name: "user1"
+        - advertiser_id: "90000000-0000-0000-0000-000000000002"
+          name: "user2"
+    response:
+      status_code: 201
+
+  - name: Успешное создание рекламных кампаний [1]
+    request:
+      url: "{ad_engine_url}/advertisers/90000000-0000-0000-0000-000000000001/campaigns"
+      method: POST
+      json:
+        ad_text: Text 1
+        ad_title: Title
+        clicks_limit: 50
+        impressions_limit: 100
+        cost_per_clicks: 1000
+        cost_per_impressions: 1000
+        end_date: 14
+        start_date: 11
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign1_id: campaign_id
+
+  - name: Успешное создание рекламных кампаний [3]
+    request:
+      url: "{ad_engine_url}/advertisers/90000000-0000-0000-0000-000000000002/campaigns"
+      method: POST
+      json:
+        ad_text: Text 3
+        ad_title: Title
+        clicks_limit: 100
+        impressions_limit: 200
+        cost_per_clicks: 100
+        cost_per_impressions: 200
+        end_date: 12
+        start_date: 12
+        targeting: {}
+    response:
+      status_code: 201
+      save:
+        json:
+          campaign3_id: campaign_id
+  
+  - name: Создание клиентов
+    request:
+      url: "{ad_engine_url}/client/bulk"
+      method: POST
+      json:
+        - client_id: "90000000-0000-0000-0000-000000000001"
+          login: "user1"
+          location: "Moscow"
+          gender: "MALE"
+          age: 25
+    response:
+      status_code: 201
+  
+  - name: Создание ML-оценки [1]
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "90000000-0000-0000-0000-000000000001"
+        advertiser_id: "90000000-0000-0000-0000-000000000001"
+        score: 0.4
+    response:
+      status_code: 200
+
+  - name: Создание ML-оценки [3]
+    request:
+      url: "{ad_engine_url}/ml-score"
+      method: POST
+      json:
+        client_id: "90000000-0000-0000-0000-000000000001"
+        advertiser_id: "90000000-0000-0000-0000-000000000002"
+        score: 0.16
+    response:
+      status_code: 200
+
+  
+  - name: Ставим время
+    request:
+      url: "{ad_engine_url}/time/advance"
+      method: POST
+      json:
+        current_date: 12
+
+  - name: Успешное получение ads [1]
+    request:
+      url: "{ad_engine_url}/ads"
+      method: GET
+      params:
+        client_id: "90000000-0000-0000-0000-000000000001"
+    response:
+      status_code: 200
+      json:
+        ad_id: "{campaign1_id}"
+        ad_text: Text 1
+        ad_title: Title
+        advertiser_id: "90000000-0000-0000-0000-000000000001"
+
+  - name: Успешное получение ads [2]
+    request:
+      url: "{ad_engine_url}/ads"
+      method: GET
+      params:
+        client_id: "90000000-0000-0000-0000-000000000001"
+    response:
+      status_code: 200
+      json:
+        ad_id: "{campaign3_id}"
+        ad_text: Text 3
+        ad_title: Title
+        advertiser_id: "90000000-0000-0000-0000-000000000002"
+
+  - name: Успешный клик по campaign1 (user1)
+    request:
+      url: "{ad_engine_url}/ads/{campaign1_id}/click"
+      method: POST
+      json:
+        client_id: "90000000-0000-0000-0000-000000000001"
+    response:
+      status_code: 204
+
+  - name: Проверка возможности повторного клика
+    request:
+      url: "{ad_engine_url}/ads/{campaign1_id}/click"
+      method: POST
+      json:
+        client_id: "90000000-0000-0000-0000-000000000001"
+    response:
+      status_code: 204
+
+  - name: Успешный клик по campaign3 (user1)
+    request:
+      url: "{ad_engine_url}/ads/{campaign3_id}/click"
+      method: POST
+      json:
+        client_id: "90000000-0000-0000-0000-000000000001"
+    response:
+      status_code: 204

@@ -1,0 +1,61 @@
+
+---
+test_name: Успешное получение ads по рекломадателям
+stages:
+  - name: Получение статистики по рекламодателю [1]
+    request:
+      url: "{ad_engine_url}/stats/advertisers/70000000-0000-0000-0000-000000000001/campaigns"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        clicks_count: 0
+        impressions_count: 3
+        conversion: 0.0
+        spent_clicks: 0.0
+        spent_impressions: 2100.0
+        spent_total: 2100.0
+
+  - name: Получение статистики по рекламодателю [2]
+    request:
+      url: "{ad_engine_url}/stats/advertisers/70000000-0000-0000-0000-000000000002/campaigns"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        clicks_count: 0
+        impressions_count: 2
+        conversion: 0.0
+        spent_clicks: 0.0
+        spent_impressions: 400.0
+        spent_total: 400.0
+
+  - name: Получение статистики по рекламодателю [3]
+    request:
+      url: "{ad_engine_url}/stats/advertisers/80000000-0000-0000-0000-000000000001/campaigns"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        clicks_count: 0
+        impressions_count: 1
+        conversion: 0.0
+        spent_clicks: 0.0
+        spent_impressions: 1000.0
+        spent_total: 1000.0
+
+
+  - name: Получение статистики по рекламодателю 4
+    request:
+      url: "{ad_engine_url}/stats/advertisers/90000000-0000-0000-0000-000000000002/campaigns"
+      method: GET
+    response:
+      status_code: 200
+      json:
+        clicks_count: 1
+        impressions_count: 1
+        conversion: 100.0
+        spent_clicks: 100.0
+        spent_impressions: 200.0
+        spent_total: 300.0
+
