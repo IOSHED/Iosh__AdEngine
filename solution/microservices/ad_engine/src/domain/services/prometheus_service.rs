@@ -50,17 +50,39 @@ impl PrometheusService {
         }
     }
 
-    /// Increments ad visit counter with time advance label
-    pub fn increment_ads_visits(time_advance: u32) {
+    /// Increments the ad impression counter and tracks associated revenue metrics
+    /// 
+    /// # Arguments
+    /// * `time_advance` - Time window identifier for metric aggregation
+    /// * `make_money` - Revenue generated from this ad impression
+    ///
+    /// Records:
+    /// - Total ad impressions for the time window
+    /// - Revenue for the time window
+    /// - Cumulative revenue across all time windows
+    pub fn ads_visits(time_advance: u32, make_money: f64) {
         if let Ok(metrics) = infrastructure::metrics::prometheus::APP_METRICS.lock() {
             metrics.ads_visits.with_label_values(&[&time_advance.to_string()]).inc();
+            metrics.make_money_visits.with_label_values(&[&time_advance.to_string()]).add(make_money);
+            metrics.total_make_money_visits.add(make_money);
         }
     }
 
-    /// Increments ad click counter with time advance label
-    pub fn increment_ads_clicks(time_advance: u32) {
+    /// Increments the ad click counter and tracks associated revenue metrics
+    /// 
+    /// # Arguments
+    /// * `time_advance` - Time window identifier for metric aggregation  
+    /// * `make_money` - Revenue generated from this ad click
+    ///
+    /// Records:
+    /// - Total ad clicks for the time window
+    /// - Revenue for the time window 
+    /// - Cumulative revenue across all time windows
+    pub fn ads_clicks(time_advance: u32, make_money: f64) {
         if let Ok(metrics) = infrastructure::metrics::prometheus::APP_METRICS.lock() {
             metrics.ads_clicks.with_label_values(&[&time_advance.to_string()]).inc();
+            metrics.make_money_clicks.with_label_values(&[&time_advance.to_string()]).add(make_money);
+            metrics.total_make_money_clicks.add(make_money);
         }
     }
 

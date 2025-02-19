@@ -13,6 +13,11 @@ pub struct AppMetrics {
     pub total_clients: prometheus::IntGauge,
     pub total_advertisers: prometheus::IntGauge,
 
+    pub make_money_visits: prometheus::GaugeVec,
+    pub make_money_clicks: prometheus::GaugeVec,
+    pub total_make_money_visits: prometheus::Gauge,
+    pub total_make_money_clicks: prometheus::Gauge,
+
     pub http_requests_total: prometheus::IntCounterVec,
     pub http_response_time: prometheus::HistogramVec,
 }
@@ -61,6 +66,30 @@ impl AppMetrics {
                 "Total number of advertisers",
             ))
             .expect("Failed create metric total_advertisers".into()),
+
+            total_make_money_visits: prometheus::register_gauge!(prometheus::opts!(
+                "total_make_money_visits",
+                "Total money of visits we make",
+            ))
+            .expect("Failed create metric total_make_money_visits".into()),
+
+            total_make_money_clicks: prometheus::register_gauge!(prometheus::opts!(
+                "total_advertisers",
+                "Total money of clicks we make",
+            ))
+            .expect("Failed create metric total_make_money_clicks".into()),
+
+            make_money_visits: prometheus::register_gauge_vec!(
+                prometheus::opts!("make_money_visits", "Make money visits",),
+                &["time_advance"],
+            )
+            .expect("Failed create metric make_money_visits".into()),
+
+            make_money_clicks: prometheus::register_gauge_vec!(
+                prometheus::opts!("make_money_clicks", "Make money clicks",),
+                &["time_advance"],
+            )
+            .expect("Failed create metric make_money_clicks".into()),
 
             http_requests_total: prometheus::register_int_counter_vec!(
                 prometheus::opts!("http_requests_total", "HTTP requests total"),

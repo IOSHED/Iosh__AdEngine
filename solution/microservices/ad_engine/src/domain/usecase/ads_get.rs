@@ -61,9 +61,10 @@ impl<'p> AdsGetUsecase<'p> {
             .await?;
 
         campaign.view_clients_id.push(client_id);
-        self.redis_service.set_active_campaign(campaign).await?;
 
-        domain::services::PrometheusService::increment_ads_visits(advanced_time);
+        domain::services::PrometheusService::ads_visits(advanced_time, campaign.cost_per_impressions);
+
+        self.redis_service.set_active_campaign(campaign).await?;
 
         let new_texts = self
             .moderate_text_service
