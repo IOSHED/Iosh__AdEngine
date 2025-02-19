@@ -169,11 +169,11 @@
             "targets": [
                 {
                     "expr": "sum(make_money_visits) by (time_advance)",
-                    "legendFormat": "Visits Money"
+                    "legendFormat": "Visits Money ({{time_advance}})"
                 },
                 {
                     "expr": "sum(make_money_clicks) by (time_advance)",
-                    "legendFormat": "Clicks Money"
+                    "legendFormat": "Clicks Money ({{time_advance}})"
                 }
             ],
             "fieldConfig": {
@@ -217,12 +217,8 @@
             },
             "targets": [
                 {
-                    "expr": "histogram_quantile(0.95, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
-                    "legendFormat": "p95 {{method}} {{path}}"
-                },
-                {
-                    "expr": "histogram_quantile(0.50, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
-                    "legendFormat": "p50 {{method}} {{path}}"
+                    "expr": "sum(rate(http_response_time_seconds_sum[5m]) / rate(http_response_time_seconds_count[5m])) by (method, path)",
+                    "legendFormat": "{{method}} {{path}}"
                 }
             ]
         }
