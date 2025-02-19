@@ -1,138 +1,230 @@
 {
-  "title": "Ad Engine Monitoring",
-  "description": "Complete advertising metrics dashboard",
-  "tags": ["ad-engine", "monitoring"],
-  "style": "dark",
-  "timezone": "browser",
-  "editable": false,
-  "refresh": "30s",
-  "panels": [
-      {
-          "type": "stat",
-          "title": "Total Clients",
-          "gridPos": {"x":0,"y":0,"w":4,"h":4},
-          "targets": [{"expr": "total_clients"}],
-          "fieldConfig": {
-              "defaults": {
-                  "decimals": 0,
-                  "colorMode": "value",
-                  "thresholds": {"mode": "absolute", "steps": []}
-              }
-          }
-      },
-      {
-          "type": "stat",
-          "title": "Total Advertisers",
-          "gridPos": {"x":4,"y":0,"w":4,"h":4},
-          "targets": [{"expr": "total_advertisers"}],
-          "fieldConfig": {"defaults": {"decimals": 0}}
-      },
-      {
-          "type": "stat",
-          "title": "Total Money (Visits)",
-          "gridPos": {"x":8,"y":0,"w":4,"h":4},
-          "targets": [{"expr": "total_make_money_visits"}],
-          "fieldConfig": {
-              "defaults": {
-                  "decimals": 2,
-                  "unit": "currencyUSD"
-              }
-          }
-      },
-      {
-          "type": "stat",
-          "title": "Total Money (Clicks)",
-          "gridPos": {"x":12,"y":0,"w":4,"h":4},
-          "targets": [{"expr": "total_make_money_clicks"}],
-          "fieldConfig": {
-              "defaults": {
-                  "decimals": 2,
-                  "unit": "currencyUSD"
-              }
-          }
-      },
-      {
-          "type": "timeseries",
-          "title": "Campaign Operations",
-          "gridPos": {"x":0,"y":4,"w":8,"h":8},
-          "targets": [
-              {
-                  "expr": "sum(increase(campaigns_created_total[5m])) by (time_advance)",
-                  "legendFormat": "Created"
-              },
-              {
-                  "expr": "sum(increase(campaigns_updated_total[5m])) by (time_advance)",
-                  "legendFormat": "Updated"
-              },
-              {
-                  "expr": "sum(increase(campaigns_deleted_total[5m])) by (time_advance)",
-                  "legendFormat": "Deleted"
-              }
-          ],
-          "fieldConfig": {"defaults": {"decimals": 0}}
-      },
-      {
-          "type": "timeseries",
-          "title": "Ads Engagement",
-          "gridPos": {"x":8,"y":4,"w":8,"h":8},
-          "targets": [
-              {
-                  "expr": "sum(rate(ads_visits_total[5m])) by (time_advance)",
-                  "legendFormat": "Visits"
-              },
-              {
-                  "expr": "sum(rate(ads_clicks_total[5m])) by (time_advance)",
-                  "legendFormat": "Clicks"
-              }
-          ],
-          "fieldConfig": {"defaults": {"decimals": 0}}
-      },
-      {
-          "type": "timeseries",
-          "title": "Money Generation",
-          "gridPos": {"x":16,"y":4,"w":8,"h":8},
-          "targets": [
-              {
-                  "expr": "sum(make_money_visits) by (time_advance)",
-                  "legendFormat": "Visits Money"
-              },
-              {
-                  "expr": "sum(make_money_clicks) by (time_advance)",
-                  "legendFormat": "Clicks Money"
-              }
-          ],
-          "fieldConfig": {
-              "defaults": {
-                  "decimals": 2,
-                  "unit": "currencyUSD"
-              }
-          }
-      },
-      {
-          "type": "timeseries",
-          "title": "HTTP Traffic",
-          "gridPos": {"x":0,"y":12,"w":12,"h":8},
-          "targets": [{
-              "expr": "sum by(method, path) (rate(http_requests_total[5m]))",
-              "legendFormat": "{{method}} {{path}}"
-          }],
-          "fieldConfig": {"defaults": {"decimals": 0}}
-      },
-      {
-          "type": "timeseries",
-          "title": "API Performance",
-          "gridPos": {"x":12,"y":12,"w":12,"h":8},
-          "targets": [
-              {
-                  "expr": "histogram_quantile(0.95, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
-                  "legendFormat": "p95"
-              },
-              {
-                  "expr": "histogram_quantile(0.50, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
-                  "legendFormat": "p50"
-              }
-          ],
-          "fieldConfig": {"defaults": {"unit": "s"}}
-      }
-  ]
+    "title": "Ad Engine Monitoring",
+    "description": "Complete advertising metrics dashboard",
+    "tags": [
+        "ad-engine",
+        "monitoring"
+    ],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": false,
+    "refresh": "5s",
+    "panels": [
+        {
+            "type": "stat",
+            "title": "Total Clients",
+            "gridPos": {
+                "x": 0,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "targets": [
+                {
+                    "expr": "total_clients",
+                    "datasource": "Prometheus"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "colorMode": "value",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": []
+                    }
+                }
+            }
+        },
+        {
+            "type": "stat",
+            "title": "Total Advertisers",
+            "gridPos": {
+                "x": 4,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "targets": [
+                {
+                    "expr": "total_advertisers"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0,
+                    "colorMode": "value",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": []
+                    }
+                }
+            }
+        },
+        {
+            "type": "stat",
+            "title": "Total Money (Visits)",
+            "gridPos": {
+                "x": 8,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "targets": [
+                {
+                    "expr": "total_make_money_visits"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 2,
+                    "unit": "currencyUSD"
+                }
+            }
+        },
+        {
+            "type": "stat",
+            "title": "Total Money (Clicks)",
+            "gridPos": {
+                "x": 12,
+                "y": 0,
+                "w": 4,
+                "h": 4
+            },
+            "targets": [
+                {
+                    "expr": "total_make_money_clicks"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 2,
+                    "unit": "currencyUSD"
+                }
+            }
+        },
+        {
+            "type": "timeseries",
+            "title": "Campaign Operations",
+            "gridPos": {
+                "x": 0,
+                "y": 4,
+                "w": 8,
+                "h": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum(increase(campaigns_created_total[5m])) by (time_advance)",
+                    "legendFormat": "Created ({{time_advance}})"
+                },
+                {
+                    "expr": "sum(increase(campaigns_updated_total[5m])) by (time_advance)",
+                    "legendFormat": "Updated ({{time_advance}})"
+                },
+                {
+                    "expr": "sum(increase(campaigns_deleted_total[5m])) by (time_advance)",
+                    "legendFormat": "Deleted ({{time_advance}})"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0
+                }
+            }
+        },
+        {
+            "type": "timeseries",
+            "title": "Ads Engagement",
+            "gridPos": {
+                "x": 8,
+                "y": 4,
+                "w": 8,
+                "h": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum(ads_visits_total) by (time_advance)",
+                    "legendFormat": "Visits ({{time_advance}})"
+                },
+                {
+                    "expr": "sum(ads_clicks_total) by (time_advance)",
+                    "legendFormat": "Clicks ({{time_advance}})"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 0
+                }
+            }
+        },
+        {
+            "type": "timeseries",
+            "title": "Money Generation",
+            "gridPos": {
+                "x": 0,
+                "y": 12,
+                "w": 16,
+                "h": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum(make_money_visits) by (time_advance)",
+                    "legendFormat": "Visits Money"
+                },
+                {
+                    "expr": "sum(make_money_clicks) by (time_advance)",
+                    "legendFormat": "Clicks Money"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "decimals": 2,
+                    "unit": "currencyUSD"
+                }
+            }
+        },
+        {
+            "type": "timeseries",
+            "title": "HTTP Requests",
+            "gridPos": {
+                "x": 0,
+                "y": 20,
+                "w": 8,
+                "h": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum by(method, path) (increase(http_requests_total[5m]))",
+                    "legendFormat": "{{method}} {{path}}",
+                    "format": "time_series"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "none",
+                    "decimals": 0
+                }
+            }
+        },
+        {
+            "type": "timeseries",
+            "title": "Response Times",
+            "gridPos": {
+                "x": 8,
+                "y": 20,
+                "w": 8,
+                "h": 8
+            },
+            "targets": [
+                {
+                    "expr": "histogram_quantile(0.95, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
+                    "legendFormat": "p95 {{method}} {{path}}"
+                },
+                {
+                    "expr": "histogram_quantile(0.50, sum(rate(http_response_time_seconds_bucket[5m])) by (le, method, path))",
+                    "legendFormat": "p50 {{method}} {{path}}"
+                }
+            ]
+        }
+    ]
 }
