@@ -135,18 +135,25 @@ impl ModerateTextService {
         })
     }
 
-    /// Checks if text contains any abusive content.
+    /// Checks if text contains any abusive content by comparing against a list
+    /// of prohibited words.
+    ///
+    /// Performs fuzzy matching with configurable sensitivity to catch common
+    /// misspellings and character substitutions. Processes text in parallel
+    /// for better performance.
     ///
     /// # Arguments
-    /// * `text` - Slice of strings to check
-    /// * `is_activated` - Whether content moderation is enabled
-    /// * `repo` - Repository implementing `IGetAbusiveWords`
+    /// * `text` - Slice of strings to analyze for abusive content
+    /// * `is_activated` - Flag to enable/disable content moderation
+    /// * `repo` - Repository that provides the list of prohibited words
     ///
     /// # Returns
-    /// A `ServiceResult` containing:
-    /// - `Ok(true)` if abusive content found
-    /// - `Ok(false)` if no abusive content
-    /// - `Err` with the first abusive word found
+    /// A `ServiceResult` that is:
+    /// - `Ok(true)` if abusive content is detected
+    /// - `Ok(false)` if no abusive content is found
+    /// - `Err(ServiceError::Censorship)` containing the first detected abusive
+    ///   word
+    /// - `Err(ServiceError::Repository)` if fetching prohibited words fails
     pub async fn check_abusive_content<R: IGetAbusiveWords>(
         &self,
         text: &[String],
@@ -162,56 +169,66 @@ impl ModerateTextService {
             .await
             .map_err(domain::services::ServiceError::Repository)?;
 
-        let contains_abusive = text.par_iter().any(|original_str| {
-            let filtered_str = self.filter_phrase(original_str.clone());
-            self.contains_abusive_words(&filtered_str, &abusive_words)
-        });
-
-        if contains_abusive {
-            for original_str in text {
+        let contains_abusive: Vec<String> = text
+            .par_iter()
+            .filter_map(|original_str| {
                 let filtered_str = self.filter_phrase(original_str.clone());
-                if self.contains_abusive_words(&filtered_str, &abusive_words) {
-                    let abusive_word = abusive_words.iter().find(|&word| filtered_str.contains(word)).cloned();
+                self.contains_abusive_words(&filtered_str, &abusive_words)
+            })
+            .collect();
 
-                    return Err(domain::services::ServiceError::Censorship(
-                        abusive_word.unwrap_or_else(|| "".into()),
-                    ));
-                }
-            }
+        if !contains_abusive.is_empty() {
+            return Err(domain::services::ServiceError::Censorship(contains_abusive.join(",")));
         }
 
-        Ok(contains_abusive)
+        Ok(false)
     }
 
-    /// Checks if a string contains any abusive words.
+    /// Scans a string for abusive words using fuzzy matching.
+    ///
+    /// Splits input into words and checks each against the prohibited list.
+    /// Returns early if a match is found.
     ///
     /// # Arguments
-    /// * `original_str` - String to check
-    /// * `abusive_words` - List of abusive words to match against
+    /// * `original_str` - Input string to analyze
+    /// * `abusive_words` - List of prohibited words to match against
     ///
     /// # Returns
-    /// `true` if any abusive words found, `false` otherwise
-    fn contains_abusive_words(&self, original_str: &str, abusive_words: &[String]) -> bool {
+    /// `Some(String)` containing the matched word if found, `None` otherwise
+    fn contains_abusive_words(&self, original_str: &str, abusive_words: &[String]) -> Option<String> {
         let words: Vec<&str> = original_str.split_whitespace().collect();
 
-        words.iter().any(|&word| self.is_abusive_word_vec(word, abusive_words))
+        for word in words {
+            if let Some(abusive_word) = self.is_abusive_word_vec(word, abusive_words) {
+                return Some(abusive_word);
+            }
+        }
+        None
     }
 
-    /// Checks if a word matches any abusive word in the list.
+    /// Performs fuzzy matching of a word against a list of prohibited words.
+    ///
+    /// Uses Levenshtein distance with configurable sensitivity threshold to
+    /// detect variations and misspellings of prohibited words.
     ///
     /// # Arguments
-    /// * `word` - Word to check
-    /// * `abusive_words` - List of abusive words to match against
+    /// * `word` - Word to check for matches
+    /// * `abusive_words` - List of prohibited words to compare against
     ///
     /// # Returns
-    /// `true` if word matches any abusive word, `false` otherwise
-    fn is_abusive_word_vec(&self, word: &str, abusive_words: &[String]) -> bool {
+    /// `Some(String)` with the normalized word if a match is found, `None`
+    /// otherwise
+    fn is_abusive_word_vec(&self, word: &str, abusive_words: &[String]) -> Option<String> {
         let cleaned_word = word.to_lowercase().replace(' ', "");
 
-        abusive_words.iter().any(|abusive_word| {
+        if abusive_words.iter().any(|abusive_word| {
             self.levenshtein_distance(&cleaned_word, abusive_word)
                 <= (abusive_word.len() as f32 * self.sensitivity).round() as usize
-        })
+        }) {
+            return Some(cleaned_word);
+        }
+
+        None
     }
 
     /// Normalizes text by replacing common character substitutions.
@@ -372,7 +389,7 @@ mod tests {
 
         let result = service.check_abusive_content(&text, true, repo).await;
 
-        assert_eq!(result, Err(domain::services::ServiceError::Censorship("плохо".into())));
+        assert_eq!(result, Err(domain::services::ServiceError::Censorship("плохов".into())));
 
         let repo = MockRepo {
             words: vec!["плохо".to_string()],

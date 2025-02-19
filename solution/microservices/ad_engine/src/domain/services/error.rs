@@ -29,7 +29,7 @@ pub enum ServiceError {
     /// Error that occurs when content is flagged by content
     /// moderation/censorship rules. Contains details about which content
     /// was not acceptable.
-    #[error("Not acceptable word - {0}")]
+    #[error("Not acceptable words - {0}")]
     Censorship(String),
 
     /// Error that occurs during payload processing or validation.
