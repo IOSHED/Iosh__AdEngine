@@ -48,3 +48,6 @@
 | **Чистота кода `5%`**                            | +                                                      | **3**             |
 | **Обоснованность решения `5%`**                  | +                                                      | **3**             |
 | **Итого**                                        |                                                       | **62**            |
+write docs for rust and utoipa schema (description, title, example, etc) as senior
+write rust docs as senior
+update tracing::instrument as senior
