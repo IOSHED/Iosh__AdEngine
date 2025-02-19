@@ -46,7 +46,7 @@ pub async fn ads_handler(
         .execute(pagination.client_id)
         .await?;
 
-    Ok(actix_web::HttpResponse::Created().json(ads))
+    Ok(actix_web::HttpResponse::Ok().json(ads))
 }
 
 #[utoipa::path(
