@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{domain, infrastructure};
 
@@ -173,7 +174,7 @@ impl AdsService {
         R: super::repository::IGetMlScores,
     {
         let profits: Vec<f64> = suitable_campaigns
-            .iter()
+            .par_iter()
             .map(|campaign| {
                 let remaining_impressions = campaign.impressions_limit as f64 - campaign.view_clients_id.len() as f64;
                 let remaining_clicks = campaign.clicks_limit as f64 - campaign.click_clients_id.len() as f64;
