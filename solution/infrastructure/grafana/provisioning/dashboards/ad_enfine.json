@@ -11,7 +11,7 @@
     "refresh": "5s",
     "panels": [
         {
-            "type": "stat",
+            "type": "gauge",
             "title": "Total Clients",
             "gridPos": {
                 "x": 0,
@@ -37,7 +37,7 @@
             }
         },
         {
-            "type": "stat",
+            "type": "gauge",
             "title": "Total Advertisers",
             "gridPos": {
                 "x": 4,
