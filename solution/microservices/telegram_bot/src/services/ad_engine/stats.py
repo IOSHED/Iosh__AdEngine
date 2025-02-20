@@ -8,7 +8,7 @@ from src.services.http_serves_parser import HttpServesParser
 class StatsService(HttpServesParser):
     @classmethod
     async def get_stat_campaign(cls, campaign_id: uuid.UUID) -> Optional[StatResponse]:
-        url = f"{cls._base_url}/stats/campaigns/{campaign_id}"
+        url = f"{cls._host_url}/stats/campaigns/{campaign_id}"
         try:
             response = await cls._make_request(method="GET", url=url)
             if response is None:
@@ -24,7 +24,7 @@ class StatsService(HttpServesParser):
     async def get_stat_campaign_daily(
         cls, campaign_id: uuid.UUID
     ) -> Optional[List[StatDailyResponse]]:
-        url = f"{cls._base_url}/stats/campaigns/{campaign_id}/daily"
+        url = f"{cls._host_url}/stats/campaigns/{campaign_id}/daily"
         try:
             response = await cls._make_request(method="GET", url=url)
             if response is None:
@@ -40,7 +40,7 @@ class StatsService(HttpServesParser):
     async def get_stat_advertiser_daily(
         cls, advertiser_id: uuid.UUID
     ) -> Optional[List[StatDailyResponse]]:
-        url = f"{cls._base_url}/stats/advertisers/{advertiser_id}/campaigns/daily"
+        url = f"{cls._host_url}/stats/advertisers/{advertiser_id}/campaigns/daily"
         try:
             response = await cls._make_request(method="GET", url=url)
             if response is None:
@@ -56,7 +56,7 @@ class StatsService(HttpServesParser):
     async def get_stat_advertiser(
         cls, advertiser_id: uuid.UUID
     ) -> Optional[StatResponse]:
-        url = f"{cls._base_url}/stats/advertisers/{advertiser_id}"
+        url = f"{cls._host_url}/stats/advertisers/{advertiser_id}"
         try:
             response = await cls._make_request(method="GET", url=url)
             if response is None:
