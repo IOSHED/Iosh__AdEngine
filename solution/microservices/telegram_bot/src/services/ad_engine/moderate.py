@@ -8,12 +8,12 @@ from src.services.http_serves_parser import HttpServesParser
 class ModerateService(HttpServesParser):
     @classmethod
     async def set_moderate_settings(cls, settings: ModerateSchema) -> ModerateSchema:
-        url = f"{cls._base_url}/moderate/config"
+        url = f"{cls._host_url}/moderate/config"
         try:
             response = await cls._make_request(
                 method="POST", url=url, json_body=settings.model_dump()
             )
-            return ClientProfileSchema(**response.json())
+            return ModerateSchema(**response.json())
 
         except Exception as e:
             cls._log_error(e)
@@ -21,7 +21,7 @@ class ModerateService(HttpServesParser):
 
     @classmethod
     async def get_black_list_words(cls) -> List[str]:
-        url = f"{cls._base_url}/moderate/list"
+        url = f"{cls._host_url}/moderate/list"
 
         try:
             response = await cls._make_request(method="GET", url=url)
@@ -33,7 +33,7 @@ class ModerateService(HttpServesParser):
 
     @classmethod
     async def add_black_list_words(cls, words: List[str]) -> None:
-        url = f"{cls._base_url}/moderate/list"
+        url = f"{cls._host_url}/moderate/list"
 
         try:
             _response = await cls._make_request(method="POST", url=url, json_body=words)
@@ -43,7 +43,7 @@ class ModerateService(HttpServesParser):
 
     @classmethod
     async def delete_black_list_words(cls, words: List[str]) -> None:
-        url = f"{cls._base_url}/moderate/list"
+        url = f"{cls._host_url}/moderate/list"
 
         try:
             _response = await cls._make_request(

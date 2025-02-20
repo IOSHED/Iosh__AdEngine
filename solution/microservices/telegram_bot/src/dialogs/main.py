@@ -3,9 +3,10 @@ from aiogram_dialog import (
     Dialog,
     Window,
 )
-from aiogram_dialog.widgets.kbd import Back, SwitchTo
+from aiogram_dialog.widgets.kbd import Back, Start, SwitchTo
 from aiogram_dialog.widgets.text import Const
 
+from src.dialogs.moderate_words import ModerateWordsDialog
 from src.handlers.time import TimeHandler
 from src.keyboards.main import BTN_COUNTER_TIME_ADVANCE
 from src.messages.main import MSG_ADMIN_PANEL, MSG_MAIN
@@ -17,7 +18,6 @@ class MainDialog(StatesGroup):
     advertiser = State()
     admin = State()
     set_time_advance = State()
-    moderate = State()
 
 
 main_dialog = Dialog(
@@ -42,10 +42,10 @@ main_dialog = Dialog(
             id="go_to_time_advance",
             state=MainDialog.set_time_advance,
         ),
-        SwitchTo(
+        Start(
             Const("🤬 Модерация текста"),
             id="go_to_moderate",
-            state=MainDialog.moderate,
+            state=ModerateWordsDialog.main,
         ),
         SwitchTo(Const("🏠 На главную"), id="go_to_home", state=MainDialog.main),
         state=MainDialog.admin,
@@ -60,10 +60,5 @@ main_dialog = Dialog(
         ),
         SwitchTo(Const("🏠 На главную"), id="go_to_home", state=MainDialog.main),
         state=MainDialog.set_time_advance,
-    ),
-    Window(
-        Const("🤬 Модерация текста"),
-        SwitchTo(Const("🏠 На главную"), id="go_to_home", state=MainDialog.main),
-        state=MainDialog.moderate,
     ),
 )

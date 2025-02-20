@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
+import requests
 
 from src.config import SETTINGS
 
@@ -35,6 +36,17 @@ class HttpServesParser:
 
                 elif method == "GET":
                     response = await client_session.get(url, headers=cls._headers)
+
+                elif method == "DELETE":
+                    response = requests.delete(
+                        url,
+                        data=json_body,
+                        headers=cls._headers,
+                    )
+                    if response.status_code == 404:
+                        return None
+                    return response
+
                 else:
                     raise ValueError(f"Unsupported HTTP method: {method}")
 

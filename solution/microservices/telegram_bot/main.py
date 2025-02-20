@@ -18,6 +18,7 @@ async def main() -> Tuple[Dispatcher, Bot]:
     logging.info("Starting bot")
 
     from src.dialogs.main import main_dialog
+    from src.dialogs.moderate_words import moderate_words_dialog
     from src.dialogs.user_info import user_info_dialog
     from src.entry_point import start_router
     from src.infra.redis_client import RedisClient
@@ -39,6 +40,7 @@ async def main() -> Tuple[Dispatcher, Bot]:
 
     dp.include_routers(
         start_router,
+        moderate_words_dialog,
         main_dialog,
         user_info_dialog,
     )
