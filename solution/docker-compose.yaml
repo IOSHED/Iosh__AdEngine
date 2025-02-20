@@ -1,0 +1,31 @@
+
+services:
+  python_telegram_bot:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: python_telegram_bot
+
+  rust_ad_engine:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: rust_ad_engine
+
+  postgres_database:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: postgres_database
+
+  redis_database:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: redis_database
+
+  prometheus:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: ./deploy/docker-compose.prod.yaml
+      service: grafana

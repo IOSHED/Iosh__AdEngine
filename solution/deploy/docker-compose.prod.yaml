@@ -9,11 +9,11 @@ services:
     volumes:
       - ../microservices/telegram_bot/log:/app/log
     environment:
-      - APP_ENVIRONMENT=local
+      - APP_ENVIRONMENT=prod
       - APP__BOT__TOKEN=7574946727:AAF83sGHMt-HUSKDLK0EE2BpclaGlmXbpm0
       - APP__REDIS__DB=0
       - APP__REDIS__ADDRESS=redis_database:6379
-  
+      
   rust_ad_engine:
     extends:
       file: docker-compose.base.yaml
@@ -23,8 +23,8 @@ services:
     volumes:
       - ../microservices/ad_engine/log:/app/log
     environment:
-      - APP_ENVIRONMENT=local
-      - APP__HTTP_SERVER__HOST=0.0.0.0
+      - APP_ENVIRONMENT=prod
+      - APP__HTTP_SERVER__HOST=127.0.0.1
       - APP__HTTP_SERVER__PORT=8000
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
       - APP__DATABASE__REDIS__HOST=redis_database
@@ -34,7 +34,7 @@ services:
       - APP__YANDEX__API_KEY=y0__xClkZbNBhjB3RMg47eyqBJ5uyGj-8DJGsNz3LGePPhZVOGWTQ
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/ping"]
 
   postgres_database:
     extends:
@@ -81,4 +81,3 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: 44541
       GF_FEATURE_TOGGLES_ENABLE: "publicDashboards"
-    
