@@ -8,3 +8,6 @@ logger:
 redis:
   address: localhost:6379
   db: 0
+
+ad_engine:
+  base_url: http://ad_engine_service_url:8000/api

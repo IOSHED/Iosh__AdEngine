@@ -57,6 +57,16 @@ class LoggerConfig(BaseModel):
     log_dir: str = "./log"
 
 
+class AdEngineConfig(BaseModel):
+    """Ad Engine configuration model.
+
+    Attributes:
+        base_url (str): URL of the Ad Engine service
+    """
+
+    base_url: str
+
+
 class Config(BaseSettings):
     """Main application configuration.
 
@@ -70,6 +80,7 @@ class Config(BaseSettings):
     """
 
     app_environment: AppEnviron
+    ad_engine: AdEngineConfig
     redis: RedisConfig
     logger: LoggerConfig
     bot: BotConfig
