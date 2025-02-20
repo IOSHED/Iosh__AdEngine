@@ -30,11 +30,11 @@ class HttpServesParser:
             try:
                 if method == "POST":
                     response = await client_session.post(
-                        url, json=json_body, headers=cls.headers, files=files
+                        url, json=json_body, headers=cls._headers, files=files
                     )
 
                 elif method == "GET":
-                    response = await client_session.get(url, headers=cls.headers)
+                    response = await client_session.get(url, headers=cls._headers)
                 else:
                     raise ValueError(f"Unsupported HTTP method: {method}")
 

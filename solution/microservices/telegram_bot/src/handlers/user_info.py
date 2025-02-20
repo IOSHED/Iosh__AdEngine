@@ -1,13 +1,14 @@
 import logging
-from datetime import date
 from typing import Any, Dict
 
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Calendar
 
-from src.messages.base import INTERESTS
+from src.services.ad_engine.bundle_utils import generate_uuid_from_id
+from src.services.ad_engine.client import ClientService
+from src.services.ad_engine.schemas.client import ClientProfileSchema
+from src.services.location_service import LocationService
 
 
 class UserInfoHandler:
@@ -18,23 +19,31 @@ class UserInfoHandler:
     """
 
     @classmethod
-    async def get_list_interests(
+    async def create_user(
         cls,
-        _dialog_manager: DialogManager,
-        **_kwargs,
-    ) -> Dict[str, Any]:
-        """Retrieve the list of available interests.
+        callback: CallbackQuery,
+        _widget: Any,
+        manager: DialogManager,
+    ) -> None:
+        try:
+            create_user = ClientProfileSchema(
+                client_id=str(generate_uuid_from_id(callback.from_user.id)),
+                login=f"{callback.from_user.first_name} {callback.from_user.last_name}",
+                location=manager.dialog_data["location"]["city"],
+                gender=manager.dialog_data["gender"],
+                age=manager.dialog_data["age"],
+            )
 
-        Args:
-            _dialog_manager: Dialog manager instance (unused)
-            **_kwargs: Additional keyword arguments
+            logging.debug(f"Create user: {create_user}")
 
-        Returns:
-            Dict containing the list of interests
-        """
-        return {
-            "list_interests": INTERESTS,
-        }
+            await ClientService.create_client(create_user)
+
+        except Exception as e:
+            logging.error(f"Error creating user: {e}")
+            await manager.back()
+            callback.answer(
+                "❌ Произошла ошибка при создании пользователя, попробуйте позже..."
+            )
 
     @classmethod
     async def get_view_form_user(
@@ -42,41 +51,30 @@ class UserInfoHandler:
         dialog_manager: DialogManager,
         **_kwargs,
     ) -> Dict[str, Any]:
-        """Generate a user profile view based on collected dialog data.
-
-        Args:
-            dialog_manager: Dialog manager containing user data
-            **_kwargs: Additional keyword arguments
-
-        Returns:
-            Dict containing formatted user profile information
-        """
-
-        return {}
+        city, country = await LocationService.get_city_country(
+            dialog_manager.dialog_data["location"]["latitude"],
+            dialog_manager.dialog_data["location"]["longitude"],
+        )
+        dialog_manager.dialog_data["location"]["city"] = city
+        dialog_manager.dialog_data["location"]["country"] = country
+        return {
+            "age": dialog_manager.dialog_data["age"],
+            "gender": "🚹 Мужчина"
+            if dialog_manager.dialog_data["gender"] == "MALE"
+            else "🚺 Женщина",
+            "city": city,
+            "country": country,
+        }
 
     @classmethod
-    async def save_birth_day(
+    async def save_age(
         cls,
         callback: CallbackQuery,
-        _widget: Calendar,
         manager: DialogManager,
-        selected_date: date,
     ) -> None:
-        """Save user's birth date and advance dialog.
-
-        Args:
-            callback: Callback query from the calendar widget
-            _widget: Calendar widget instance
-            manager: Dialog manager instance
-            selected_date: Selected date from calendar
-
-        Returns:
-            None
-        """
-        logging.debug(f"Parse birth_day: {selected_date}")
-        manager.dialog_data["birth_day"] = selected_date.isoformat()
-        await callback.answer(str(selected_date))
-        await manager.next()
+        age = manager.find("counter_getting_age").get_value()
+        logging.debug(f"Parse save_age: {age}")
+        manager.dialog_data["age"] = age
 
     @classmethod
     async def save_location(
@@ -85,16 +83,6 @@ class UserInfoHandler:
         _message_input: MessageInput,
         manager: DialogManager,
     ) -> None:
-        """Save user's location coordinates and advance dialog.
-
-        Args:
-            message: Message containing location data
-            _message_input: Message input widget instance
-            manager: Dialog manager instance
-
-        Returns:
-            None
-        """
         logging.debug(f"Parse location: {message.location}")
         manager.dialog_data["location"] = {
             "latitude": message.location.latitude,
@@ -103,48 +91,15 @@ class UserInfoHandler:
         await manager.next()
 
     @classmethod
-    async def save_interests(
+    async def save_gender(
         cls,
         _callback: CallbackQuery,
         _widget: Any,
         manager: DialogManager,
     ) -> None:
-        """Save user's selected interests and advance dialog.
-
-        Args:
-            _callback: Callback query from interest selection
-            _widget: Widget instance
-            manager: Dialog manager instance
-
-        Returns:
-            None
-        """
-        selected_ids = manager.find("getting_list_interests").get_checked()
-        logging.debug(f"Parse interests: {selected_ids}")
-        manager.dialog_data["interests"] = selected_ids
-        await manager.next()
-
-    @classmethod
-    async def save_bio(
-        cls,
-        message: Message,
-        _source: Any,
-        manager: DialogManager,
-        *_args,
-        **_kwargs,
-    ) -> None:
-        """Save user's biography text and advance dialog.
-
-        Args:
-            message: Message containing bio text
-            _source: Source widget instance
-            manager: Dialog manager instance
-            *_args: Additional positional arguments
-            **_kwargs: Additional keyword arguments
-
-        Returns:
-            None
-        """
-        logging.debug(f"Parse bio: {message.text}")
-        manager.dialog_data["bio"] = message.text
-        await manager.next()
+        selected_gender = manager.find("getting_user_gender").get_checked()
+        logging.debug(f"Parse interests: {selected_gender}")
+        if selected_gender is None:
+            await manager.back()
+        else:
+            manager.dialog_data["gender"] = selected_gender

@@ -1,10 +1,8 @@
-import uuid
-
 from pydantic import BaseModel, Field, constr
 
 
 class ClientProfileSchema(BaseModel):
-    client_id: uuid.UUID
+    client_id: str
     login: str
     location: str
     gender: constr(pattern=r"^(MALE|FEMALE)$")

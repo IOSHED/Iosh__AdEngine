@@ -7,6 +7,9 @@ from aiogram_dialog import (
 )
 
 from src.dialogs.main import MainDialog
+from src.dialogs.user_info import UserInfo
+from src.services.ad_engine.bundle_utils import generate_uuid_from_id
+from src.services.ad_engine.client import ClientService
 
 start_router = Router()
 
@@ -27,5 +30,12 @@ async def start(message: Message, dialog_manager: DialogManager) -> None:
     Returns:
         None: This function doesn't return anything but starts a dialog flow
     """
-    state = MainDialog.preview
+    state = (
+        MainDialog.main
+        if await ClientService.get_client_by_id(
+            generate_uuid_from_id(message.from_user.id)
+        )
+        is not None
+        else UserInfo.get_age
+    )
     await dialog_manager.start(state, mode=StartMode.NORMAL)

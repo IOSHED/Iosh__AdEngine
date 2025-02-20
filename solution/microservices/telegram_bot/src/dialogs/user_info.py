@@ -3,41 +3,40 @@ from enum import Enum
 from aiogram.filters.state import State, StatesGroup
 from aiogram.types import ContentType
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.input import MessageInput, TextInput
-from aiogram_dialog.widgets.kbd import Button, Calendar, Next
+from aiogram_dialog.widgets.input import MessageInput
+from aiogram_dialog.widgets.kbd import Next, Start, SwitchTo
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.text import Const
 
-from src.adapters.getting_executor import GettingExecutor
+from src.dialogs.main import MainDialog
 from src.handlers.calc_steps import CalkStepsHandler
 from src.handlers.user_info import UserInfoHandler
-from src.keyboards.main import BTN_GO_TO_HOME
-from src.keyboards.user_info import BTN_GETTING_LOCATION, KEYBOARD_GETTING_INTERESTS
+from src.keyboards.user_info import (
+    BTN_GET_AGE,
+    BTN_GET_USER_GENDER,
+    BTN_GETTING_LOCATION,
+)
 from src.messages.base import PLACEHOLDER_FOR_MURK_UP
 from src.messages.user_info import (
     MSG_FIRST,
     MSG_GET_AGE,
-    MSG_GET_BIO,
-    MSG_GET_INTERESTS,
+    MSG_GET_GENDER,
     MSG_GET_LOCATION,
     MSG_VIEW_FORM,
 )
-from src.validators.user_bio import BioValidator
 
 
 class StepsAddInfo(Enum):
-    BIRTH_DAY = "birth_day"
+    AGE = "age"
+    GENDER = "gender"
     LOCATION = "location"
-    INTERESTS = "interests"
-    BIO = "bio"
 
 
 class UserInfo(StatesGroup):
     preview = State()
-    get_birth_day = State()
+    get_age = State()
+    get_gender = State()
     get_location = State()
-    get_interests = State()
-    get_bio = State()
     view_form = State()
 
 
@@ -49,9 +48,25 @@ user_info_dialog = Dialog(
     ),
     Window(
         MSG_GET_AGE,
-        Calendar(id="calendar", on_click=UserInfoHandler.save_birth_day),
+        BTN_GET_AGE,
+        Next(
+            Const("✅ Продолжить"),
+            id="return_to_gender",
+            on_click=UserInfoHandler.save_age,
+        ),
         getter=CalkStepsHandler(StepsAddInfo).get_steps,
-        state=UserInfo.get_birth_day,
+        state=UserInfo.get_age,
+    ),
+    Window(
+        MSG_GET_GENDER,
+        BTN_GET_USER_GENDER,
+        Next(
+            Const("✅ Продолжить"),
+            id="return_to_location",
+            on_click=UserInfoHandler.save_gender,
+        ),
+        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        state=UserInfo.get_gender,
     ),
     Window(
         MSG_GET_LOCATION,
@@ -68,33 +83,16 @@ user_info_dialog = Dialog(
         state=UserInfo.get_location,
     ),
     Window(
-        MSG_GET_INTERESTS,
-        KEYBOARD_GETTING_INTERESTS,
-        Button(
-            Const("✅ Продолжить"),
-            id="return_to_bio",
-            on_click=UserInfoHandler.save_interests,
-        ),
-        getter=GettingExecutor(
-            CalkStepsHandler(StepsAddInfo).get_steps, UserInfoHandler.get_list_interests
-        ).execute,
-        state=UserInfo.get_interests,
-    ),
-    Window(
-        MSG_GET_BIO,
-        Next(Const("⏩ Пропустить"), id="skip_enter_bio"),
-        TextInput(
-            id="bio",
-            type_factory=BioValidator.validate,
-            on_success=UserInfoHandler.save_bio,
-            on_error=BioValidator.error,
-        ),
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
-        state=UserInfo.get_bio,
-    ),
-    Window(
         MSG_VIEW_FORM,
-        BTN_GO_TO_HOME,
+        Start(
+            Const("🏠 На главную"),
+            id="go_to_home",
+            state=MainDialog.main,
+            on_click=UserInfoHandler.create_user,
+        ),
+        SwitchTo(
+            Const("🔙 Заполнить заново"), id="return_to_age", state=UserInfo.get_age
+        ),
         getter=UserInfoHandler.get_view_form_user,
         state=UserInfo.view_form,
     ),

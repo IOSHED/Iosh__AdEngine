@@ -10,4 +10,4 @@ redis:
   db: 0
 
 ad_engine:
-  base_url: http://ad_engine_service_url:8000/api
+  base_url: http://localhost:8000/api
