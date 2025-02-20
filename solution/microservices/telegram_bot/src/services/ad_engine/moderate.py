@@ -1,6 +1,5 @@
 from typing import List
 
-from src.services.ad_engine.schemas.client import ClientProfileSchema
 from src.services.ad_engine.schemas.moderate import ModerateSchema
 from src.services.http_serves_parser import HttpServesParser
 

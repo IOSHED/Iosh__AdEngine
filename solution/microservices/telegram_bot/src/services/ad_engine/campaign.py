@@ -15,7 +15,7 @@ class CampaignService(HttpServesParser):
     async def create_campaign(
         cls, campaign: CampaignsCreateRequest, advertiser_id: uuid.UUID
     ) -> Optional[CampaignSchema]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns"
         try:
             response = await cls._make_request(
                 method="POST", url=url, json_body=campaign
@@ -34,7 +34,7 @@ class CampaignService(HttpServesParser):
     async def get_campaigns(
         cls, advertiser_id: uuid.UUID, size: int, page: int
     ) -> Optional[List[CampaignSchema]]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns"
         try:
             response = await cls._make_request(
                 method="GET", url=url, params={"size": size, "page": page}
@@ -55,7 +55,7 @@ class CampaignService(HttpServesParser):
     async def get_campaign(
         cls, advertiser_id: uuid.UUID, campaign_id: uuid.UUID
     ) -> Optional[List[CampaignSchema]]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
         try:
             response = await cls._make_request(method="GET", url=url)
 
@@ -76,7 +76,7 @@ class CampaignService(HttpServesParser):
         advertiser_id: uuid.UUID,
         campaign_id: uuid.UUID,
     ) -> Optional[CampaignSchema]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
         try:
             response = await cls._make_request(
                 method="PUT", url=url, json_body=campaign
@@ -95,7 +95,7 @@ class CampaignService(HttpServesParser):
     async def delete_campaign(
         cls, advertiser_id: uuid.UUID, campaign_id: uuid.UUID
     ) -> Optional[str]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}"
         try:
             response = await cls._make_request(method="DELETE", url=url)
 
@@ -115,7 +115,7 @@ class CampaignService(HttpServesParser):
         advertiser_id: uuid.UUID,
         campaign_id: uuid.UUID,
     ) -> Optional[CampaignSchema]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/generate_test"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/generate_test"
         try:
             response = await cls._make_request(
                 method="PATCH", url=url, json_body=text_generation

@@ -8,7 +8,7 @@ from src.services.http_serves_parser import HttpServesParser
 class AdvertiserService(HttpServesParser):
     @classmethod
     async def create_advertiser(cls, advertiser: AdvertiserSchema) -> AdvertiserSchema:
-        url = f"{cls._base_url}/advertiser/bulk"
+        url = f"{cls._host_url}/advertiser/bulk"
         try:
             response = await cls._make_request(
                 method="POST", url=url, json_body=[advertiser.model_dump()]
@@ -25,7 +25,7 @@ class AdvertiserService(HttpServesParser):
     async def get_advertiser_by_id(
         cls, advertiser_id: uuid.UUID
     ) -> Optional[AdvertiserSchema]:
-        url = f"{cls._base_url}/advertiser/{advertiser_id}"
+        url = f"{cls._host_url}/advertiser/{advertiser_id}"
 
         try:
             response = await cls._make_request(method="GET", url=url)

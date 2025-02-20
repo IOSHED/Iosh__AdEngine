@@ -5,7 +5,7 @@ from src.services.http_serves_parser import HttpServesParser
 class MlScoreService(HttpServesParser):
     @classmethod
     async def create_ml_score(cls, ml_score: MlScoreRequest) -> None:
-        url = f"{cls._base_url}/api/ml_score/bulk"
+        url = f"{cls._host_url}/api/ml_score/bulk"
         try:
             _response = await cls._make_request(
                 method="POST", url=url, json_body=ml_score.model_dump()

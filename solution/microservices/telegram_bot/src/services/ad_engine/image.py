@@ -16,7 +16,7 @@ class ImageService(HttpServesParser):
         campaign_id: uuid.UUID,
         images: List[(str, io.BytesIO, str)],
     ) -> Optional[str]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images"
         try:
             files = [
                 ("file", (f"image_{file_name}.jpg", image_bytes, mime_type))
@@ -36,7 +36,7 @@ class ImageService(HttpServesParser):
     async def get_file_names(
         cls, advertiser_id: uuid.UUID, campaign_id: uuid.UUID
     ) -> Optional[List[str]]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images"
         try:
             response = await cls._make_request(method="GET", url=url)
 
@@ -52,7 +52,7 @@ class ImageService(HttpServesParser):
     async def get_image(
         cls, advertiser_id: uuid.UUID, campaign_id: uuid.UUID, file_name: str
     ) -> Optional[io.BytesIO]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}"
         try:
             response = await cls._make_request(method="GET", url=url)
 
@@ -69,7 +69,7 @@ class ImageService(HttpServesParser):
     async def delete_file(
         cls, advertiser_id: uuid.UUID, campaign_id: uuid.UUID, file_name: str
     ) -> Optional[List[str]]:
-        url = f"{cls._base_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}"
         try:
             response = await cls._make_request(method="DELETE", url=url)
 

@@ -7,7 +7,7 @@ from src.services.http_serves_parser import HttpServesParser
 class PingService(HttpServesParser):
     @classmethod
     async def get_ping(cls, client_id: uuid.UUID) -> float:
-        url = f"{cls._base_url}/ping"
+        url = f"{cls._host_url}/ping"
 
         start_time = time.time()
 
