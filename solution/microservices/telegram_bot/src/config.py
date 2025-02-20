@@ -57,26 +57,6 @@ class LoggerConfig(BaseModel):
     log_dir: str = "./log"
 
 
-class RabbitMq(BaseModel):
-    """RabbitMQ connection configuration.
-
-    Attributes:
-        host (str): RabbitMQ server hostname
-        port (int): RabbitMQ server port
-        port_api (int): RabbitMQ API server port
-        username (str): RabbitMQ authentication username
-        password (str): RabbitMQ authentication password
-        queue_name (str): Name of the queue to use
-    """
-
-    host: str
-    port: int
-    port_api: int
-    username: str
-    password: str
-    queue_name: str
-
-
 class Config(BaseSettings):
     """Main application configuration.
 
@@ -85,14 +65,12 @@ class Config(BaseSettings):
     Attributes:
         app_environment (AppEnviron): Current application environment
         redis (RedisConfig): Redis connection settings
-        rabbit_mq (RabbitMq): RabbitMQ connection settings
         logger (LoggerConfig): Logging configuration
         bot (BotConfig): Bot-specific settings
     """
 
     app_environment: AppEnviron
     redis: RedisConfig
-    rabbit_mq: RabbitMq
     logger: LoggerConfig
     bot: BotConfig
 

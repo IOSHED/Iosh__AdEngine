@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Your task is to develop an advertising engine with tg that will show users the most suitable ads."
 authors = ["IOSHED <iveninvala7@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -17,7 +16,6 @@ httpx = "^0.28.1"
 aiohttp = "^3.11.12"
 aio-pika = "^9.5.4"
 requests = "^2.32.3"
-
 
 [build-system]
 requires = ["poetry-core"]

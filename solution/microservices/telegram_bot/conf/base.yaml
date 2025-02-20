@@ -1,0 +1,12 @@
+
+
+logger:
+  max_level_cmd: "info"
+  max_level_file: "info"
+  max_level_error_file: "warn"
+  log_dir: "./log"
+
+redis:
+  address: XXXXXXX:XXXX
+  db: 999
+  

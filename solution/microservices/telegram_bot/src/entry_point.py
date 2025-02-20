@@ -7,8 +7,6 @@ from aiogram_dialog import (
 )
 
 from src.dialogs.main import MainDialog
-from src.dialogs.user_info import UserInfo
-from src.services.travel_service.user import TravelServiceUser
 
 start_router = Router()
 
@@ -29,9 +27,5 @@ async def start(message: Message, dialog_manager: DialogManager) -> None:
     Returns:
         None: This function doesn't return anything but starts a dialog flow
     """
-    state = (
-        MainDialog.main
-        if await TravelServiceUser.are_exist_by_id(message.from_user.id)
-        else UserInfo.preview
-    )
+    state = MainDialog.preview
     await dialog_manager.start(state, mode=StartMode.NORMAL)

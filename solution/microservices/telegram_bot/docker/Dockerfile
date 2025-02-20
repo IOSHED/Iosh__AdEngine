@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.cache \
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 
-RUN -mount=type=cache,target=$POETRY_HOME/pypoetry/cache \
+RUN --mount=type=cache,target=$POETRY_HOME/pypoetry/cache \
     poetry install --no-dev
 
 FROM base as production
@@ -29,4 +29,3 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 COPY . .
 
 ENTRYPOINT ["python", "main.py"]
-

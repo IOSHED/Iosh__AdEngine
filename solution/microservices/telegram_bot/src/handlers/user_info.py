@@ -8,8 +8,6 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Calendar
 
 from src.messages.base import INTERESTS
-from src.services.travel_service.schemas import UserCreateSchema
-from src.services.travel_service.user import TravelServiceUser
 
 
 class UserInfoHandler:
@@ -53,26 +51,8 @@ class UserInfoHandler:
         Returns:
             Dict containing formatted user profile information
         """
-        create_schema = UserCreateSchema(
-            telegram_id=dialog_manager.event.from_user.id,
-            birth_day=dialog_manager.dialog_data["birth_day"],
-            latitude=dialog_manager.dialog_data["location"]["latitude"],
-            longitude=dialog_manager.dialog_data["location"]["longitude"],
-            interests=dialog_manager.dialog_data.get("interests", None),
-            bio=dialog_manager.dialog_data.get("bio", None),
-        )
-        user_profile = await TravelServiceUser.creating_user(create_schema)
-        str_interests = (
-            ", ".join(user_profile.interests) if user_profile.interests else "ничего"
-        )
 
-        return {
-            "birth_day": user_profile.birth_day,
-            "city": user_profile.city,
-            "country": user_profile.country,
-            "str_interests": str_interests,
-            "bio": user_profile.bio or "Отсутвует...",
-        }
+        return {}
 
     @classmethod
     async def save_birth_day(
