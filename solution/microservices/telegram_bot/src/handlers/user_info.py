@@ -69,7 +69,7 @@ class UserInfoHandler:
     @classmethod
     async def save_age(
         cls,
-        callback: CallbackQuery,
+        _callback: CallbackQuery,
         manager: DialogManager,
     ) -> None:
         age = manager.find("counter_getting_age").get_value()

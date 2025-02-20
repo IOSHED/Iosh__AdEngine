@@ -5,7 +5,7 @@ from src.services.http_serves_parser import HttpServesParser
 class TimeService(HttpServesParser):
     @classmethod
     async def set(cls, time_advance: int) -> int:
-        url = f"{cls._base_url}/time/advance"
+        url = f"{cls._host_url}/time/advance"
         try:
             time_advance = TimeAdvanceRequest(current_date=time_advance)
             response = await cls._make_request(
