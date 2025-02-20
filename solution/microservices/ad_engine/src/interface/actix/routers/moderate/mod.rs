@@ -71,8 +71,9 @@ pub async fn moderate_add_list_handler(
 #[tracing::instrument(name = "moderate_get_list_handler", skip(redis_pool))]
 pub async fn moderate_get_list_handler(
     redis_pool: actix_web::web::Data<infrastructure::database_connection::redis::RedisPool>,
+    db_pool: actix_web::web::Data<infrastructure::database_connection::sqlx_lib::SqlxPool>,
 ) -> interface::actix::ActixResult<actix_web::HttpResponse> {
-    let words = domain::usecase::ModerateGetListUsecase::new(redis_pool.get_ref())
+    let words = domain::usecase::ModerateGetListUsecase::new(redis_pool.get_ref(), db_pool.get_ref())
         .get_list()
         .await?;
 

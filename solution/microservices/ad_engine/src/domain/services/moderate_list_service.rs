@@ -87,6 +87,24 @@ impl<'p> ModerateListService {
             .await
             .map_err(|e| domain::services::ServiceError::Repository(e))
     }
+
+    /// Retrieves the list of moderated words from the repository
+    ///
+    /// # Arguments
+    /// * `repo` - Repository implementation that satisfies IGetAbusiveWords
+    ///   trait
+    ///
+    /// # Returns
+    /// * `ServiceResult<Vec<String>>` - Result containing vector of moderated
+    ///   words or wrapped service error
+    pub async fn get_list<R: domain::services::repository::IGetAbusiveWords>(
+        &self,
+        repo: R,
+    ) -> domain::services::ServiceResult<Vec<String>> {
+        repo.get_words()
+            .await
+            .map_err(|e| domain::services::ServiceError::Repository(e))
+    }
 }
 
 #[cfg(test)]
