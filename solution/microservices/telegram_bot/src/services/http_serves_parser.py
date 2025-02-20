@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
@@ -13,17 +13,26 @@ class HttpServesParser:
 
     @classmethod
     async def _make_request(
-        cls, method: str, url: str, json_body: Optional[dict] = None
+        cls,
+        method: str,
+        url: str,
+        json_body: Optional[dict] = None,
+        params: Optional[Dict[str, Any]] = None,
+        files: Optional[List[Tuple[Any]]] = None,
     ) -> Optional[httpx.Response]:
         """
         Helper method to make the HTTP request to avoid repetition.
         """
         async with httpx.AsyncClient() as client_session:
+            if params:
+                url = f"{url}?{httpx.URL(url).encode_query(params)}"
+
             try:
                 if method == "POST":
                     response = await client_session.post(
-                        url, json=json_body, headers=cls.headers
+                        url, json=json_body, headers=cls.headers, files=files
                     )
+
                 elif method == "GET":
                     response = await client_session.get(url, headers=cls.headers)
                 else:

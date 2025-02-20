@@ -66,7 +66,6 @@ class CampaignsGenerateTextRequest(BaseModel):
 
 
 class CampaignSchema(_BaseCampaignSchema):
-    ad_id: UUID = Field(..., description="Unique identifier for the advertisement")
     advertiser_id: UUID = Field(
         ..., description="Unique identifier of the advertiser who created this ad"
     )

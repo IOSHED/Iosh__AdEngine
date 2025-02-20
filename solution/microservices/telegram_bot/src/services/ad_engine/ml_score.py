@@ -8,7 +8,7 @@ class MlScoreService(HttpServesParser):
         url = f"{cls._base_url}/api/ml_score/bulk"
         try:
             _response = await cls._make_request(
-                method="POST", url=url, json_body=[ml_score.model_dump()]
+                method="POST", url=url, json_body=ml_score.model_dump()
             )
 
         except Exception as e:

@@ -8,7 +8,7 @@ from src.services.http_serves_parser import HttpServesParser
 class ClientService(HttpServesParser):
     @classmethod
     async def create_client(cls, client: ClientProfileSchema) -> ClientProfileSchema:
-        url = f"{cls._base_url}/api/client/bulk"
+        url = f"{cls._base_url}/client/bulk"
         try:
             response = await cls._make_request(
                 method="POST", url=url, json_body=[client.model_dump()]
