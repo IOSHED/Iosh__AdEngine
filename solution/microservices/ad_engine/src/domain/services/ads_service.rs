@@ -252,7 +252,7 @@ impl AdsService {
             (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
             (Some(unique_campaign), None) => Ok(unique_campaign.1),
             (Some(unique_campaign), Some(non_unique_campaign)) => {
-                if non_unique_campaign.0 >= unique_campaign.0 * 1.25 {
+                if non_unique_campaign.0 >= unique_campaign.0 * 1.15 {
                     Ok(non_unique_campaign.1)
                 } else {
                     Ok(unique_campaign.1)
