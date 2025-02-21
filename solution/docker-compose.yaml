@@ -2,30 +2,83 @@
 services:
   python_telegram_bot:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: python_telegram_bot
-
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../microservices/telegram_bot/log:/app/log
+    environment:
+      - APP_ENVIRONMENT=prod
+      - APP__BOT__TOKEN=7574946727:AAF83sGHMt-HUSKDLK0EE2BpclaGlmXbpm0
+      - APP__REDIS__DB=0
+      - APP__REDIS__ADDRESS=redis_database:6379
+      - APP__AD_ENGINE__BASE_URL=http://rust_ad_engine:8080/api
+      
   rust_ad_engine:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: rust_ad_engine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../microservices/ad_engine/log:/app/log
+    environment:
+      - APP_ENVIRONMENT=prod
+      - APP__HTTP_SERVER__HOST=127.0.0.1
+      - APP__HTTP_SERVER__PORT=8080
+      - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
+      - APP__DATABASE__REDIS__HOST=redis_database
+      - APP__DATABASE__REDIS__PORT=6379
+      - APP__DATABASE__REDIS__DB=1
+      - APP__YANDEX__FOLDER_ID=b1gqutvur1f67gj9tbel
+      - APP__YANDEX__API_KEY=y0__xClkZbNBhjB3RMg47eyqBJ5uyGj-8DJGsNz3LGePPhZVOGWTQ
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/ping"]
 
   postgres_database:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: postgres_database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=44541
+      - POSTGRES_DB=ad_engine
+    volumes:
+      - ../infrastructure/postgres/.pgdata:/var/lib/postgresql/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d testy" ]
 
   redis_database:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: redis_database
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=44541
+    volumes:
+      - ../infrastructure/redis/.redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "44541", "ping"]
 
   prometheus:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: prometheus
-
+    ports:
+      - "9090:9090"
+   
   grafana:
     extends:
-      file: ./deploy/docker-compose.prod.yaml
+      file: docker-compose.base.yaml
       service: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: 44541
+      GF_FEATURE_TOGGLES_ENABLE: "publicDashboards"

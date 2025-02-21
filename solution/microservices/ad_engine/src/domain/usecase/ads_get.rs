@@ -50,21 +50,22 @@ impl<'p> AdsGetUsecase<'p> {
 
         let mut campaign = self.redis_service.get_active_campaign(&ads.ad_id).await?;
 
-        self.campaign_stat_service
-            .view_campaign(
-                ads.ad_id,
-                client_id,
-                campaign.cost_per_impressions,
-                advanced_time,
-                infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
-            )
-            .await?;
+        if !campaign.view_clients_id.contains(&client_id) {
+            self.campaign_stat_service
+                .view_campaign(
+                    ads.ad_id,
+                    client_id,
+                    campaign.cost_per_impressions,
+                    advanced_time,
+                    infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
+                )
+                .await?;
 
-        campaign.view_clients_id.push(client_id);
+            campaign.view_clients_id.push(client_id);
+            domain::services::PrometheusService::ads_visits(advanced_time, campaign.cost_per_impressions);
 
-        domain::services::PrometheusService::ads_visits(advanced_time, campaign.cost_per_impressions);
-
-        self.redis_service.set_active_campaign(campaign).await?;
+            self.redis_service.set_active_campaign(campaign).await?;
+        }
 
         let new_texts = self
             .moderate_text_service

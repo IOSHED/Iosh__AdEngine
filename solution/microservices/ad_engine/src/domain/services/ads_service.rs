@@ -88,7 +88,7 @@ impl AdsService {
         let scored_campaigns = self
             .score_campaigns(suitable_campaigns, client_id, advanced_time, &repo_score)
             .await?;
-        let top_campaign = self.get_top_campaign(&scored_campaigns).await?;
+        let top_campaign = self.get_top_campaign(&scored_campaigns, client_id).await?;
 
         Ok(domain::schemas::AdSchema {
             ad_id: top_campaign.campaign_id,
@@ -140,7 +140,6 @@ impl AdsService {
             )
             .await
             .into_iter()
-            .filter(|c| !c.view_clients_id.contains(&client.client_id))
             .filter(|c| (c.view_clients_id.len() as u32) <= c.impressions_limit)
             .collect::<Vec<_>>();
 
@@ -223,11 +222,44 @@ impl AdsService {
     async fn get_top_campaign<'a>(
         &self,
         scored_campaigns: &'a [(f64, u32, domain::schemas::ActiveCampaignSchema)],
+        client_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<&'a domain::schemas::ActiveCampaignSchema> {
-        scored_campaigns
-            .get(0)
-            .map(|(_, _, campaign)| campaign)
-            .ok_or_else(|| domain::services::ServiceError::Validation("No top campaign found".into()))
+        let mut unique_campaign: Option<(f64, &domain::schemas::ActiveCampaignSchema)> = None;
+        let mut non_unique_campaign: Option<(f64, &domain::schemas::ActiveCampaignSchema)> = None;
+
+        for (score, _, campaign) in scored_campaigns {
+ 
+            if let (Some((_, _)), Some((_, _))) = (unique_campaign, non_unique_campaign) {
+                break;
+            }
+
+            if campaign.view_clients_id.contains(&client_id) {
+                if let Some(_) = non_unique_campaign {
+                    continue;
+                }
+                non_unique_campaign = Some((*score, campaign));
+                
+            } else {
+                if let Some(_) = unique_campaign {
+                    continue;
+                }
+                unique_campaign = Some((*score, campaign));
+            }
+        }
+
+        match (unique_campaign, non_unique_campaign) {
+            (None, None) => Err(domain::services::ServiceError::Validation("No top campaign found".into())),
+            (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
+            (Some(unique_campaign), None) => Ok(unique_campaign.1),
+            (Some(unique_campaign), Some(non_unique_campaign)) => {
+                if non_unique_campaign.0 >= unique_campaign.0 * 1.45 {
+                    Ok(non_unique_campaign.1)
+                } else {
+                    Ok(unique_campaign.1)
+                }
+            },
+        }
+
     }
 
     /// Filters campaigns based on targeting criteria
