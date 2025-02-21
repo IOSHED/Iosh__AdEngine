@@ -13,6 +13,8 @@ class AdsService(HttpServesParser):
             response = await cls._make_request(
                 method="GET", url=url, params={"client_id": client_id}
             )
+            if response is None:
+                return None
 
             ads_data = response.json()
             return AdsSchema(**ads_data)
@@ -23,11 +25,11 @@ class AdsService(HttpServesParser):
 
     @classmethod
     async def click_ads(cls, ad_id: uuid.UUID, client_id: uuid.UUID) -> Optional[str]:
-        url = f"{cls._base_url}/ads/{ad_id}/click"
+        url = f"{cls._host_url}/ads/{ad_id}/click"
 
         try:
             response = await cls._make_request(
-                method="POST", url=url, json_body={"client_id": client_id}
+                method="POST", url=url, json_body={"client_id": str(client_id)}
             )
 
             if response is None:

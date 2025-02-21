@@ -36,10 +36,10 @@ main_dialog = Dialog(
     ),
     Window(
         MSG_ADS,
-        Button(Const("👍Понравилась"), id="click_ads", on_click=...),
+        Button(Const("👍Понравилась"), id="click_ads", on_click=AdsHandler.click),
         Row(
-            SwitchTo(Const(">"), id="go_to_view_ads", state=MainDialog.view_ads),
             SwitchTo(Const("🔙 Назад"), id="go_to_main", state=MainDialog.main),
+            SwitchTo(Const("⏩"), id="go_to_view_ads", state=MainDialog.view_ads),
         ),
         state=MainDialog.view_ads,
         getter=AdsHandler.get_ads,
