@@ -38,19 +38,21 @@ pub struct AdsService {
 }
 
 impl AdsService {
-    /// Creates a new AdsService instance with specified weights for scoring factors
+    /// Creates a new AdsService instance with specified weights for scoring
+    /// factors
     ///
     /// # Arguments
     /// * `weight_profit` - Weight factor for profit scoring (0-1)
-    /// * `weight_relevance` - Weight factor for relevance scoring (0-1) 
+    /// * `weight_relevance` - Weight factor for relevance scoring (0-1)
     /// * `weight_fulfillment` - Weight factor for campaign fulfillment (0-1)
     /// * `weight_time_left` - Weight factor for remaining campaign time (0-1)
-    /// * `range_between_non_unique_and_unique_campaign` - Minimum score ratio needed for non-unique campaigns
+    /// * `range_between_non_unique_and_unique_campaign` - Minimum score ratio
+    ///   needed for non-unique campaigns
     pub fn new(
         weight_profit: f64,
-        weight_relevance: f64, 
-        weight_fulfillment: f64, 
-        weight_time_left: f64, 
+        weight_relevance: f64,
+        weight_fulfillment: f64,
+        weight_time_left: f64,
         range_between_non_unique_and_unique_campaign: f64,
     ) -> Self {
         Self {
@@ -148,7 +150,10 @@ impl AdsService {
             )
             .await
             .into_iter()
-            .filter(|c| c.view_clients_id.len() <= (c.impressions_limit as f64 * 1.05).floor() as usize || c.view_clients_id.contains(&client.client_id))
+            .filter(|c| {
+                c.view_clients_id.len() <= (c.impressions_limit as f64 * 1.05).floor() as usize
+                    || c.view_clients_id.contains(&client.client_id)
+            })
             .collect::<Vec<_>>();
 
         if filtered_campaigns.is_empty() {
@@ -236,7 +241,6 @@ impl AdsService {
         let mut non_unique_campaign: Option<(f64, &domain::schemas::ActiveCampaignSchema)> = None;
 
         for (score, _, campaign) in scored_campaigns {
- 
             if let (Some((_, _)), Some((_, _))) = (unique_campaign, non_unique_campaign) {
                 break;
             }
@@ -246,7 +250,6 @@ impl AdsService {
                     continue;
                 }
                 non_unique_campaign = Some((*score, campaign));
-                
             } else {
                 if let Some(_) = unique_campaign {
                     continue;
@@ -267,7 +270,6 @@ impl AdsService {
                 }
             },
         }
-
     }
 
     /// Filters campaigns based on targeting criteria

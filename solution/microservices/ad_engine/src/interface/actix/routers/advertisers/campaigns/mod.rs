@@ -25,10 +25,7 @@ pub fn campaigns_scope(path: &str) -> actix_web::Scope {
     )
 )]
 #[actix_web::post("")]
-#[tracing::instrument(
-    name = "campaigns_create_handler", 
-    skip(db_pool, app_state, redis_pool),
-)]
+#[tracing::instrument(name = "campaigns_create_handler", skip(db_pool, app_state, redis_pool))]
 pub async fn campaigns_create_handler(
     campaign_request: actix_web::web::Json<domain::schemas::CampaignsCreateRequest>,
     advertiser_id: actix_web::web::Path<uuid::Uuid>,
