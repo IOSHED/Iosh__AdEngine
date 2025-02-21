@@ -177,8 +177,8 @@ impl AdsService {
             .map(|campaign| {
                 let remaining_impressions = campaign.impressions_limit as f64 - campaign.view_clients_id.len() as f64;
                 let remaining_clicks = campaign.clicks_limit as f64 - campaign.click_clients_id.len() as f64;
-                (remaining_impressions * campaign.cost_per_impressions as f64)
-                    + (remaining_clicks * campaign.cost_per_clicks as f64)
+                (remaining_impressions * campaign.cost_per_impression as f64)
+                    + (remaining_clicks * campaign.cost_per_click as f64)
             })
             .collect();
 
@@ -412,8 +412,8 @@ mod tests {
             advertiser_id,
             ad_title: "Test Ad".into(),
             ad_text: "Test Content".into(),
-            cost_per_impressions: 1.,
-            cost_per_clicks: 2.,
+            cost_per_impression: 1.,
+            cost_per_click: 2.,
             impressions_limit: 100,
             clicks_limit: 50,
             start_date: 0,
@@ -552,10 +552,10 @@ mod tests {
 
         let service = AdsService::new(1.0, 0.0, 0.0, 0.0);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
-        campaign1.cost_per_impressions = 10.;
+        campaign1.cost_per_impression = 10.;
 
         let mut campaign2 = create_test_campaign(campaign2_id, Uuid::new_v4());
-        campaign2.cost_per_impressions = 20.;
+        campaign2.cost_per_impression = 20.;
 
         let result = service
             .recommendation_ads(

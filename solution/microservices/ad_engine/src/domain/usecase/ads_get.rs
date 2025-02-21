@@ -55,14 +55,14 @@ impl<'p> AdsGetUsecase<'p> {
                 .view_campaign(
                     ads.ad_id,
                     client_id,
-                    campaign.cost_per_impressions,
+                    campaign.cost_per_impression,
                     advanced_time,
                     infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
                 )
                 .await?;
 
             campaign.view_clients_id.push(client_id);
-            domain::services::PrometheusService::ads_visits(advanced_time, campaign.cost_per_impressions);
+            domain::services::PrometheusService::ads_visits(advanced_time, campaign.cost_per_impression);
 
             self.redis_service.set_active_campaign(campaign).await?;
         }

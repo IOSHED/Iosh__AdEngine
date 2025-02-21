@@ -7,8 +7,8 @@
         "advertiser_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", 
         "impressions_limit": 25,
         "clicks_limit": 105,
-        "cost_per_impressions": 100.0,
-        "cost_per_clicks": 150.0,
+        "cost_per_impression": 100.0,
+        "cost_per_click": 150.0,
         "ad_title": "Mega Ad",
         "ad_text": "His omega must be Ad",
         "start_date": 3,
@@ -44,11 +44,11 @@ pub struct CampaignSchema {
 
     /// Cost per thousand impressions (CPM) in campaign currency
     #[schema(example = 100.0, minimum = 0)]
-    pub cost_per_impressions: f64,
+    pub cost_per_impression: f64,
 
     /// Cost per click (CPC) in campaign currency
     #[schema(example = 150.0, minimum = 0)]
-    pub cost_per_clicks: f64,
+    pub cost_per_click: f64,
 
     /// Title of the advertisement
     #[schema(example = "Mega Ad")]
@@ -134,10 +134,10 @@ pub struct ActiveCampaignSchema {
     pub clicks_limit: u32,
 
     /// Cost per thousand impressions (CPM)
-    pub cost_per_impressions: f64,
+    pub cost_per_impression: f64,
 
     /// Cost per click (CPC)
-    pub cost_per_clicks: f64,
+    pub cost_per_click: f64,
 
     /// Advertisement title
     pub ad_title: String,
@@ -170,8 +170,8 @@ impl std::convert::From<(CampaignSchema, Vec<uuid::Uuid>, Vec<uuid::Uuid>)> for 
             advertiser_id: campaign.advertiser_id,
             impressions_limit: campaign.impressions_limit,
             clicks_limit: campaign.clicks_limit,
-            cost_per_impressions: campaign.cost_per_impressions,
-            cost_per_clicks: campaign.cost_per_clicks,
+            cost_per_impression: campaign.cost_per_impression,
+            cost_per_click: campaign.cost_per_click,
             ad_title: campaign.ad_title,
             ad_text: campaign.ad_text,
             start_date: campaign.start_date,

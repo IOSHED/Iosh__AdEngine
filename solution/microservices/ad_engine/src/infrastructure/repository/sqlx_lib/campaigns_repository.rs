@@ -57,9 +57,9 @@ impl<'p> domain::services::repository::ICreateCampaign for PgCampaignRepository<
             advertiser_id,
             campaign.impressions_limit as i32,
             campaign.clicks_limit as i32,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions)
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impression)
                 .ok_or(infrastructure::repository::RepoError::Unknown)?,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks)
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_click)
                 .ok_or(infrastructure::repository::RepoError::Unknown)?,
             campaign.ad_title,
             campaign.ad_text,
@@ -102,9 +102,9 @@ impl<'p> domain::services::repository::IUpdateCampaign for PgCampaignRepository<
             WHERE advertiser_id = $6 AND id = $7
             RETURNING *
             "#,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impressions)
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_impression)
                 .ok_or(infrastructure::repository::RepoError::Unknown)?,
-            bigdecimal::BigDecimal::from_f64(campaign.cost_per_clicks)
+            bigdecimal::BigDecimal::from_f64(campaign.cost_per_click)
                 .ok_or(infrastructure::repository::RepoError::Unknown)?,
             campaign.ad_title,
             campaign.ad_text,

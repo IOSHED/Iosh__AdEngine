@@ -7,8 +7,8 @@ use crate::domain;
     example = json!({
         "impressions_limit": 105,
         "clicks_limit": 25,
-        "cost_per_impressions": 100.0,
-        "cost_per_clicks": 150.0,
+        "cost_per_impression": 100.0,
+        "cost_per_click": 150.0,
         "ad_title": "Mega Ad",
         "ad_text": "His omega must be Ad",
         "start_date": 3,
@@ -27,10 +27,10 @@ pub struct CampaignsCreateRequest {
 
     /// Cost per thousand impressions (CPM)
     #[schema(example = 100.0, minimum = 0)]
-    pub cost_per_impressions: f64,
+    pub cost_per_impression: f64,
     /// Cost per click (CPC)
     #[schema(example = 150.0, minimum = 0)]
-    pub cost_per_clicks: f64,
+    pub cost_per_click: f64,
 
     /// Title of the advertisement
     #[schema(example = "Mega Ad")]
@@ -60,8 +60,8 @@ pub struct CampaignsCreateRequest {
     example = json!({
         "impressions_limit": 105,
         "clicks_limit": 205,
-        "cost_per_impressions": 100.0,
-        "cost_per_clicks": 150.0,
+        "cost_per_impression": 100.0,
+        "cost_per_click": 150.0,
         "ad_title": "Mega Ad",
         "ad_text": "His omega must be Ad",
         "start_date": 3,
@@ -81,10 +81,10 @@ pub struct CampaignsUpdateRequest {
 
     /// Cost per thousand impressions (CPM)
     #[schema(example = 100.0, minimum = 0)]
-    pub cost_per_impressions: f64,
+    pub cost_per_impression: f64,
     /// Cost per click (CPC)
     #[schema(example = 150.0, minimum = 0)]
-    pub cost_per_clicks: f64,
+    pub cost_per_click: f64,
 
     /// Title of the advertisement
     #[schema(example = "Mega Ad")]
@@ -140,8 +140,8 @@ impl std::convert::From<domain::schemas::CampaignSchema> for CampaignsUpdateRequ
         Self {
             impressions_limit: campaign.impressions_limit,
             clicks_limit: campaign.clicks_limit,
-            cost_per_impressions: campaign.cost_per_impressions,
-            cost_per_clicks: campaign.cost_per_clicks,
+            cost_per_impression: campaign.cost_per_impression,
+            cost_per_click: campaign.cost_per_click,
             ad_title: campaign.ad_title,
             ad_text: campaign.ad_text,
             start_date: campaign.start_date,

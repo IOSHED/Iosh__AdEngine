@@ -63,7 +63,7 @@ impl<'p> AdsClickUsecase<'p> {
             .click_campaign(
                 campaign_id,
                 client.client_id,
-                campaign.cost_per_clicks,
+                campaign.cost_per_click,
                 advanced_time,
                 infrastructure::repository::sqlx_lib::PgCampaignRepository::new(self.db_pool),
             )
@@ -75,7 +75,7 @@ impl<'p> AdsClickUsecase<'p> {
 
         campaign.click_clients_id.push(client.client_id);
 
-        domain::services::PrometheusService::ads_clicks(advanced_time, campaign.cost_per_clicks);
+        domain::services::PrometheusService::ads_clicks(advanced_time, campaign.cost_per_click);
 
         self.redis_service.set_active_campaign(campaign).await?;
 
