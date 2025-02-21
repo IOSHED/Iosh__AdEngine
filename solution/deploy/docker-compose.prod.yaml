@@ -25,7 +25,7 @@ services:
       - ../microservices/ad_engine/log:/app/log
     environment:
       - APP_ENVIRONMENT=prod
-      - APP__HTTP_SERVER__HOST=127.0.0.1
+      - APP__HTTP_SERVER__HOST=0.0.0.0
       - APP__HTTP_SERVER__PORT=8080
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
       - APP__DATABASE__REDIS__HOST=redis_database

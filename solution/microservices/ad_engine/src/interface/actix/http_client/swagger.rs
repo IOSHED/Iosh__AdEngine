@@ -1,7 +1,7 @@
 #[derive(utoipa::OpenApi)]
 #[openapi(
     servers(
-        (url = "/api", description = "API Server")
+        (url = "", description = "API Server")
     ),
     paths(
         super::super::routers::healthcheck::healthcheck_handler,
