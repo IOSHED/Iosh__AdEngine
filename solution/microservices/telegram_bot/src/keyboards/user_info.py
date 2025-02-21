@@ -29,7 +29,7 @@ BTN_GET_AGE = Row(
         minus=Const("<"),
         default=20,
         min_value=1,
-        max_value=160,
+        max_value=100,
         cycle=True,
     ),
     Button(
@@ -37,6 +37,6 @@ BTN_GET_AGE = Row(
         id="counter_first",
         on_click=lambda _callback, _button, manager: manager.find(
             "counter_getting_age"
-        ).set_value(min(manager.find("counter_getting_age").get_value() + 5, 160)),
+        ).set_value(min(manager.find("counter_getting_age").get_value() + 5, 100)),
     ),
 )

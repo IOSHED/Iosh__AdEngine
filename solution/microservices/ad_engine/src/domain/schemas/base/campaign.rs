@@ -101,13 +101,13 @@ pub struct TargetingCampaignSchema {
     pub gender: Option<String>,
 
     /// Minimum age for targeting
-    #[schema(example = 18, minimum = 0)]
-    #[validate(range(min = 0, message = "age must be under or equal 0"))]
+    #[schema(example = 18, minimum = 0, maximum = 100)]
+    #[validate(range(min = 0, max =100, message = "age must be under or equal 0 and under 100"))]
     pub age_from: Option<u8>,
 
     /// Maximum age for targeting
-    #[schema(example = 18, minimum = 0)]
-    #[validate(range(min = 0, message = "age must be under or equal 0"))]
+    #[schema(example = 18, minimum = 0, maximum = 100)]
+    #[validate(range(min = 0, max = 100, message = "age must be under or equal 0 and under 100"))]
     pub age_to: Option<u8>,
 
     /// Geographic location for targeting
