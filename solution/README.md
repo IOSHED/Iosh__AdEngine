@@ -132,9 +132,14 @@ Output json example:
 | Путь                                                                      | Метод  | Краткое описание                                                                                                            |
 | ------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `/advertisers/{advertiser_id}/campaigns/{campaign_id}/images`             | GET    | Получает список имён всех загруженных фотографий в рекламную кампанию                                                       |
-| `/advertisers/{advertiser_id}/campaigns/{campaign_id}/images`             | POST   | Загружает фотографии (храня её в `postgres`) в рекламную кампанию, используя  заголовок `Content-Type: multipart/form-data` |
+| `/advertisers/{advertiser_id}/campaigns/{campaign_id}/images`             | POST   | Загружает фотографии (храня её в `postgres`) в рекламную кампанию, используя  заголовок `Content-Type: multipart/form-data`. Можете протестировать это например написав небольшую форму [тык.](./media/index.html) (только не забудьте в запросе поменять uuid для `advertiser` и `campaign`) |
 | `/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}` | DELETE | Удаляет фотографию из рекламной кампании по имени                                                                           |
 | `/advertisers/{advertiser_id}/campaigns/{campaign_id}/images/{file_name}` | GET    | Получает фотографию рекламной кампании по имени                                                                             |
+
+[загрузка фотографий](./media/загрузка%20фотографий.gif)
+
+<img src="./media/загрузка%20фотографий.gif" width="512" height="256"/>
+
 
 Настройка осуществляется путём редактирования файлов конфигураций в [`ad_engine`](/solution/microservices/ad_engine/conf/base.yaml)
 
