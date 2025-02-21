@@ -19,7 +19,7 @@ services:
       - APP__YANDEX__API_KEY=...
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/ping"]
 
   postgres_database:
     extends:
