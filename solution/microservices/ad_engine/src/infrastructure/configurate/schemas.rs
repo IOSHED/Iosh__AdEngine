@@ -28,6 +28,7 @@ pub struct AdsRecommendationConfig {
     pub weight_relevance: f64,
     pub weight_fulfillment: f64,
     pub weight_time_left: f64,
+    pub range_between_non_unique_and_unique_campaign: f64,
 }
 
 #[derive(Clone, serde::Deserialize)]

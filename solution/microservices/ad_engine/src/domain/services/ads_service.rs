@@ -34,23 +34,31 @@ pub struct AdsService {
     weight_relevance: f64,
     weight_fulfillment: f64,
     weight_time_left: f64,
+    range_between_non_unique_and_unique_campaign: f64,
 }
 
 impl AdsService {
-    /// Creates a new AdsService instance with specified weights for scoring
-    /// factors
+    /// Creates a new AdsService instance with specified weights for scoring factors
     ///
     /// # Arguments
     /// * `weight_profit` - Weight factor for profit scoring (0-1)
-    /// * `weight_relevance` - Weight factor for relevance scoring (0-1)
+    /// * `weight_relevance` - Weight factor for relevance scoring (0-1) 
     /// * `weight_fulfillment` - Weight factor for campaign fulfillment (0-1)
     /// * `weight_time_left` - Weight factor for remaining campaign time (0-1)
-    pub fn new(weight_profit: f64, weight_relevance: f64, weight_fulfillment: f64, weight_time_left: f64) -> Self {
+    /// * `range_between_non_unique_and_unique_campaign` - Minimum score ratio needed for non-unique campaigns
+    pub fn new(
+        weight_profit: f64,
+        weight_relevance: f64, 
+        weight_fulfillment: f64, 
+        weight_time_left: f64, 
+        range_between_non_unique_and_unique_campaign: f64,
+    ) -> Self {
         Self {
             weight_profit,
             weight_relevance,
             weight_fulfillment,
             weight_time_left,
+            range_between_non_unique_and_unique_campaign,
         }
     }
 }
@@ -252,7 +260,7 @@ impl AdsService {
             (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
             (Some(unique_campaign), None) => Ok(unique_campaign.1),
             (Some(unique_campaign), Some(non_unique_campaign)) => {
-                if non_unique_campaign.0 >= unique_campaign.0 * 1.15 {
+                if non_unique_campaign.0 >= unique_campaign.0 * self.range_between_non_unique_and_unique_campaign {
                     Ok(non_unique_campaign.1)
                 } else {
                     Ok(unique_campaign.1)
@@ -403,7 +411,7 @@ mod tests {
     }
 
     fn create_test_service() -> AdsService {
-        AdsService::new(0.4, 0.3, 0.2, 0.1)
+        AdsService::new(0.4, 0.3, 0.2, 0.1, 1.25)
     }
 
     fn create_test_campaign(id: Uuid, advertiser_id: Uuid) -> domain::schemas::ActiveCampaignSchema {
@@ -550,7 +558,7 @@ mod tests {
         let mut mock_ml_repo = MockMlScoreRepo::new();
         mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
-        let service = AdsService::new(1.0, 0.0, 0.0, 0.0);
+        let service = AdsService::new(1.0, 0.0, 0.0, 0.0, 1.25);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.cost_per_impression = 10.;
 
@@ -591,7 +599,7 @@ mod tests {
         let mut mock_ml_repo = MockMlScoreRepo::new();
         mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
-        let service = AdsService::new(0.0, 0.0, 0.0, 1.0);
+        let service = AdsService::new(0.0, 0.0, 0.0, 1.0, 1.25);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.end_date = 100;
 

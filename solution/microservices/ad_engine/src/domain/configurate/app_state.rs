@@ -27,6 +27,8 @@ use crate::infrastructure;
 /// * `ads_weight_relevance` - Content relevance factor
 /// * `ads_weight_fulfillment` - Delivery success factor
 /// * `ads_weight_time_left` - Time urgency factor
+/// * `ads_range_between_non_unique_and_unique_campaign` -  Minimum score ratio
+///   needed for non-unique campaigns
 ///
 /// ## Media Handling
 /// * `media_support_mime` - List of supported MIME types
@@ -47,6 +49,7 @@ pub struct AppState {
     pub ads_weight_relevance: f64,
     pub ads_weight_fulfillment: f64,
     pub ads_weight_time_left: f64,
+    pub ads_range_between_non_unique_and_unique_campaign: f64,
 
     pub gpt_temperature: f32,
     pub gpt_max_tokens: u32,
@@ -85,6 +88,9 @@ impl From<&infrastructure::configurate::Config> for AppState {
             ads_weight_relevance: config.ads_recommendation.weight_relevance,
             ads_weight_fulfillment: config.ads_recommendation.weight_fulfillment,
             ads_weight_time_left: config.ads_recommendation.weight_time_left,
+            ads_range_between_non_unique_and_unique_campaign: config
+                .ads_recommendation
+                .range_between_non_unique_and_unique_campaign,
             gpt_temperature: config.yandex.gpt.temperature,
             gpt_max_tokens: config.yandex.gpt.max_tokens,
             system_prompt_for_generate_title: config.yandex.gpt.system_prompt_for_generate_title.clone(),

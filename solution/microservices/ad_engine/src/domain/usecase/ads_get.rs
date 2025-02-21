@@ -24,6 +24,7 @@ impl<'p> AdsGetUsecase<'p> {
                 app_state.ads_weight_relevance,
                 app_state.ads_weight_fulfillment,
                 app_state.ads_weight_time_left,
+                app_state.ads_range_between_non_unique_and_unique_campaign,
             ),
             moderate_text_service: domain::services::ModerateTextService::new(app_state.auto_moderating_sensitivity),
             campaign_stat_service: domain::services::CampaignStatService,
