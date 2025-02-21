@@ -2,7 +2,7 @@
 services:
   python_telegram_bot:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: python_telegram_bot
     ports:
       - "8001:8001"
@@ -17,7 +17,7 @@ services:
       
   rust_ad_engine:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: rust_ad_engine
     ports:
       - "8080:8080"
@@ -39,7 +39,7 @@ services:
 
   postgres_database:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: postgres_database
     ports:
       - "5432:5432"
@@ -54,7 +54,7 @@ services:
 
   redis_database:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: redis_database
     ports:
       - "6379:6379"
@@ -67,14 +67,14 @@ services:
 
   prometheus:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: prometheus
     ports:
       - "9090:9090"
    
   grafana:
     extends:
-      file: docker-compose.base.yaml
+      file: ./deploy/docker-compose.base.yaml
       service: grafana
     ports:
       - "3000:3000"
