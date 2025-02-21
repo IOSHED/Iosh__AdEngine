@@ -1,0 +1,13 @@
+
+logger:
+  max_level_cmd: "info"
+  max_level_file: "info"
+  max_level_error_file: "warn"
+  log_dir: "./log"
+
+redis:
+  address: redis_database:6379
+  db: 0
+
+ad_engine:
+  base_url: http://rust_ad_engine:8080
