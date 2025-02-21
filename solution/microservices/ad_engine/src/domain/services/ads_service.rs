@@ -147,10 +147,10 @@ impl AdsService {
             .into_iter()
             .filter(|c| {
                 c.view_clients_id.len() <= (c.impressions_limit as f64 * 1.05).floor() as usize
-                // && (
-                //     (c.view_clients_id.contains(&client.client_id) && !c.click_clients_id.contains(&client.client_id)) 
-                //     || !c.view_clients_id.contains(&client.client_id)
-                // )
+                && (
+                    (c.view_clients_id.contains(&client.client_id) && !c.click_clients_id.contains(&client.client_id)) 
+                    || !c.view_clients_id.contains(&client.client_id)
+                )
             })
             .collect::<Vec<_>>();
 
