@@ -17,6 +17,9 @@ async def main() -> Tuple[Dispatcher, Bot]:
     await setup_logger()
     logging.info("Starting bot")
 
+    from src.dialogs.advertiser_info import advertiser_info_dialog
+    from src.dialogs.advertisers import advertiser_dialog
+    from src.dialogs.campaign_info import campaign_info_dialog
     from src.dialogs.main import main_dialog
     from src.dialogs.moderate_words import moderate_words_dialog
     from src.dialogs.user_info import user_info_dialog
@@ -40,6 +43,9 @@ async def main() -> Tuple[Dispatcher, Bot]:
 
     dp.include_routers(
         start_router,
+        campaign_info_dialog,
+        advertiser_dialog,
+        advertiser_info_dialog,
         moderate_words_dialog,
         main_dialog,
         user_info_dialog,

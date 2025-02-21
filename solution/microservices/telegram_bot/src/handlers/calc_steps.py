@@ -42,6 +42,7 @@ class CalkStepsHandler:
                 - num_finish_steps (int): Number of completed steps plus 1
                 - all_steps (int): Total number of possible steps
         """
+
         return {
             "num_finish_steps": 1 + len(dialog_manager.dialog_data),
             "all_steps": len(self.enum_steps),
