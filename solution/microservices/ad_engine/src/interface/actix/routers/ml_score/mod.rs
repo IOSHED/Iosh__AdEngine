@@ -2,7 +2,7 @@ use crate::{domain, infrastructure, interface};
 
 #[utoipa::path(
     post,
-    path = "/ml-score",
+    path = "/ml-scores",
     tag = "ML",
     request_body = domain::schemas::MlScoreRequest,
     responses(
@@ -13,7 +13,7 @@ use crate::{domain, infrastructure, interface};
         (status = 500, description = "Internal server error", body = interface::actix::exception::ExceptionResponse)
     )
 )]
-#[actix_web::post("/ml-score")]
+#[actix_web::post("/ml-scores")]
 #[tracing::instrument(name = "ml_score_handler", skip(db_pool))]
 pub async fn ml_score_handler(
     score_request: actix_web::web::Json<domain::schemas::MlScoreRequest>,

@@ -114,7 +114,7 @@ impl AdsService {
         repo_client
             .get_by_id(client_id)
             .await
-            .map_err(domain::services::ServiceError::Repository)
+            .map_err(|e| domain::services::ServiceError::Repository(e))
     }
 
     /// Filters campaigns based on targeting criteria and campaign limits
@@ -140,7 +140,7 @@ impl AdsService {
             )
             .await
             .into_iter()
-            .filter(|c| (c.view_clients_id.len() as u32) <= c.impressions_limit)
+            .filter(|c| (c.view_clients_id.len() as u32) < c.impressions_limit)
             .collect::<Vec<_>>();
 
         if filtered_campaigns.is_empty() {
@@ -248,7 +248,7 @@ impl AdsService {
         }
 
         match (unique_campaign, non_unique_campaign) {
-            (None, None) => Err(domain::services::ServiceError::Validation("No top campaign found".into())),
+            (None, None) => Err(domain::services::ServiceError::Unknown),
             (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
             (Some(unique_campaign), None) => Ok(unique_campaign.1),
             (Some(unique_campaign), Some(non_unique_campaign)) => {
