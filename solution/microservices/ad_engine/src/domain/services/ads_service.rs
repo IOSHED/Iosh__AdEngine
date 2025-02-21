@@ -34,7 +34,6 @@ pub struct AdsService {
     weight_relevance: f64,
     weight_fulfillment: f64,
     weight_time_left: f64,
-    range_between_non_unique_and_unique_campaign: f64,
 }
 
 impl AdsService {
@@ -46,21 +45,17 @@ impl AdsService {
     /// * `weight_relevance` - Weight factor for relevance scoring (0-1)
     /// * `weight_fulfillment` - Weight factor for campaign fulfillment (0-1)
     /// * `weight_time_left` - Weight factor for remaining campaign time (0-1)
-    /// * `range_between_non_unique_and_unique_campaign` - Minimum score ratio
-    ///   needed for non-unique campaigns
     pub fn new(
         weight_profit: f64,
         weight_relevance: f64,
         weight_fulfillment: f64,
         weight_time_left: f64,
-        range_between_non_unique_and_unique_campaign: f64,
     ) -> Self {
         Self {
             weight_profit,
             weight_relevance,
             weight_fulfillment,
             weight_time_left,
-            range_between_non_unique_and_unique_campaign,
         }
     }
 }
@@ -98,7 +93,7 @@ impl AdsService {
         let scored_campaigns = self
             .score_campaigns(suitable_campaigns, client_id, advanced_time, &repo_score)
             .await?;
-        let top_campaign = self.get_top_campaign(&scored_campaigns, client_id).await?;
+        let top_campaign = self.get_top_campaign(&scored_campaigns).await?;
 
         Ok(domain::schemas::AdSchema {
             ad_id: top_campaign.campaign_id,
@@ -235,43 +230,11 @@ impl AdsService {
     async fn get_top_campaign<'a>(
         &self,
         scored_campaigns: &'a [(f64, u32, domain::schemas::ActiveCampaignSchema)],
-        client_id: uuid::Uuid,
     ) -> domain::services::ServiceResult<&'a domain::schemas::ActiveCampaignSchema> {
-        let mut unique_campaign: Option<(f64, &domain::schemas::ActiveCampaignSchema)> = None;
-        let mut non_unique_campaign: Option<(f64, &domain::schemas::ActiveCampaignSchema)> = None;
-
-        for (score, _, campaign) in scored_campaigns {
-            if let (Some((_, _)), Some((_, _))) = (unique_campaign, non_unique_campaign) {
-                break;
-            }
-
-            if campaign.view_clients_id.contains(&client_id) {
-                if let Some(_) = non_unique_campaign {
-                    continue;
-                }
-                non_unique_campaign = Some((*score, campaign));
-            } else {
-                if let Some(_) = unique_campaign {
-                    continue;
-                }
-                unique_campaign = Some((*score, campaign));
-            }
-        }
-
-        match (unique_campaign, non_unique_campaign) {
-            (None, None) => Err(domain::services::ServiceError::Repository(
-                infrastructure::repository::RepoError::ObjDoesNotExists("Suitable campaigns".into()),
-            )),
-            (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
-            (Some(unique_campaign), None) => Ok(unique_campaign.1),
-            (Some(unique_campaign), Some(non_unique_campaign)) => {
-                if non_unique_campaign.0 >= unique_campaign.0 * self.range_between_non_unique_and_unique_campaign {
-                    Ok(non_unique_campaign.1)
-                } else {
-                    Ok(unique_campaign.1)
-                }
-            },
-        }
+        scored_campaigns
+            .get(0)
+            .map(|(_, _, campaign)| campaign)
+            .ok_or_else(|| domain::services::ServiceError::Validation("No top campaign found".into()))
     }
 
     /// Filters campaigns based on targeting criteria
@@ -415,7 +378,7 @@ mod tests {
     }
 
     fn create_test_service() -> AdsService {
-        AdsService::new(0.4, 0.3, 0.2, 0.1, 1.25)
+        AdsService::new(0.4, 0.3, 0.2, 0.1)
     }
 
     fn create_test_campaign(id: Uuid, advertiser_id: Uuid) -> domain::schemas::ActiveCampaignSchema {
@@ -562,7 +525,7 @@ mod tests {
         let mut mock_ml_repo = MockMlScoreRepo::new();
         mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
-        let service = AdsService::new(1.0, 0.0, 0.0, 0.0, 1.25);
+        let service = AdsService::new(1.0, 0.0, 0.0, 0.0);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.cost_per_impression = 10.;
 
@@ -603,7 +566,7 @@ mod tests {
         let mut mock_ml_repo = MockMlScoreRepo::new();
         mock_ml_repo.expect_get_ml_scores().returning(|_, _| Ok(vec![0.5, 0.5]));
 
-        let service = AdsService::new(0.0, 0.0, 0.0, 1.0, 1.25);
+        let service = AdsService::new(0.0, 0.0, 0.0, 1.0);
         let mut campaign1 = create_test_campaign(campaign1_id, Uuid::new_v4());
         campaign1.end_date = 100;
 
