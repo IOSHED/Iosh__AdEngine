@@ -115,13 +115,11 @@ impl HttpServer {
     fn get_cors(&self) -> actix_cors::Cors {
         actix_cors::Cors::default()
             .allow_any_origin()
-            .allow_any_header()
-            .allow_any_method()
-            // .allowed_methods(self.cors_config.allowed_methods.iter().map(|str_method| {
-            //     actix_web::http::Method::from_bytes(str_method.as_bytes())
-            //         .expect("Config contain not verifying http method (cors.allowed_methods)")
-            // }))
-            // .allowed_headers(self.cors_config.allowed_headers.clone())
+            .allowed_methods(self.cors_config.allowed_methods.iter().map(|str_method| {
+                actix_web::http::Method::from_bytes(str_method.as_bytes())
+                    .expect("Config contain not verifying http method (cors.allowed_methods)")
+            }))
+            .allowed_headers(self.cors_config.allowed_headers.clone())
             .max_age(self.cors_config.max_age)
     }
 }
