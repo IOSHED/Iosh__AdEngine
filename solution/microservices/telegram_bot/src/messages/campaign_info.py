@@ -80,20 +80,18 @@ MSG_VIEW_FORM = Multi(
     Format("\t1️⃣ Дата действия с <b>{start_date}</b> до <b>{end_date}</b>\n"),
     Format("\t2️⃣ Лимит просмотров: <b>{impressions_limit}</b>"),
     Format("\t3️⃣ Лимит кликов: <b>{clicks_limit}</b>\n"),
-    Format("\t4️⃣ Стоимость просмотра: <b>{cost_per_impressions}</b>"),
-    Format("\t5️⃣ Стоимость клика: <b>{cost_per_clicks}\n</b>"),
+    Format("\t4️⃣ Стоимость просмотра: <b>{cost_per_impression}</b>"),
+    Format("\t5️⃣ Стоимость клика: <b>{cost_per_click}\n</b>"),
     Multi(
         Const("Твой 👀<b>Таргетинг</b>👀. Рекламу смотрят клиенты:"),
         Multi(
-            Format("\t1️⃣ Возрастом", when=F["is_targeting_age"]),
-            Format(
-                " от <b>{targeting_age_from}</b>лет", when=F["is_targeting_age_from"]
-            ),
-            Format(" до <b>{targeting_age_to}</b>лет", when=F["is_targeting_age_to"]),
+            Format("\t🟢 Возрастом", when=F["is_targeting_age"]),
+            Format(" от <b>{age_from}</b>лет", when=F["is_targeting_age_from"]),
+            Format(" до <b>{age_to}</b>лет", when=F["is_targeting_age_to"]),
             sep="",
         ),
-        Format("\t2️⃣ {targeting_gender}", when=F["is_targeting_gender"]),
-        Format("\t3️⃣ В локации - {targeting_location}", when=F["is_targeting_location"]),
+        Format("\t🟢 {gender}", when=F["is_targeting_gender"]),
+        Format("\t🟢 В локации - {location}", when=F["is_targeting_location"]),
         when=F["is_targeting"],
     ),
 )
@@ -101,9 +99,7 @@ MSG_VIEW_FORM = Multi(
 MSG_GENERATE_TEXT = Multi(Const("Сгенерировать ли заголовок, ли текст для рекламы?"))
 
 MSG_GENERATED_TEXT = Multi(
-    Const("Сгенерировано!"),
-    Format(
-        "\t1️⃣ Заголовок: <blockquote expandable>{ad_title}</blockquote expandable>\n"
-    ),
-    Format("\t2️⃣ Текст: <blockquote expandable>{ad_text}</blockquote expandable>\n"),
+    Const("Сгенерировано!\n"),
+    Format("\t1️⃣ Заголовок: <blockquote expandable>{ad_title}</blockquote>\n"),
+    Format("\t2️⃣ Текст: <blockquote expandable>{ad_text}</blockquote>\n"),
 )

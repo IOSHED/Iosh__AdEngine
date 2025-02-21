@@ -16,6 +16,7 @@ class CalkStepsHandler:
     def __init__(
         self,
         enum_steps: Enum,
+        step: int = None,
     ) -> None:
         """Initialize the steps handler.
 
@@ -23,6 +24,7 @@ class CalkStepsHandler:
             enum_steps (Enum): Enumeration containing all possible dialog steps.
         """
         self.enum_steps = enum_steps
+        self.step = step
 
     async def get_steps(
         self,
@@ -43,7 +45,10 @@ class CalkStepsHandler:
                 - all_steps (int): Total number of possible steps
         """
 
+        if self.step is None:
+            self.step = 1 + len(dialog_manager.dialog_data)
+
         return {
-            "num_finish_steps": 1 + len(dialog_manager.dialog_data),
+            "num_finish_steps": self.step,
             "all_steps": len(self.enum_steps),
         }

@@ -1,10 +1,11 @@
+import operator
 from enum import Enum
 
 from aiogram.filters.state import State, StatesGroup
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import TextInput
-from aiogram_dialog.widgets.kbd import Cancel, Next, SwitchTo
-from aiogram_dialog.widgets.text import Const
+from aiogram_dialog.widgets.kbd import Cancel, Multiselect, Next, Row, SwitchTo
+from aiogram_dialog.widgets.text import Const, Format
 
 from src.handlers.calc_steps import CalkStepsHandler
 from src.handlers.campaign_info import CampaignInfoHandler
@@ -80,7 +81,7 @@ campaign_info_dialog = Dialog(
             on_success=CampaignInfoHandler.save_start_date,
         ),
         state=CampaignInfoDialog.get_start_date,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=1).get_steps,
     ),
     Window(
         MSG_GET_END_DATE,
@@ -91,7 +92,7 @@ campaign_info_dialog = Dialog(
             on_success=CampaignInfoHandler.save_end_date,
         ),
         state=CampaignInfoDialog.get_end_date,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=2).get_steps,
     ),
     Window(
         MSG_GET_VIEW_LIMIT,
@@ -99,10 +100,10 @@ campaign_info_dialog = Dialog(
             id="get_view_limit",
             on_error=UIntNumValidator.error,
             type_factory=UIntNumValidator.validate,
-            on_success=CampaignInfoHandler.save_view_limit,
+            on_success=CampaignInfoHandler.save_impressions_limit,
         ),
         state=CampaignInfoDialog.get_view_limit,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=3).get_steps,
     ),
     Window(
         MSG_GET_CLICKS_LIMIT,
@@ -110,10 +111,10 @@ campaign_info_dialog = Dialog(
             id="get_clicks_limit",
             on_error=UIntNumValidator.error,
             type_factory=UIntNumValidator.validate,
-            on_success=CampaignInfoHandler.save_click_limit,
+            on_success=CampaignInfoHandler.save_clicks_limit,
         ),
         state=CampaignInfoDialog.get_clicks_limit,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=4).get_steps,
     ),
     Window(
         MSG_GET_COST_PER_VIEW,
@@ -121,10 +122,10 @@ campaign_info_dialog = Dialog(
             id="get_cost_per_view",
             on_error=FloatNumValidator.error,
             type_factory=FloatNumValidator.validate,
-            on_success=CampaignInfoHandler.save_cost_per_view,
+            on_success=CampaignInfoHandler.save_cost_per_impression,
         ),
         state=CampaignInfoDialog.get_cost_per_view,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=5).get_steps,
     ),
     Window(
         MSG_GET_COST_PER_CLICK,
@@ -135,7 +136,7 @@ campaign_info_dialog = Dialog(
             on_success=CampaignInfoHandler.save_cost_per_click,
         ),
         state=CampaignInfoDialog.get_cost_per_click,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=6).get_steps,
     ),
     Window(
         MSG_GET_TARGETING_AGE_FROM,
@@ -147,7 +148,7 @@ campaign_info_dialog = Dialog(
         ),
         Next(Const("⏩ Пропустить")),
         state=CampaignInfoDialog.get_targeting_age_from,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=7).get_steps,
     ),
     Window(
         MSG_GET_TARGETING_AGE_TO,
@@ -159,7 +160,7 @@ campaign_info_dialog = Dialog(
         ),
         Next(Const("⏩ Пропустить")),
         state=CampaignInfoDialog.get_targeting_age_to,
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=8).get_steps,
     ),
     Window(
         MSG_GET_TARGETING_GENDER,
@@ -170,7 +171,7 @@ campaign_info_dialog = Dialog(
             on_click=CampaignInfoHandler.save_targeting_gender,
         ),
         Next(Const("⏩ Пропустить")),
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=9).get_steps,
         state=CampaignInfoDialog.get_targeting_gender,
     ),
     Window(
@@ -180,7 +181,7 @@ campaign_info_dialog = Dialog(
             on_success=CampaignInfoHandler.save_targeting_location,
         ),
         Next(Const("⏩ Пропустить")),
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=10).get_steps,
         state=CampaignInfoDialog.get_targeting_location,
     ),
     Window(
@@ -189,7 +190,7 @@ campaign_info_dialog = Dialog(
             id="get_ad_title",
             on_success=CampaignInfoHandler.save_ad_title,
         ),
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=11).get_steps,
         state=CampaignInfoDialog.get_ad_title,
     ),
     Window(
@@ -198,7 +199,7 @@ campaign_info_dialog = Dialog(
             id="get_ad_text",
             on_success=CampaignInfoHandler.save_ad_text,
         ),
-        getter=CalkStepsHandler(StepsAddInfo).get_steps,
+        getter=CalkStepsHandler(StepsAddInfo, step=12).get_steps,
         state=CampaignInfoDialog.get_ad_text,
     ),
     Window(
@@ -212,15 +213,27 @@ campaign_info_dialog = Dialog(
             id="return_to_name",
             state=CampaignInfoDialog.get_start_date,
         ),
+        Cancel(
+            Const("🏠 На главную"),
+        ),
         getter=CampaignInfoHandler.get_view_form_campaign,
         state=CampaignInfoDialog.view_form,
     ),
     Window(
         MSG_GENERATE_TEXT,
+        Row(
+            Multiselect(
+                Format("✓ {item[0]}"),
+                Format("{item[0]}"),
+                id="getting_generate_text",
+                item_id_getter=operator.itemgetter(1),
+                items=[("Заголовок", "TITLE"), ("Текст", "TEXT")],
+            ),
+        ),
+        Next(Const("🤖 Сгенерировать"), on_click=CampaignInfoHandler.generate_text),
         Cancel(
             Const("⏩ Пропустить"),
         ),
-        Next(Const("🤖 Сгенерировать"), on_click=CampaignInfoHandler.generate_text),
         state=CampaignInfoDialog.generate_text,
     ),
     Window(

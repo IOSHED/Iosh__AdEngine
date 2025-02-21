@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, condecimal, conint
+from pydantic import BaseModel, Field, confloat, conint
 
 
 class TargetingCampaignSchema(BaseModel):
@@ -25,8 +25,8 @@ class _BaseCampaignSchema(BaseModel):
     clicks_limit: conint(ge=0) = Field(
         ..., description="Maximum number of clicks allowed for this campaign"
     )
-    cost_per_clicks: condecimal(ge=0) = Field(..., description="Cost per click (CPC)")
-    cost_per_impressions: condecimal(ge=0) = Field(
+    cost_per_click: confloat(ge=0) = Field(..., description="Cost per click (CPC)")
+    cost_per_impression: confloat(ge=0) = Field(
         ..., description="Cost per thousand impressions (CPM)"
     )
     end_date: conint(ge=0) = Field(
@@ -66,7 +66,7 @@ class CampaignsGenerateTextRequest(BaseModel):
 
 
 class CampaignSchema(_BaseCampaignSchema):
-    advertiser_id: UUID = Field(
+    advertiser_id: str = Field(
         ..., description="Unique identifier of the advertiser who created this ad"
     )
-    campaign_id: UUID = Field(..., description="Unique identifier for the campaign")
+    campaign_id: str = Field(..., description="Unique identifier for the campaign")

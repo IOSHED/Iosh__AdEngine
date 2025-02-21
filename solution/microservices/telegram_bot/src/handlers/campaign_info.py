@@ -8,23 +8,52 @@ from src.services.ad_engine.bundle_utils import generate_uuid_from_id
 from src.services.ad_engine.campaign import CampaignService
 from src.services.ad_engine.schemas.campaign import (
     CampaignsCreateRequest,
+    CampaignsGenerateTextRequest,
 )
 
 
 class CampaignInfoHandler:
     @classmethod
     async def generate_text(
-        **kwargs,
+        cls,
+        message: Message,
+        _source: Any,
+        manager: DialogManager,
+        *_arg,
+        **_kwarg,
     ) -> None:
-        logging.debug(f"Generate text: {kwargs}")
-        # TODO: release
+        selected_type = "".join(manager.find("getting_generate_text").get_checked())
+        if selected_type in ["TEXTTITLE", "TITLETEXT"]:
+            selected_type = "ALL"
+        if selected_type == "":
+            return
+
+        advertiser_id = manager.dialog_data["advertiser_id"]
+
+        campaign = await CampaignService.text_generation(
+            CampaignsGenerateTextRequest(
+                ad_text=None,
+                ad_title=None,
+                generate_type=selected_type,
+            ),
+            advertiser_id,
+            manager.dialog_data["campaign_id"],
+        )
+        manager.dialog_data["ad_text"] = campaign.ad_text
+        manager.dialog_data["ad_title"] = campaign.ad_title
 
     @classmethod
     async def get_generated_text(
-        **kwargs,
-    ) -> None:
-        logging.debug(f"Generated text: {kwargs}")
-        # TODO: release
+        cls,
+        dialog_manager: DialogManager,
+        **_kwargs,
+    ) -> Dict[str, Any]:
+        logging.debug(dialog_manager.dialog_data["ad_text"])
+        logging.debug(dialog_manager.dialog_data["ad_title"])
+        return {
+            "ad_text": dialog_manager.dialog_data["ad_text"],
+            "ad_title": dialog_manager.dialog_data["ad_title"],
+        }
 
     @classmethod
     async def create_campaign(
@@ -39,10 +68,12 @@ class CampaignInfoHandler:
 
             campaign = CampaignsCreateRequest(**data)
             advertiser_id = generate_uuid_from_id(callback.from_user.id)
+            manager.dialog_data["advertiser_id"] = str(advertiser_id)
 
             logging.debug(f"Create advertiser: {campaign}")
 
-            await CampaignService.create_campaign(campaign, advertiser_id)
+            campaign = await CampaignService.create_campaign(campaign, advertiser_id)
+            manager.dialog_data["campaign_id"] = campaign.campaign_id
 
         except Exception as e:
             callback.message.answer(
@@ -62,8 +93,8 @@ class CampaignInfoHandler:
             "end_date": dialog_manager.dialog_data["end_date"],
             "impressions_limit": dialog_manager.dialog_data["impressions_limit"],
             "clicks_limit": dialog_manager.dialog_data["clicks_limit"],
-            "cost_per_impressions": dialog_manager.dialog_data["cost_per_impressions"],
-            "cost_per_clicks": dialog_manager.dialog_data["cost_per_clicks"],
+            "cost_per_impression": dialog_manager.dialog_data["cost_per_impression"],
+            "cost_per_click": dialog_manager.dialog_data["cost_per_click"],
             "ad_title": dialog_manager.dialog_data["ad_title"],
             "ad_text": dialog_manager.dialog_data["ad_text"],
         }
@@ -82,18 +113,10 @@ class CampaignInfoHandler:
     @classmethod
     async def get_targeting_data(cls, dialog_manager: DialogManager) -> Dict[str, Any]:
         return {
-            "targeting_age_from": dialog_manager.dialog_data.get(
-                "targeting_age_from", None
-            ),
-            "targeting_age_to": dialog_manager.dialog_data.get(
-                "targeting_age_to", None
-            ),
-            "targeting_gender": dialog_manager.dialog_data.get(
-                "targeting_gender", None
-            ),
-            "targeting_location": dialog_manager.dialog_data.get(
-                "targeting_location", None
-            ),
+            "age_from": dialog_manager.dialog_data.get("age_from", None),
+            "age_to": dialog_manager.dialog_data.get("age_to", None),
+            "gender": dialog_manager.dialog_data.get("gender", None),
+            "location": dialog_manager.dialog_data.get("location", None),
         }
 
     @classmethod
@@ -184,7 +207,7 @@ class CampaignInfoHandler:
         await manager.next()
 
     @classmethod
-    async def save_cost_per_impressions(
+    async def save_cost_per_impression(
         cls,
         message: Message,
         _source: Any,
@@ -192,11 +215,11 @@ class CampaignInfoHandler:
         *_arg,
         **_kwarg,
     ) -> None:
-        manager.dialog_data["cost_per_impressions"] = float(message.text)
+        manager.dialog_data["cost_per_impression"] = float(message.text)
         await manager.next()
 
     @classmethod
-    async def save_cost_per_clicks(
+    async def save_cost_per_click(
         cls,
         message: Message,
         _source: Any,
@@ -204,7 +227,7 @@ class CampaignInfoHandler:
         *_arg,
         **_kwarg,
     ) -> None:
-        manager.dialog_data["cost_per_clicks"] = float(message.text)
+        manager.dialog_data["cost_per_click"] = float(message.text)
         await manager.next()
 
     @classmethod
@@ -225,7 +248,7 @@ class CampaignInfoHandler:
         manager.dialog_data["is_targeting"] = True
         manager.dialog_data["is_targeting_age"] = True
         manager.dialog_data["is_targeting_age_from"] = True
-        manager.dialog_data["targeting_age_from"] = int(message.text)
+        manager.dialog_data["age_from"] = int(message.text)
         await manager.next()
 
     @classmethod
@@ -237,16 +260,23 @@ class CampaignInfoHandler:
         *_arg,
         **_kwarg,
     ) -> None:
-        if int(message.text) > 160:
+        age_to = int(message.text)
+        if age_to > 160:
             await message.answer(
                 "❌ Возраст должен быть меньше 160! Попробуйте ввести ещё раз 😁)"
+            )
+            return
+
+        if age_to < manager.dialog_data["age_from"]:
+            await message.answer(
+                "❌ Возраст 'до' должен быть больше, чем возраст 'от'! Попробуйте ввести ещё раз 😁)"
             )
             return
 
         manager.dialog_data["is_targeting"] = True
         manager.dialog_data["is_targeting_age"] = True
         manager.dialog_data["is_targeting_age_to"] = True
-        manager.dialog_data["targeting_age_to"] = int(message.text)
+        manager.dialog_data["age_to"] = age_to
         await manager.next()
 
     @classmethod

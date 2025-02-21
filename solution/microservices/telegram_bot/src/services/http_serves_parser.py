@@ -47,6 +47,16 @@ class HttpServesParser:
                         return None
                     return response
 
+                elif method == "PUT":
+                    response = await client_session.put(
+                        url, json=json_body, headers=cls._headers
+                    )
+
+                elif method == "PATCH":
+                    response = await client_session.patch(
+                        url, json=json_body, headers=cls._headers
+                    )
+
                 else:
                     raise ValueError(f"Unsupported HTTP method: {method}")
 

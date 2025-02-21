@@ -18,7 +18,7 @@ class CampaignService(HttpServesParser):
         url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns"
         try:
             response = await cls._make_request(
-                method="POST", url=url, json_body=campaign
+                method="POST", url=url, json_body=campaign.model_dump()
             )
 
             if response is None:
@@ -115,10 +115,10 @@ class CampaignService(HttpServesParser):
         advertiser_id: uuid.UUID,
         campaign_id: uuid.UUID,
     ) -> Optional[CampaignSchema]:
-        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/generate_test"
+        url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns/{campaign_id}/generate_text"
         try:
             response = await cls._make_request(
-                method="PATCH", url=url, json_body=text_generation
+                method="PATCH", url=url, json_body=text_generation.model_dump()
             )
 
             if response is None:
