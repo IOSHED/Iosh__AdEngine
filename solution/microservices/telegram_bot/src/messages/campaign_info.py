@@ -76,7 +76,9 @@ MSG_GET_AD_TEXT = Multi(
 )
 
 MSG_VIEW_FORM = Multi(
-    Const("Готова твоя 📋<b>Рекламная кампания</b>📋:\n"),
+    Const("Твоя 📋<b>Рекламная кампания</b>📋:\n"),
+    Format("Заголовок: <blockquote expandable>{ad_title}</blockquote>\n"),
+    Format("Текст: <blockquote expandable>{ad_text}</blockquote>\n"),
     Format("\t1️⃣ Дата действия с <b>{start_date}</b> до <b>{end_date}</b>\n"),
     Format("\t2️⃣ Лимит просмотров: <b>{impressions_limit}</b>"),
     Format("\t3️⃣ Лимит кликов: <b>{clicks_limit}</b>\n"),
@@ -94,6 +96,16 @@ MSG_VIEW_FORM = Multi(
         Format("\t🟢 В локации - {location}", when=F["is_targeting_location"]),
         when=F["is_targeting"],
     ),
+)
+
+MSG_STATS_CAMPAIGN = Multi(
+    Const("Статистика по твой рекламной кампании:\n"),
+    Format("🟠Просмотры: <b>{impressions_count}</b>"),
+    Format("🟠Клики: <b>{clicks_count}</b>"),
+    Format("🔶Конверсия: <b>{conversion}</b>\n"),
+    Format("🟠Затрачено на просмотры: <b>{spent_impressions}</b>"),
+    Format("🟠Затрачено на клики: <b>{spent_clicks}</b>"),
+    Format("🔶Затрачено всего: <b>{spent_total}</b>\n"),
 )
 
 MSG_GENERATE_TEXT = Multi(Const("Сгенерировать ли заголовок, ли текст для рекламы?"))

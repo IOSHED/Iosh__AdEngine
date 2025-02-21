@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.kbd import Button, Start, SwitchTo
 from aiogram_dialog.widgets.text import Const
 
 from src.dialogs.moderate_words import ModerateDialog
-from src.handlers.advertiser import AdvertiserHandler
+from src.handlers.advertiser_check import AdvertiserCheckHandler
 from src.messages.main import MSG_MAIN
 
 
@@ -27,7 +27,7 @@ main_dialog = Dialog(
         Button(
             Const("⚒️ Рекламодателям"),
             id="go_to_advertiser",
-            on_click=AdvertiserHandler.check_exists,
+            on_click=AdvertiserCheckHandler.check_exists,
         ),
         Start(Const("⛔ Администрации"), id="go_to_admin", state=ModerateDialog.home),
         state=MainDialog.main,

@@ -56,7 +56,7 @@ class StatsService(HttpServesParser):
     async def get_stat_advertiser(
         cls, advertiser_id: uuid.UUID
     ) -> Optional[StatResponse]:
-        url = f"{cls._host_url}/stats/advertisers/{advertiser_id}"
+        url = f"{cls._host_url}/stats/advertisers/{advertiser_id}/campaigns"
         try:
             response = await cls._make_request(method="GET", url=url)
             if response is None:

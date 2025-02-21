@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlencode
 
 import httpx
 import requests
@@ -26,7 +27,7 @@ class HttpServesParser:
         """
         async with httpx.AsyncClient() as client_session:
             if params:
-                url = f"{url}?{httpx.URL(url).encode_query(params)}"
+                url += "?" + urlencode(params)
 
             try:
                 if method == "POST":

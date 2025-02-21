@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from src.services.ad_engine.schemas.campaign import (
     CampaignSchema,
@@ -33,7 +33,7 @@ class CampaignService(HttpServesParser):
     @classmethod
     async def get_campaigns(
         cls, advertiser_id: uuid.UUID, size: int, page: int
-    ) -> Optional[List[CampaignSchema]]:
+    ) -> Optional[Tuple[List[CampaignSchema], int]]:
         url = f"{cls._host_url}/advertisers/{advertiser_id}/campaigns"
         try:
             response = await cls._make_request(
@@ -45,7 +45,9 @@ class CampaignService(HttpServesParser):
 
             campaign_data = response.json()
 
-            return [CampaignSchema(**data) for data in campaign_data]
+            count = int(response.headers.get("x-total-count"))
+
+            return [CampaignSchema(**data) for data in campaign_data], count
 
         except Exception as e:
             cls._log_error(e)
