@@ -14,10 +14,10 @@ upload_content:
   max_image_on_campaign: 5
 
 ads_recommendation:
-  weight_profit: 0.40
-  weight_relevance: 0.27
-  weight_fulfillment: 0.10
-  weight_time_left: 0.27
+  weight_profit: 0.45
+  weight_relevance: 0.30
+  weight_fulfillment: 0.125
+  weight_time_left: 0.125
 
 auto_moderating:
   sensitivity: 0.16

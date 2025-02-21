@@ -140,7 +140,7 @@ impl AdsService {
             )
             .await
             .into_iter()
-            .filter(|c| (c.view_clients_id.len() as u32) < c.impressions_limit || c.view_clients_id.contains(&client.client_id))
+            .filter(|c| c.view_clients_id.len() < (c.impressions_limit as f64 * 1.05).floor() as usize || c.view_clients_id.contains(&client.client_id))
             .collect::<Vec<_>>();
 
         if filtered_campaigns.is_empty() {
