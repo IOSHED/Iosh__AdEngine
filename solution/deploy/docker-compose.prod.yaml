@@ -35,7 +35,7 @@ services:
       - APP__YANDEX__API_KEY=y0__xClkZbNBhjB3RMg47eyqBJ5uyGj-8DJGsNz3LGePPhZVOGWTQ
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/ping"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/ping"]
 
   postgres_database:
     extends:
