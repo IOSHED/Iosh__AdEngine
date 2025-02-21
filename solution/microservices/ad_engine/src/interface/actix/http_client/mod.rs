@@ -96,7 +96,7 @@ impl HttpServer {
             .service(super::routers::ml_score_handler)
             .service(super::routers::stat_scope("/stats"))
             .service(super::routers::ads_scope("/ads"))
-            .service(super::routers::client_scope("/client"))
+            .service(super::routers::client_scope("/clients"))
             .service(super::routers::advertisers_scope("/advertisers"))
             .service(super::routers::moderate_scope("/moderate"))
     }

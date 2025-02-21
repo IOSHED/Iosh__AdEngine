@@ -8,7 +8,7 @@ pub fn client_scope(path: &str) -> actix_web::Scope {
 
 #[utoipa::path(
     post,
-    path = "/client/bulk",
+    path = "/clients/bulk",
     tag = "Client",
     request_body = Vec<domain::schemas::ClientProfileSchema>,
     responses(
@@ -35,7 +35,7 @@ pub async fn client_bulk_handler(
 
 #[utoipa::path(
     get,
-    path = "/client/{client_id}",
+    path = "/clients/{client_id}",
     tag = "Client", responses(
         (status = 200, description = "Get client by id", body = domain::schemas::ClientProfileSchema),
         (status = 400, description = "Bad request", body = interface::actix::exception::ExceptionResponse),
