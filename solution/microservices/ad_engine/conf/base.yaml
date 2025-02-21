@@ -5,7 +5,7 @@ http_server:
   start_workers: 8
   timeout_shutdown_workers: 30  # sec
   keep_alive: 300  # sec
-  limit_size_json: 33554432 # 33 554 432 = 32mb
+  limit_size_json: 262144000 # 262 144 000 = 250mb
   limit_size_media: 262144000 # 262 144 000 = 250mb
 
 upload_content:
