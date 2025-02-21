@@ -259,7 +259,9 @@ impl AdsService {
         }
 
         match (unique_campaign, non_unique_campaign) {
-            (None, None) => Err(domain::services::ServiceError::Unknown),
+            (None, None) => Err(domain::services::ServiceError::Repository(
+                infrastructure::repository::RepoError::ObjDoesNotExists("Suitable campaigns".into()),
+            )),
             (None, Some(non_unique_campaign)) => Ok(non_unique_campaign.1),
             (Some(unique_campaign), None) => Ok(unique_campaign.1),
             (Some(unique_campaign), Some(non_unique_campaign)) => {
