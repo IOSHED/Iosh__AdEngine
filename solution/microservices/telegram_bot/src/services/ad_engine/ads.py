@@ -8,7 +8,7 @@ from src.services.http_serves_parser import HttpServesParser
 class AdsService(HttpServesParser):
     @classmethod
     async def get_ads(cls, client_id: uuid.UUID) -> Optional[AdsSchema]:
-        url = f"{cls._base_url}/ads"
+        url = f"{cls._host_url}/ads"
         try:
             response = await cls._make_request(
                 method="GET", url=url, params={"client_id": client_id}

@@ -1,20 +1,22 @@
+from aiogram.enums.parse_mode import ParseMode
 from aiogram.filters.state import State, StatesGroup
 from aiogram_dialog import (
     Dialog,
     Window,
 )
-from aiogram_dialog.widgets.kbd import Button, Start, SwitchTo
+from aiogram_dialog.widgets.kbd import Button, Row, Start, SwitchTo
 from aiogram_dialog.widgets.text import Const
 
 from src.dialogs.moderate_words import ModerateDialog
+from src.handlers.ads import AdsHandler
 from src.handlers.advertiser_check import AdvertiserCheckHandler
+from src.messages.ads import MSG_ADS
 from src.messages.main import MSG_MAIN
 
 
 class MainDialog(StatesGroup):
     main = State()
     view_ads = State()
-    advertiser = State()
 
 
 main_dialog = Dialog(
@@ -31,5 +33,16 @@ main_dialog = Dialog(
         ),
         Start(Const("⛔ Администрации"), id="go_to_admin", state=ModerateDialog.home),
         state=MainDialog.main,
+    ),
+    Window(
+        MSG_ADS,
+        Button(Const("👍Понравилась"), id="click_ads", on_click=...),
+        Row(
+            SwitchTo(Const(">"), id="go_to_view_ads", state=MainDialog.view_ads),
+            SwitchTo(Const("🔙 Назад"), id="go_to_main", state=MainDialog.main),
+        ),
+        state=MainDialog.view_ads,
+        getter=AdsHandler.get_ads,
+        parse_mode=ParseMode.MARKDOWN,
     ),
 )
