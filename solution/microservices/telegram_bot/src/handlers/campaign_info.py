@@ -267,7 +267,10 @@ class CampaignInfoHandler:
             )
             return
 
-        if age_to < manager.dialog_data["age_from"]:
+        if (
+            manager.dialog_data.get("age_from", None) is not None
+            and age_to < manager.dialog_data["age_from"]
+        ):
             await message.answer(
                 "❌ Возраст 'до' должен быть больше, чем возраст 'от'! Попробуйте ввести ещё раз 😁)"
             )

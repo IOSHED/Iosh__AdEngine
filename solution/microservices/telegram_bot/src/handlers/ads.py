@@ -41,7 +41,7 @@ class AdsHandler:
             return {
                 "ad_text": "❌ Нет подходящей для вас рекламы.",
                 "ad_title": "Попробуйте позже..",
-                "advertiser_id": "Или разместите рекламу сами!😊",
+                "ad_id": "Или разместите рекламу сами!😊",
             }
 
         cls.click_data[client_id] = ads.ad_id
@@ -50,4 +50,5 @@ class AdsHandler:
             "ad_text": ads.ad_text.replace("*", ""),
             "ad_title": ads.ad_title.replace("*", ""),
             "advertiser_id": ads.advertiser_id,
+            "ad_id": ads.ad_id,
         }
