@@ -13,19 +13,20 @@ services:
       - APP__BOT__TOKEN=7574946727:AAF83sGHMt-HUSKDLK0EE2BpclaGlmXbpm0
       - APP__REDIS__DB=0
       - APP__REDIS__ADDRESS=redis_database:6379
+      - APP__AD_ENGINE__BASE_URL=http://rust_ad_engine:8080/api
       
   rust_ad_engine:
     extends:
       file: docker-compose.base.yaml
       service: rust_ad_engine
     ports:
-      - "8000:8000"
+      - "8080:8080"
     volumes:
       - ../microservices/ad_engine/log:/app/log
     environment:
       - APP_ENVIRONMENT=prod
       - APP__HTTP_SERVER__HOST=127.0.0.1
-      - APP__HTTP_SERVER__PORT=8000
+      - APP__HTTP_SERVER__PORT=8080
       - APP__DATABASE__POSTGRES__POSTGRES_CONN=postgres://postgres:44541@postgres_database:5432/ad_engine
       - APP__DATABASE__REDIS__HOST=redis_database
       - APP__DATABASE__REDIS__PORT=6379
