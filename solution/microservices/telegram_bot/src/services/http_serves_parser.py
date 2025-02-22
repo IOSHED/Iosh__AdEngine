@@ -81,7 +81,4 @@ class HttpServesParser:
 
     @classmethod
     def _log_error(cls, error: Exception):
-        """
-        Centralized logging for errors.
-        """
         logging.warning(f"Error: {str(error)}")

@@ -12,12 +12,6 @@ from src.services.location_service import LocationService
 
 
 class UserInfoHandler:
-    """Handler class for managing user information in a dialog-based system.
-
-    This class provides methods to handle user data collection and management through
-    a dialog interface, including interests, profile information, location, and bio.
-    """
-
     @classmethod
     async def create_user(
         cls,

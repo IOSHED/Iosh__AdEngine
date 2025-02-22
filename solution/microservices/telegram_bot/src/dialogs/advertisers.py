@@ -3,9 +3,9 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, Cancel, Next, Row, Start, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
+from src.buttons.moderate_words import BTN_MANAGE_WINDOW
 from src.dialogs.campaign_info import CampaignInfoDialog
 from src.handlers.advertiser import AdvertiserHandler
-from src.keyboards.moderate_words import BTN_MANAGE_WINDOW
 from src.messages.advertiser import MSG_ADVERTISER, MSG_STATS_ADVERTISER
 from src.messages.campaign_info import MSG_STATS_CAMPAIGN, MSG_VIEW_FORM
 
@@ -41,7 +41,6 @@ advertiser_dialog = Dialog(
     ),
     Window(
         MSG_VIEW_FORM,
-        # Button(Const("🖋️ Редактировать"), id="edit_campaign"),
         Button(
             Const("🗑️ Удалить"),
             id="delete_campaign",

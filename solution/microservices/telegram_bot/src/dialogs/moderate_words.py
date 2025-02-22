@@ -7,9 +7,9 @@ from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Back, Button, Cancel, SwitchTo, Toggle
 from aiogram_dialog.widgets.text import Const, Format
 
+from src.buttons.moderate_words import BTN_COUNTER_TIME_ADVANCE, BTN_MANAGE_WINDOW
 from src.handlers.moderate_words import ModerateWordsHandler
 from src.handlers.time import TimeHandler
-from src.keyboards.moderate_words import BTN_COUNTER_TIME_ADVANCE, BTN_MANAGE_WINDOW
 from src.messages.moderate import MSG_ADMIN_PANEL
 from src.validators.list_words import ListWordsValidator
 

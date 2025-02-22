@@ -8,14 +8,14 @@ from aiogram_dialog.widgets.kbd import Next, Start, SwitchTo
 from aiogram_dialog.widgets.markup.reply_keyboard import ReplyKeyboardFactory
 from aiogram_dialog.widgets.text import Const
 
-from src.dialogs.main import MainDialog
-from src.handlers.calc_steps import CalkStepsHandler
-from src.handlers.user_info import UserInfoHandler
-from src.keyboards.user_info import (
+from src.buttons.user_info import (
     BTN_GET_AGE,
     BTN_GET_USER_GENDER,
     BTN_GETTING_LOCATION,
 )
+from src.dialogs.main import MainDialog
+from src.handlers.calc_steps import CalkStepsHandler
+from src.handlers.user_info import UserInfoHandler
 from src.messages.base import PLACEHOLDER_FOR_MURK_UP
 from src.messages.user_info import (
     MSG_FIRST,

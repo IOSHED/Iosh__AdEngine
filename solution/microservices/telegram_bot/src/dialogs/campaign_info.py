@@ -7,9 +7,9 @@ from aiogram_dialog.widgets.input import TextInput
 from aiogram_dialog.widgets.kbd import Cancel, Multiselect, Next, Row, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
+from src.buttons.user_info import BTN_GET_USER_GENDER
 from src.handlers.calc_steps import CalkStepsHandler
 from src.handlers.campaign_info import CampaignInfoHandler
-from src.keyboards.user_info import BTN_GET_USER_GENDER
 from src.messages.campaign_info import (
     MSG_FIRST,
     MSG_GENERATE_TEXT,

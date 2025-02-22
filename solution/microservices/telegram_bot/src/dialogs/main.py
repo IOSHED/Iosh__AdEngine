@@ -22,7 +22,6 @@ class MainDialog(StatesGroup):
 main_dialog = Dialog(
     Window(
         MSG_MAIN,
-        # SwitchTo(Const("👤 Мой профиль"), id="go_to_user_info", state=MainDialog.main),
         SwitchTo(
             Const("📽️ Смотреть рекламу"), id="go_to_view_ads", state=MainDialog.view_ads
         ),
