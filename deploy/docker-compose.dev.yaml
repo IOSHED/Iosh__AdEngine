@@ -10,7 +10,7 @@ services:
       - ../microservices/telegram_bot/log:/app/log
     environment:
       - APP_ENVIRONMENT=local
-      - APP__BOT__TOKEN=7574946727:AAF83sGHMt-HUSKDLK0EE2BpclaGlmXbpm0
+      - APP__BOT__TOKEN=${APP__BOT__TOKEN}
       - APP__REDIS__DB=0
       - APP__REDIS__ADDRESS=redis_database:6379
   
@@ -30,8 +30,8 @@ services:
       - APP__DATABASE__REDIS__HOST=redis_database
       - APP__DATABASE__REDIS__PORT=6379
       - APP__DATABASE__REDIS__DB=1
-      - APP__YANDEX__FOLDER_ID=b1gqutvur1f67gj9tbel
-      - APP__YANDEX__API_KEY=y0__xClkZbNBhjB3RMg47eyqBJ5uyGj-8DJGsNz3LGePPhZVOGWTQ
+      - APP__YANDEX__FOLDER_ID=${APP__YANDEX__FOLDER_ID}
+      - APP__YANDEX__API_KEY=${APP__YANDEX__API_KEY}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/ping"]

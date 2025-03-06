@@ -73,13 +73,11 @@ class Config(BaseSettings):
     Combines all config models and handles environment variable loading.
 
     Attributes:
-        app_environment (AppEnviron): Current application environment
         redis (RedisConfig): Redis connection settings
         logger (LoggerConfig): Logging configuration
         bot (BotConfig): Bot-specific settings
     """
 
-    app_environment: AppEnviron
     ad_engine: AdEngineConfig
     redis: RedisConfig
     logger: LoggerConfig
