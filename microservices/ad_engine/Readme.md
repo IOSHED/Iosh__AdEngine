@@ -1,6 +1,6 @@
 # Configuration
 
-The project is configured from the [/conf](/conf) and `env`.
+The project is configured from the [/conf](./conf) and `env`.
 
 It is recommended to explicitly use the environment variable `APP_ENVIRONMENT` (values: `prod`, `local`), otherwise the default value (`prod`) will be substituted. For example:
 
@@ -10,9 +10,9 @@ APP_ENVIRONMENT=local
 
 The configuration consists of three consecutive steps:
 
-1. **Load** configuration from [base.yaml](/conf/base.yaml).
-2. **Load or rewrite** configuration from [local.yaml](/conf/local.yaml) or [prod.yaml](/conf/prod.yaml) file according to the variable `APP_ENVIRONMENT`.
-3. **Load or rewrite** configuration from `ENV` variable or [.env](/.env) file. In this case, the nesting is determined by the separator `__`. You should definitely add a prefix `APP__` to the variable. For example:
+1. **Load** configuration from [base.yaml](./conf/base.yaml).
+2. **Load or rewrite** configuration from [local.yaml](./conf/local.yaml) or [prod.yaml](./conf/prod.yaml) file according to the variable `APP_ENVIRONMENT`.
+3. **Load or rewrite** configuration from `ENV` variable or [.env](./.env) file. In this case, the nesting is determined by the separator `__`. You should definitely add a prefix `APP__` to the variable. For example:
 
 ```dotenv
 APP_ENVIRONMENT=local
@@ -82,7 +82,7 @@ graph TD;
 
 # Documentation
 
-You can get the **_swagger_** documentation for the written API by going to [/docs/](http://127.0.0.1:8000/docs/). If this not work would look in `conf` [files](/conf/base.yaml) (There is has settings `path_swagger_docs`).
+You can get the **_swagger_** documentation for the written API by going to [/docs/](http://127.0.0.1:8000/docs/). If this not work would look in `conf` [files](./conf/base.yaml) (There has settings `path_swagger_docs`).
 
 If you are backend developer:
 
