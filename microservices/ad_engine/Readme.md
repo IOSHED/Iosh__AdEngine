@@ -5,7 +5,7 @@ The project is configured from the [/conf](/conf) and `env`.
 It is recommended to explicitly use the environment variable `APP_ENVIRONMENT` (values: `prod`, `local`), otherwise the default value (`prod`) will be substituted. For example:
 
 ```dotenv
-APP_ENVIRONMENT="local"
+APP_ENVIRONMENT=local
 ```
 
 The configuration consists of three consecutive steps:
@@ -15,7 +15,7 @@ The configuration consists of three consecutive steps:
 3. **Load or rewrite** configuration from `ENV` variable or [.env](/.env) file. In this case, the nesting is determined by the separator `__`. You should definitely add a prefix `APP__` to the variable. For example:
 
 ```dotenv
-APP_ENVIRONMENT="local"
+APP_ENVIRONMENT=local
 
 # http_server.port
 APP__HTTP_SERVER__PORT=8000

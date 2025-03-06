@@ -16,6 +16,11 @@ description = """
 path = "src/lib.rs"
 
 
+[profile.coverage]
+inherits = "release"
+debug = true
+
+
 [dependencies]
 # Async
 tokio = { version = "1", features = ["full"] }
