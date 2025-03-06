@@ -90,7 +90,7 @@ impl HttpServer {
 
     /// Creates the main API scope with routes
     fn get_api_scope(&self) -> actix_web::Scope {
-        actix_web::web::scope("")
+        actix_web::web::scope("/api")
             .service(super::routers::healthcheck_handler)
             .service(super::routers::time_advance_handler)
             .service(super::routers::ml_score_handler)

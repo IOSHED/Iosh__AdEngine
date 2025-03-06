@@ -41,7 +41,7 @@ pub async fn parse(path_to_conf_file: std::path::PathBuf) -> Config {
         panic!("Failed load APP_ENVIRONMENT. APP_ENVIRONMENT must be `local` or `prod`.");
     }
 
-    let parsing_shemas: schemas::Config = config::Config::builder()
+    let parsing_schemas: schemas::Config = config::Config::builder()
         .add_source(config::File::from(path_to_conf_file.join("base")).required(true))
         .add_source(config::File::from(path_to_conf_file.join(environment)).required(true))
         .add_source(config::Environment::with_prefix("APP").separator("__"))
@@ -50,5 +50,5 @@ pub async fn parse(path_to_conf_file: std::path::PathBuf) -> Config {
         .try_deserialize()
         .expect("Failed parsing config");
 
-    parsing_shemas
+    parsing_schemas
 }
