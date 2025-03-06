@@ -9,7 +9,7 @@ services:
     volumes:
       - ../microservices/telegram_bot/log:/app/log
     environment:
-      - APP_ENVIRONMENT=local
+      - APP_ENVIRONMENT=prod
       - APP__BOT__TOKEN=${APP__BOT__TOKEN}
       - APP__REDIS__DB=0
       - APP__REDIS__ADDRESS=redis_database:6379
