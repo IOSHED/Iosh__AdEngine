@@ -376,20 +376,20 @@ flowchart TD
 - Run tests:
     - Windows:
       ```shell
-      .\project.bat --e2e
+      .\project.bat --tests
       ```
     - Unix/Linux:
       ```shell
-      ./equivalent.sh --e2e
+      ./equivalent.sh --tests
       ```
 - First run tests:
     - Windows:
       ```shell
-      .\project.bat --e2e --init
+      .\project.bat --tests --init
       ```
     - Unix/Linux:
       ```shell
-      ./equivalent.sh --e2e --init
+      ./equivalent.sh --tests --init
       ```
 
 ### Parameter Definitions
